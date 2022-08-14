@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 u8g2-fonts = { path = "../.." }
+embedded-graphics = "0.7"
+embedded-graphics-simulator = "0.3"
