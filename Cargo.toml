@@ -2,6 +2,12 @@
 name = "u8g2-fonts"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/Finomnis/u8g2-fonts"
+description = "A text renderer for embedded-graphics, based on u8g2."
+keywords = ["no-std", "embedded"]
+categories = ["no-std", "embedded"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
