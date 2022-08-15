@@ -71,6 +71,8 @@ fn convert_escaped_cstr_to_u8(escaped: &[u8]) -> Vec<u8> {
 fn parse_raw_font_data(mut raw_data: &[u8], log: &mut File) -> Vec<u8> {
     writeln!(log, "B").unwrap();
 
+    let mut result = vec![];
+
     loop {
         match raw_data.get(0) {
             Some(b'\r') | Some(b'\n') | Some(b' ') | Some(b'\t') => raw_data = &raw_data[1..],
@@ -85,23 +87,18 @@ fn parse_raw_font_data(mut raw_data: &[u8], log: &mut File) -> Vec<u8> {
 
                 let data_sentence = &raw_data[1..pos_closing];
                 raw_data = &raw_data[(pos_closing + 1)..];
-                writeln!(
-                    log,
-                    "Sentence: {}",
-                    String::from_utf8(data_sentence.to_vec()).unwrap()
-                )
-                .unwrap();
 
                 let parsed_data = convert_escaped_cstr_to_u8(data_sentence);
-
-                writeln!(log, "Parsed: {:?}", parsed_data).unwrap();
+                result.extend(parsed_data.into_iter());
             }
             Some(_) => panic!("Unexpected: {}", String::from_utf8_lossy(raw_data)),
             None => break,
         }
     }
 
-    vec![]
+    // Add zero-termination (C strings have a hidden '\0' at the end)
+    result.push(0);
+    result
 }
 
 fn main() {
@@ -122,6 +119,9 @@ fn main() {
             .expect("Unable to read fonts input file!");
         s
     };
+
+    // Write the bindings to the $OUT_DIR/bindings.rs file.
+    let mut fonts_output = File::create(fonts_path_out).expect("Unable to create font data file!");
 
     // Logging file, for debugging
     let mut log = File::create(out_path.join("log.txt")).expect("Unable to open logfile.");
@@ -144,22 +144,22 @@ fn main() {
 
         assert!(name == name2);
 
-        writeln!(log, "{} - {}", name, length).unwrap();
-
         let data = parse_raw_font_data(raw_data, &mut log);
+        assert_eq!(data.len(), length);
 
+        writeln!(fonts_output, "#[allow(non_camel_case_types)]").unwrap();
+        writeln!(fonts_output, "pub struct {name};").unwrap();
+        writeln!(fonts_output, "impl crate::font::Font for {name} {{").unwrap();
+        writeln!(
+            fonts_output,
+            "    const DATA: &'static [u8] = b\"{}\";",
+            data.into_iter()
+                .map(|v| format!("\\x{:02x}", v))
+                .collect::<String>()
+        )
+        .unwrap();
+        writeln!(fonts_output, "}}").unwrap();
+        writeln!(fonts_output).unwrap();
         break;
     }
-
-    // Write the bindings to the $OUT_DIR/bindings.rs file.
-    let mut file = File::create(fonts_path_out).expect("Unable to create font data file!");
-
-    file.write_all(
-        b"#[allow(non_camel_case_types)]
-pub struct u8g2_font_luBIS19_tn;
-impl crate::font::Font for u8g2_font_luBIS19_tn {
-    const DATA: &'static [u8] = &[1, 2, 3];
-}",
-    )
-    .expect("Unable to write to font data file!");
 }
