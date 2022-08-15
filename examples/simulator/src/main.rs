@@ -11,7 +11,7 @@ const FONT: FontRenderer = create_font_renderer::<fonts::u8g2_font_luBIS19_tn>()
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));
-    let mut window = Window::new("Click to move circle", &OutputSettings::default());
+    let mut window = Window::new("Text rendering demo", &OutputSettings::default());
 
     let position = Point::new(200, 200);
     Circle::with_center(position, 200)

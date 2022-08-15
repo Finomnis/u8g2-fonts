@@ -1,5 +1,9 @@
 use crate::Font;
 
+pub const fn create_font_renderer<F: Font>() -> FontRenderer {
+    FontRenderer::new::<F>()
+}
+
 pub struct FontRenderer {
     data: &'static [u8],
 }

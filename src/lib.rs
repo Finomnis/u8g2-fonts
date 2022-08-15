@@ -1,13 +1,11 @@
 mod font;
-pub mod fonts;
 mod renderer;
 
-pub use font::Font;
-pub use renderer::FontRenderer;
+pub mod fonts;
 
-pub const fn create_font_renderer<F: Font>() -> FontRenderer {
-    FontRenderer::new::<F>()
-}
+pub use font::Font;
+pub use renderer::create_font_renderer;
+pub use renderer::FontRenderer;
 
 #[cfg(test)]
 mod tests {
