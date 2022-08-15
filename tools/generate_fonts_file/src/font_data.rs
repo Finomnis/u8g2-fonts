@@ -16,11 +16,14 @@ enum Action {
     Finished,
 }
 
-pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<&'a [u8]> {
+pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<(&'a [u8], usize)> {
     let mut state = State::Padding;
 
-    let mut produce = move |c| {
+    let mut num_produced = 0;
+
+    let mut produce = |c| {
         out.extend_from_slice(format!("\\x{:02x}", c).as_bytes());
+        num_produced += 1;
     };
 
     loop {
@@ -82,5 +85,6 @@ pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<&'
         }
     }
 
-    Ok(data)
+    produce(0);
+    Ok((data, num_produced))
 }

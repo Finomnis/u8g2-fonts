@@ -46,6 +46,34 @@ fn write_output_file(file: &str, data: &[u8]) -> Result<()> {
         .wrap_err("Error while writing file")
 }
 
+fn process_font_entry(
+    font_entry: &FontEntry,
+    out: &mut Vec<u8>,
+    leftover_data: &mut &[u8],
+) -> Result<()> {
+    println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
+    out.extend_from_slice(b"#[allow(non_camel_case_types)]\npub struct ");
+    out.extend_from_slice(font_entry.name);
+    out.extend_from_slice(b";\nimpl crate::font::Font for ");
+    out.extend_from_slice(font_entry.name);
+    out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
+
+    let (d, length) =
+        consume_font_data(leftover_data, out).wrap_err("Unable to consume font data")?;
+    *leftover_data = d;
+
+    miette::ensure!(
+        length == font_entry.expected_length,
+        "Expected to produce {} bytes, but produced {} bytes",
+        font_entry.expected_length,
+        length
+    );
+
+    out.extend_from_slice(b"\";\n}\n\n");
+
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
@@ -61,19 +89,8 @@ fn main() -> Result<()> {
 
         match font_entry {
             None => break,
-            Some(font_entry) => {
-                println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
-                out.extend_from_slice(b"#[allow(non_camel_case_types)]\npub struct ");
-                out.extend_from_slice(font_entry.name);
-                out.extend_from_slice(b";\nimpl crate::font::Font for ");
-                out.extend_from_slice(font_entry.name);
-                out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
-
-                leftover_data = consume_font_data(leftover_data, &mut out)
-                    .wrap_err("Unable to consume font data")?;
-
-                out.extend_from_slice(b"\";\n}\n\n");
-            }
+            Some(font_entry) => process_font_entry(&font_entry, &mut out, &mut leftover_data)
+                .wrap_err("Error while processing font entry")?,
         }
     }
 
