@@ -12,3 +12,6 @@ categories = ["no-std", "embedded"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[build-dependencies]
+regex = "1"
