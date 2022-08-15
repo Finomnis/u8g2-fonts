@@ -1,5 +1,6 @@
 mod font_data;
 mod font_entry;
+mod u8_compression;
 
 use std::{
     fs::File,
@@ -46,12 +47,17 @@ fn write_output_file(file: &str, data: &[u8]) -> Result<()> {
         .wrap_err("Error while writing file")
 }
 
-fn process_font_entry(
+fn process_font_entry<'a>(
     font_entry: &FontEntry,
     out: &mut Vec<u8>,
-    leftover_data: &mut &[u8],
-) -> Result<()> {
-    println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
+    mut leftover_data: &'a [u8],
+) -> Result<&'a [u8]> {
+    println!(
+        "{:>5} kB - {}",
+        font_entry.expected_length / 1024 + 1,
+        String::from_utf8(font_entry.name.to_vec()).unwrap(),
+    );
+
     out.extend_from_slice(b"#[allow(non_camel_case_types)]\npub struct ");
     out.extend_from_slice(font_entry.name);
     out.extend_from_slice(b";\nimpl crate::font::Font for ");
@@ -60,7 +66,7 @@ fn process_font_entry(
 
     let (d, length) =
         consume_font_data(leftover_data, out).wrap_err("Unable to consume font data")?;
-    *leftover_data = d;
+    leftover_data = d;
 
     miette::ensure!(
         length == font_entry.expected_length,
@@ -71,7 +77,7 @@ fn process_font_entry(
 
     out.extend_from_slice(b"\";\n}\n\n");
 
-    Ok(())
+    Ok(leftover_data)
 }
 
 fn main() -> Result<()> {
@@ -89,8 +95,10 @@ fn main() -> Result<()> {
 
         match font_entry {
             None => break,
-            Some(font_entry) => process_font_entry(&font_entry, &mut out, &mut leftover_data)
-                .wrap_err("Error while processing font entry")?,
+            Some(font_entry) => {
+                leftover_data = process_font_entry(&font_entry, &mut out, &mut leftover_data)
+                    .wrap_err("Error while processing font entry")?;
+            }
         }
     }
 
