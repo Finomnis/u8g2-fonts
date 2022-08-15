@@ -5,7 +5,7 @@ use std::{fs::File, io::Read};
 use clap::Parser;
 use miette::{IntoDiagnostic, Result, WrapErr};
 
-use crate::font_entry::FontEntryIter;
+use crate::font_entry::FontEntry;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -39,15 +39,19 @@ fn main() -> Result<()> {
     let input_data = read_input_file(&args.file_in).wrap_err("Reading input data failed")?;
     println!("Size: {}", input_data.len());
 
-    for font_entry in
-        FontEntryIter::new(&input_data).wrap_err("Unable to create Font Entry iterator")?
-    {
-        let font_entry = font_entry.wrap_err("Error while iterating over fonts")?;
-        println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
-    }
+    let mut leftover_data = input_data.as_slice();
+    loop {
+        let (s, font_entry) = FontEntry::try_consume(leftover_data)
+            .wrap_err("Error while searching for next font entry")?;
+        leftover_data = s;
 
-    println!("{:?}", args);
-    println!("Hello, world!");
+        match font_entry {
+            None => break,
+            Some(font_entry) => {
+                println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap())
+            }
+        }
+    }
 
     Ok(())
 }
