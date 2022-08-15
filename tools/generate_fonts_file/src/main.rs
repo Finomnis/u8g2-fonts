@@ -1,7 +1,10 @@
 mod font_data;
 mod font_entry;
 
-use std::{fs::File, io::Read};
+use std::{
+    fs::File,
+    io::{Read, Write},
+};
 
 use clap::Parser;
 use miette::{IntoDiagnostic, Result, WrapErr};
@@ -34,11 +37,21 @@ fn read_input_file(file: &str) -> Result<Vec<u8>> {
     Ok(data)
 }
 
+fn write_output_file(file: &str, data: &[u8]) -> Result<()> {
+    File::create(file)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Unable to open '{}'", &file))?
+        .write_all(data)
+        .into_diagnostic()
+        .wrap_err("Error while writing file")
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
     let input_data = read_input_file(&args.file_in).wrap_err("Reading input data failed")?;
-    println!("Size: {}", input_data.len());
+
+    let mut out = Vec::new();
 
     let mut leftover_data = input_data.as_slice();
     loop {
@@ -50,11 +63,19 @@ fn main() -> Result<()> {
             None => break,
             Some(font_entry) => {
                 println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
-                leftover_data = consume_font_data(leftover_data, &mut Vec::new())
+                out.extend_from_slice(b"#[allow(non_camel_case_types)]\npub struct ");
+                out.extend_from_slice(font_entry.name);
+                out.extend_from_slice(b";\nimpl crate::font::Font for ");
+                out.extend_from_slice(font_entry.name);
+                out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
+
+                leftover_data = consume_font_data(leftover_data, &mut out)
                     .wrap_err("Unable to consume font data")?;
+
+                out.extend_from_slice(b"\";\n}\n\n");
             }
         }
     }
 
-    Ok(())
+    write_output_file(&args.file_out, &out).wrap_err("Unable to write converted file")
 }

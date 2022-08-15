@@ -19,6 +19,10 @@ enum Action {
 pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<&'a [u8]> {
     let mut state = State::Padding;
 
+    let mut produce = move |c| {
+        out.extend_from_slice(format!("\\x{:02x}", c).as_bytes());
+    };
+
     loop {
         let next_ch = *data.get(0).ok_or(miette!("Unexpected end of file"))?;
 
@@ -32,7 +36,7 @@ pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<&'
             (State::Data, b'"') => Action::Transition(State::Padding),
             (State::Data, b'\\') => Action::Transition(State::Number),
             (State::Data, c) => {
-                out.push(c);
+                produce(c);
                 Action::Continue
             }
 
@@ -43,11 +47,11 @@ pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<&'
                 Action::Transition(State::Number3(8 * v + (c - b'0')))
             }
             (State::Number3(v), c) if c >= b'0' && c < b'8' => {
-                out.push(8 * v + (c - b'0'));
+                produce(8 * v + (c - b'0'));
                 Action::Transition(State::Data)
             }
             (State::Number2(c), _) | (State::Number3(c), _) => {
-                out.push(*c);
+                produce(*c);
                 Action::Repeat(State::Data)
             }
 
