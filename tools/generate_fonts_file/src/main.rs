@@ -1,3 +1,4 @@
+mod font_data;
 mod font_entry;
 
 use std::{fs::File, io::Read};
@@ -5,7 +6,7 @@ use std::{fs::File, io::Read};
 use clap::Parser;
 use miette::{IntoDiagnostic, Result, WrapErr};
 
-use crate::font_entry::FontEntry;
+use crate::{font_data::consume_font_data, font_entry::FontEntry};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -48,7 +49,9 @@ fn main() -> Result<()> {
         match font_entry {
             None => break,
             Some(font_entry) => {
-                println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap())
+                println!("{}", String::from_utf8(font_entry.name.to_vec()).unwrap());
+                leftover_data = consume_font_data(leftover_data, &mut Vec::new())
+                    .wrap_err("Unable to consume font data")?;
             }
         }
     }
