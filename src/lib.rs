@@ -1,5 +1,12 @@
-pub fn hello_world() {
-    println!("Hello world!");
+mod font;
+pub mod fonts;
+mod renderer;
+
+pub use font::Font;
+pub use renderer::FontRenderer;
+
+pub const fn create_font_renderer<F: Font>() -> FontRenderer {
+    FontRenderer::new::<F>()
 }
 
 #[cfg(test)]
