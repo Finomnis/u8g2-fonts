@@ -18,7 +18,14 @@ fn main() -> Result<(), core::convert::Infallible> {
         .into_styled(PrimitiveStyle::with_fill(Rgb888::RED))
         .draw(&mut display)?;
 
-    FONT.a();
+    let advanced = FONT.render_glyph(
+        'g',
+        Point::new(20, 20),
+        Rgb888::CSS_DARK_BLUE,
+        Some(Rgb888::CSS_DARK_GRAY),
+    );
+
+    println!("Advanced: {}", advanced);
 
     'running: loop {
         window.update(&display);
