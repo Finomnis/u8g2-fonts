@@ -21,14 +21,7 @@ impl FontRenderer {
 
     fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
         // Retrieve u16 glyph value
-        let encoding = {
-            let mut utf16_data = [0u16; 2];
-            ch.encode_utf16(&mut utf16_data);
-            if utf16_data[1] != 0 {
-                return Err(Error::GLYPH_NOT_FOUND(ch));
-            }
-            utf16_data[0]
-        };
+        let encoding = u16::try_from(ch as u32).map_err(|_| Error::GLYPH_NOT_FOUND(ch))?;
 
         let mut glyph = GlyphSearcher::new(&self.font);
 
