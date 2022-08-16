@@ -11,4 +11,14 @@ categories = ["no-std", "embedded"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+exclude = [
+    "/.gitignore",
+    "/.gitmodules",
+    "/.github/",
+    "/regenerate_fonts_file.sh",
+    "/u8g2/",
+    "/TODO.txt",
+    "/UPCOMING_VERSION_CHANGES.txt",
+]
+
 [dependencies]
