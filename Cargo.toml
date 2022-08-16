@@ -2,7 +2,7 @@
 name = "u8g2-fonts"
 version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0"
+license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/Finomnis/u8g2-fonts"
 description = "A text renderer for embedded-graphics, based on u8g2."
