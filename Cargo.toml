@@ -22,3 +22,4 @@ exclude = [
 ]
 
 [dependencies]
+embedded-graphics-core = "0.3.3"
