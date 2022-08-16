@@ -96,8 +96,11 @@ fn main() -> Result<()> {
         match font_entry {
             None => break,
             Some(font_entry) => {
-                leftover_data = process_font_entry(&font_entry, &mut out, &mut leftover_data)
-                    .wrap_err("Error while processing font entry")?;
+                // TODO: Remove the if
+                if font_entry.name == b"u8g2_font_lubBI14_tf" {
+                    leftover_data = process_font_entry(&font_entry, &mut out, &mut leftover_data)
+                        .wrap_err("Error while processing font entry")?;
+                }
             }
         }
     }
