@@ -1,4 +1,5 @@
 mod font;
+mod fontreader;
 mod renderer;
 
 pub mod fonts;
