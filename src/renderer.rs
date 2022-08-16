@@ -1,6 +1,8 @@
 use embedded_graphics_core::prelude::Point;
 
-use crate::{font_reader::FontReader, glyph_reader::GlyphReader, Error, Font};
+use crate::{
+    font_reader::FontReader, glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, Error, Font,
+};
 
 pub const fn create_font_renderer<F: Font>() -> FontRenderer {
     FontRenderer::new::<F>()
@@ -17,10 +19,7 @@ impl FontRenderer {
         }
     }
 
-    fn retrieve_glyph_data(
-        &self,
-        ch: char,
-    ) -> Result<GlyphReader<crate::glyph_reader::READ_MODE>, Error> {
+    fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
         // Retrieve u16 glyph value
         let encoding = {
             let mut utf16_data = [0u16; 2];
@@ -31,7 +30,7 @@ impl FontRenderer {
             utf16_data[0]
         };
 
-        let mut glyph = GlyphReader::new(&self.font);
+        let mut glyph = GlyphSearcher::new(&self.font);
 
         println!("Searching for glyph {}", ch);
 
@@ -52,31 +51,7 @@ impl FontRenderer {
                 }
             }
 
-            println!("Glyph found!");
-            // if ( encoding <= 255 )
-            // {
-            //     if ( encoding >= 'a' )
-            //     {
-            //     font += u8g2->font_info.start_pos_lower_a;
-            //     }
-            //     else if ( encoding >= 'A' )
-            //     {
-            //     font += u8g2->font_info.start_pos_upper_A;
-            //     }
-
-            //     for(;;)
-            //     {
-            //     if ( u8x8_pgm_read( font + 1 ) == 0 )
-            //     break;
-            //     if ( u8x8_pgm_read( font ) == encoding )
-            //     {
-            //     return font+2;	/* skip encoding and glyph size */
-            //     }
-            //     font += u8x8_pgm_read( font + 1 );
-            //     }
-            // }
-
-            todo!()
+            glyph.into_glyph_reader()
         } else {
             // TODO: Support Unicode
             Err(Error::GLYPH_NOT_FOUND(ch))
@@ -95,7 +70,7 @@ impl FontRenderer {
         }
         println!("{:#?}", self.font);
 
-        self.retrieve_glyph_data(ch)?;
+        println!("{:?}", self.retrieve_glyph_data(ch)?);
 
         todo!()
     }

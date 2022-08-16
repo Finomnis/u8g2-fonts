@@ -1,6 +1,8 @@
-The crate itself is licensed as Apache-2.0:
+The crate itself is licensed as "MIT OR Apache-2.0":
 
-https://github.com/Finomnis/u8g2-fonts/blob/main/LICENSE_crate
+https://github.com/Finomnis/u8g2-fonts/blob/main/LICENSE-APACHE
+https://github.com/Finomnis/u8g2-fonts/blob/main/LICENSE-MIT
+
 
 The fonts, however, are licensed under different conditions.
 They are all taken from the `U8g2` crate, please read their LICENSE
