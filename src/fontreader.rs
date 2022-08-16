@@ -3,6 +3,7 @@ use crate::Font;
 #[derive(Debug)]
 pub struct FontReader {
     data: &'static [u8],
+    supports_background_color: bool,
     glyph_count: u8,
     m0: u8,
     m1: u8,
@@ -31,6 +32,7 @@ impl FontReader {
         Self {
             data,
             glyph_count: data[0],
+            supports_background_color: data[1] != 0,
             m0: data[2],
             m1: data[3],
             bitcntW: data[4],

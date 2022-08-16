@@ -1,3 +1,4 @@
 - Do font generation check in CI
 - Rotation (like in u8g2)
 - Vertical font position (like in u8g2, called font_calc_vref)
+- Add unicode retrieval
