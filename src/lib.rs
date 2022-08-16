@@ -1,6 +1,7 @@
 mod error;
 mod font;
-mod fontreader;
+mod font_reader;
+mod glyph_reader;
 mod renderer;
 
 pub mod fonts;

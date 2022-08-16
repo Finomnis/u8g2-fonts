@@ -20,8 +20,8 @@ pub struct FontReader {
     pub descent: i8,
     pub ascent_of_parantheses: i8,
     pub descent_of_parantheses: i8,
-    pub array_offset_capital_a: u16,
-    pub array_offset_a: u16,
+    pub array_offset_upper_a: u16,
+    pub array_offset_lower_a: u16,
     pub array_offset_0x0100: u16,
 }
 
@@ -48,8 +48,8 @@ impl FontReader {
             descent: data[14] as i8,
             ascent_of_parantheses: data[15] as i8,
             descent_of_parantheses: data[16] as i8,
-            array_offset_capital_a: u16::from_be_bytes([data[17], data[18]]),
-            array_offset_a: u16::from_be_bytes([data[19], data[20]]),
+            array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
+            array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
         }
     }
