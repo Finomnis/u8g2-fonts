@@ -63,7 +63,9 @@ impl FontRenderer {
 
         let glyph = self.font.retrieve_glyph_data(ch)?;
 
+        let advance = glyph.advance();
         let size = glyph.size();
+
         if size.width > 0 && size.height > 0 {
             let renderer = glyph.create_renderer();
             if let Some(background_color) = background_color {
@@ -78,6 +80,6 @@ impl FontRenderer {
             }
         }
 
-        Ok(glyph.advance())
+        Ok(advance)
     }
 }
