@@ -63,7 +63,7 @@ impl GlyphRenderer {
         display
             .fill_contiguous(
                 &Rectangle::new(topleft, size),
-                std::iter::from_fn(color_iter),
+                core::iter::from_fn(color_iter),
             )
             .map_err(Error::DisplayError)
     }
@@ -132,7 +132,7 @@ impl GlyphRenderer {
         };
 
         display
-            .draw_iter(std::iter::from_fn(pixel_iter))
+            .draw_iter(core::iter::from_fn(pixel_iter))
             .map_err(Error::DisplayError)
     }
 }

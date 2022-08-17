@@ -42,12 +42,6 @@ impl GlyphReader {
         this.offset_y = this.read_signed(font.bitcnt_y)?;
         this.advance = this.read_signed(font.bitcnt_d)?;
 
-        dbg!(this.glyph_width);
-        dbg!(this.glyph_height);
-        dbg!(this.offset_x);
-        dbg!(this.offset_y);
-        dbg!(this.advance);
-
         Ok(this)
     }
 

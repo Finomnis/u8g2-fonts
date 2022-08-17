@@ -16,7 +16,7 @@ impl<DisplayError> Display for Error<DisplayError>
 where
     DisplayError: Display + Debug,
 {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             Error::BackgroundColorNotSupported => {
                 write!(f, "This font does not support a background color.")

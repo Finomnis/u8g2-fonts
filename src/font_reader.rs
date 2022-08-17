@@ -63,8 +63,6 @@ impl FontReader {
 
         let mut glyph = GlyphSearcher::new(self);
 
-        println!("Searching for glyph {}", ch);
-
         if encoding <= 255 {
             if encoding >= b'a' as u16 {
                 if !glyph.jump_by(self.array_offset_lower_a) {

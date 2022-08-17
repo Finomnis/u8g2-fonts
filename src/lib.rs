@@ -1,3 +1,5 @@
+#![no_std]
+
 mod error;
 mod font;
 mod font_reader;
