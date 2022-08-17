@@ -21,7 +21,7 @@ impl FontRenderer {
 
     fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
         // Retrieve u16 glyph value
-        let encoding = u16::try_from(ch as u32).map_err(|_| Error::GLYPH_NOT_FOUND(ch))?;
+        let encoding = u16::try_from(ch as u32).map_err(|_| Error::GlyphNotFound(ch))?;
 
         let mut glyph = GlyphSearcher::new(&self.font);
 
@@ -30,24 +30,24 @@ impl FontRenderer {
         if encoding <= 255 {
             if encoding >= b'a' as u16 {
                 if !glyph.jump_by(self.font.array_offset_lower_a) {
-                    return Err(Error::GLYPH_NOT_FOUND(ch));
+                    return Err(Error::GlyphNotFound(ch));
                 };
             } else if encoding >= b'A' as u16 {
                 if !glyph.jump_by(self.font.array_offset_upper_a) {
-                    return Err(Error::GLYPH_NOT_FOUND(ch));
+                    return Err(Error::GlyphNotFound(ch));
                 };
             }
 
             while glyph.get_ch()? as u16 != encoding {
                 if !glyph.jump_to_next()? {
-                    return Err(Error::GLYPH_NOT_FOUND(ch));
+                    return Err(Error::GlyphNotFound(ch));
                 }
             }
 
             glyph.into_glyph_reader()
         } else {
             // TODO: Support Unicode
-            Err(Error::GLYPH_NOT_FOUND(ch))
+            Err(Error::GlyphNotFound(ch))
         }
     }
 
@@ -59,7 +59,7 @@ impl FontRenderer {
         bg: Option<Color>,
     ) -> Result<i32, Error> {
         if bg.is_some() && !self.font.supports_background_color {
-            return Err(Error::BACKGROUND_COLOR_NOT_SUPPORTED);
+            return Err(Error::BackgroundColorNotSupported);
         }
         println!("{:#?}", self.font);
 

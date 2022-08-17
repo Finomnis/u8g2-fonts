@@ -32,11 +32,11 @@ impl GlyphSearcher<AsciiMode> {
     }
 
     fn get_offset(&self) -> Result<u8, Error> {
-        self.data.get(1).cloned().ok_or(Error::INTERNAL_ERROR)
+        self.data.get(1).cloned().ok_or(Error::InternalError)
     }
 
     pub fn get_ch(&self) -> Result<u8, Error> {
-        self.data.get(0).cloned().ok_or(Error::INTERNAL_ERROR)
+        self.data.get(0).cloned().ok_or(Error::InternalError)
     }
 
     pub fn jump_to_next(&mut self) -> Result<bool, Error> {
@@ -46,7 +46,7 @@ impl GlyphSearcher<AsciiMode> {
         } else if self.jump_by(offset as u16) {
             Ok(true)
         } else {
-            Err(Error::INTERNAL_ERROR)
+            Err(Error::InternalError)
         }
     }
 
@@ -55,7 +55,7 @@ impl GlyphSearcher<AsciiMode> {
         Ok(GlyphReader::new(
             self.data
                 .get(2..offset as usize)
-                .ok_or(Error::INTERNAL_ERROR)?,
+                .ok_or(Error::InternalError)?,
         ))
     }
 }

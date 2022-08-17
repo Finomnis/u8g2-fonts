@@ -1,23 +1,23 @@
 #[derive(Debug)]
 pub enum Error {
     /// Font does not support background color
-    BACKGROUND_COLOR_NOT_SUPPORTED,
+    BackgroundColorNotSupported,
     /// Font does not contain given character
-    GLYPH_NOT_FOUND(char),
+    GlyphNotFound(char),
     /// Internal error
-    INTERNAL_ERROR,
+    InternalError,
 }
 
 impl core::fmt::Display for Error {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Error::BACKGROUND_COLOR_NOT_SUPPORTED => {
+            Error::BackgroundColorNotSupported => {
                 write!(f, "This font does not support a background color.")
             }
-            Error::GLYPH_NOT_FOUND(c) => {
+            Error::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }
-            Error::INTERNAL_ERROR => {
+            Error::InternalError => {
                 write!(f, "Internal error.")
             }
         }
