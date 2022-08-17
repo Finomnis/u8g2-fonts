@@ -26,17 +26,26 @@ fn main() -> Result<(), core::convert::Infallible> {
         .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
         .draw(&mut display)?;
 
-    let advanced = FONT
+    let advance = FONT
         .render_glyph(
             'ß',
             Point::new(20, 20),
-            Rgb888::CSS_YELLOW_GREEN,
+            Rgb888::CSS_DARK_BLUE,
+            Some(Rgb888::CSS_DARK_GRAY),
+            &mut display,
+        )
+        .unwrap();
+    let advance = FONT
+        .render_glyph(
+            'ß',
+            Point::new(20 + advance as i32, 20),
+            Rgb888::CSS_DARK_BLUE,
             Some(Rgb888::CSS_DARK_GRAY),
             &mut display,
         )
         .unwrap();
 
-    println!("Advanced: {}", advanced);
+    println!("Advance: {}", advance);
 
     'running: loop {
         window.update(&display);
