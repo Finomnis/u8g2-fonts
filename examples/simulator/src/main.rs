@@ -20,7 +20,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advanced = FONT
         .render_glyph(
-            'g',
+            'ß',
             Point::new(20, 20),
             Rgb888::CSS_DARK_BLUE,
             None, //Some(Rgb888::CSS_DARK_GRAY),

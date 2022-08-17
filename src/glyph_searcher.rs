@@ -51,11 +51,8 @@ impl GlyphSearcher<AsciiMode> {
     }
 
     pub fn into_glyph_reader(self) -> Result<GlyphReader, Error> {
-        let offset = self.get_offset()?;
         Ok(GlyphReader::new(
-            self.data
-                .get(2..offset as usize)
-                .ok_or(Error::InternalError)?,
+            self.data.get(2..).ok_or(Error::InternalError)?,
         ))
     }
 }
