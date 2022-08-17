@@ -86,7 +86,7 @@ impl FontRenderer {
     ///
     /// # Arguments
     ///
-    /// * `s` - The character to render.
+    /// * `s` - The string to render.
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
