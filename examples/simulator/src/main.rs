@@ -30,7 +30,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         .render_glyph(
             'ß',
             Point::new(20, 20),
-            Rgb888::CSS_DARK_BLUE,
+            Rgb888::CSS_YELLOW_GREEN,
             Some(Rgb888::CSS_DARK_GRAY),
             &mut display,
         )

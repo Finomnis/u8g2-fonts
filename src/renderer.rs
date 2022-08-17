@@ -52,7 +52,7 @@ impl FontRenderer {
         dbg!(y);
         dbg!(d);
 
-        let topleft = Point::new(pos.x, pos.y);
+        let topleft = Point::new(pos.x + x as i32, pos.y - (glyph_height as i32 + y as i32));
         let size = Size::new(glyph_width as u32, glyph_height as u32);
 
         display
