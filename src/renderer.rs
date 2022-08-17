@@ -2,9 +2,7 @@ use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{font_reader::FontReader, Error, Font};
 
-/// A font renderer.
-///
-/// Can render text of a specific font to a [`DrawTarget`].
+/// Can render text of a specific [`Font`] to a [`DrawTarget`].
 pub struct FontRenderer {
     font: FontReader,
 }
@@ -31,15 +29,16 @@ impl FontRenderer {
     ///
     /// # Arguments
     ///
-    /// * `ch` - The character to render
-    /// * `position` - The position to render to
-    /// * `foreground_color` - The foreground color
-    /// * `background_color` - The background color
-    /// * `display` - The display to render to
+    /// * `ch` - The character to render.
+    /// * `position` - The position to render to.
+    /// * `foreground_color` - The foreground color.
+    /// * `background_color` - The background color.
+    /// * `display` - The display to render to.
     ///
     /// # Return
     ///
-    /// The advance in pixels where to render the next character, or an error on failure.
+    /// The advance in pixels indicating the required offset to render the next character.
+    ///
     pub fn render_glyph<Display>(
         &self,
         ch: char,

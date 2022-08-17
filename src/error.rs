@@ -1,15 +1,15 @@
 use core::fmt::{Debug, Display};
 
-/// The error types.
+/// All possible errors this crate can cause.
 #[derive(Debug)]
 pub enum Error<DisplayError> {
-    /// Font does not support background color
+    /// Font does not support a background color.
     BackgroundColorNotSupported,
-    /// Font does not contain given character
+    /// Font does not contain given character.
     GlyphNotFound(char),
-    /// Internal error
+    /// Internal error.
     InternalError,
-    /// Writing to display failed
+    /// Writing to display failed.
     DisplayError(DisplayError),
 }
 
