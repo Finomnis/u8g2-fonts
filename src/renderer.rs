@@ -29,7 +29,20 @@ impl FontRenderer {
         }
         println!("{:#?}", self.font);
 
-        println!("{:?}", self.font.retrieve_glyph_data(ch)?);
+        let mut glyph = self.font.retrieve_glyph_data(ch)?;
+
+        let glyph_width = glyph.read_unsigned(self.font.bitcnt_w)?;
+        let glyph_height = glyph.read_unsigned(self.font.bitcnt_h)?;
+
+        let x = glyph.read_signed(self.font.bitcnt_x)?;
+        let y = glyph.read_signed(self.font.bitcnt_y)?;
+        let d = glyph.read_signed(self.font.bitcnt_d)?;
+
+        dbg!(glyph_width);
+        dbg!(glyph_height);
+        dbg!(x);
+        dbg!(y);
+        dbg!(d);
 
         todo!()
     }
