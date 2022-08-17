@@ -37,7 +37,7 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The advance in pixels indicating the required offset to render the next character.
+    /// The pixel advance of the rendered glyph, indicating the required offset to render the next character.
     ///
     pub fn render_glyph<Display>(
         &self,
@@ -86,7 +86,7 @@ impl FontRenderer {
     ///
     /// # Arguments
     ///
-    /// * `s` - The string to render.
+    /// * `text` - The string to render.
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
@@ -94,11 +94,11 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The advance in pixels indicating the required offset to render the next character.
+    /// The total pixel advance of all rendered glyphs.
     ///
     pub fn render_text<Display>(
         &self,
-        s: &str,
+        text: &str,
         position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
@@ -110,7 +110,7 @@ impl FontRenderer {
     {
         let mut advance = 0;
 
-        for ch in s.chars() {
+        for ch in text.chars() {
             if ch == '\n' {
                 todo!("Newline not implemented yet!");
             }
@@ -125,7 +125,4 @@ impl FontRenderer {
 
         Ok(advance)
     }
-
-    // TODO: render_text_aligned
-    // TODO: get_rendered_text_dimensions
 }
