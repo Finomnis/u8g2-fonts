@@ -62,11 +62,20 @@ impl FontRenderer {
         }
 
         let glyph = self.font.retrieve_glyph_data(ch)?;
-        let renderer = glyph.create_renderer();
-        if let Some(background_color) = background_color {
-            renderer.render_as_box_fill(position, display, foreground_color, background_color)?;
-        } else {
-            renderer.render_transparent(position, display, foreground_color)?;
+
+        let size = glyph.size();
+        if size.width > 0 && size.height > 0 {
+            let renderer = glyph.create_renderer();
+            if let Some(background_color) = background_color {
+                renderer.render_as_box_fill(
+                    position,
+                    display,
+                    foreground_color,
+                    background_color,
+                )?;
+            } else {
+                renderer.render_transparent(position, display, foreground_color)?;
+            }
         }
 
         Ok(glyph.advance())

@@ -28,10 +28,10 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advance = FONT
         .render_glyph(
-            'I',
+            ' ',
             Point::new(20, 20),
-            Rgb888::CSS_DARK_BLUE,
-            Some(Rgb888::CSS_DARK_GRAY),
+            Rgb888::CSS_YELLOW,
+            None, //Some(Rgb888::CSS_DARK_GRAY),
             &mut display,
         )
         .unwrap();
@@ -39,7 +39,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         .render_glyph(
             'ß',
             Point::new(20 + advance as i32, 20),
-            Rgb888::CSS_DARK_BLUE,
+            Rgb888::CSS_YELLOW,
             None, //Some(Rgb888::CSS_DARK_GRAY),
             &mut display,
         )
