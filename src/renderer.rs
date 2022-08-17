@@ -46,8 +46,10 @@ impl FontRenderer {
 
             glyph.into_glyph_reader()
         } else {
+            let _glyph = glyph.into_unicode_mode(self.font.array_offset_0x0100)?;
+
             // TODO: Support Unicode
-            Err(Error::GlyphNotFound(ch))
+            todo!()
         }
     }
 

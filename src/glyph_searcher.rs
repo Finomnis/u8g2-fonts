@@ -1,17 +1,11 @@
-use core::marker::PhantomData;
-
 use crate::{font_reader::FontReader, glyph_reader::GlyphReader, Error};
 
-pub struct AsciiMode;
-pub struct Utf8Mode;
-
 #[derive(Debug)]
-pub struct GlyphSearcher<MODE> {
+pub struct GlyphSearcher<const CHAR_WIDTH: usize, const JUMPTABLE_MODE: bool> {
     data: &'static [u8],
-    _mode: PhantomData<MODE>,
 }
 
-impl<MODE> GlyphSearcher<MODE> {
+impl<const CHAR_WIDTH: usize> GlyphSearcher<CHAR_WIDTH, false> {
     pub fn jump_by(&mut self, offset: u16) -> bool {
         self.data = match self.data.get(offset as usize..) {
             Some(data) => data,
@@ -19,24 +13,12 @@ impl<MODE> GlyphSearcher<MODE> {
         };
         true
     }
-}
-
-const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
-
-impl GlyphSearcher<AsciiMode> {
-    pub fn new(font: &FontReader) -> Self {
-        Self {
-            data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
-            _mode: PhantomData,
-        }
-    }
 
     fn get_offset(&self) -> Result<u8, Error> {
-        self.data.get(1).cloned().ok_or(Error::InternalError)
-    }
-
-    pub fn get_ch(&self) -> Result<u8, Error> {
-        self.data.get(0).cloned().ok_or(Error::InternalError)
+        self.data
+            .get(CHAR_WIDTH)
+            .cloned()
+            .ok_or(Error::InternalError)
     }
 
     pub fn jump_to_next(&mut self) -> Result<bool, Error> {
@@ -52,9 +34,33 @@ impl GlyphSearcher<AsciiMode> {
 
     pub fn into_glyph_reader(self) -> Result<GlyphReader, Error> {
         Ok(GlyphReader::new(
-            self.data.get(2..).ok_or(Error::InternalError)?,
+            self.data
+                .get(CHAR_WIDTH + 1..)
+                .ok_or(Error::InternalError)?,
         ))
     }
 }
 
-impl GlyphSearcher<Utf8Mode> {}
+const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
+
+impl GlyphSearcher<1, false> {
+    pub fn new(font: &FontReader) -> Self {
+        Self {
+            data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
+        }
+    }
+
+    pub fn get_ch(&self) -> Result<u8, Error> {
+        self.data.get(0).cloned().ok_or(Error::InternalError)
+    }
+
+    pub fn into_unicode_mode(mut self, offset: u16) -> Result<GlyphSearcher<2, true>, Error> {
+        if self.jump_by(offset) {
+            Ok(GlyphSearcher { data: self.data })
+        } else {
+            Err(Error::InternalError)
+        }
+    }
+}
+
+impl GlyphSearcher<2, true> {}
