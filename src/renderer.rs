@@ -37,23 +37,11 @@ impl FontRenderer {
         // }
         println!("{:#?}", self.font);
 
-        let mut glyph = self.font.retrieve_glyph_data(ch)?;
+        let glyph = self.font.retrieve_glyph_data(ch)?;
 
-        let glyph_width = glyph.read_unsigned(self.font.bitcnt_w)?;
-        let glyph_height = glyph.read_unsigned(self.font.bitcnt_h)?;
-
-        let x = glyph.read_signed(self.font.bitcnt_x)?;
-        let y = glyph.read_signed(self.font.bitcnt_y)?;
-        let d = glyph.read_signed(self.font.bitcnt_d)?;
-
-        dbg!(glyph_width);
-        dbg!(glyph_height);
-        dbg!(x);
-        dbg!(y);
-        dbg!(d);
-
-        let topleft = Point::new(pos.x + x as i32, pos.y - (glyph_height as i32 + y as i32));
-        let size = Size::new(glyph_width as u32, glyph_height as u32);
+        let topleft = glyph.topleft(&pos);
+        let size = glyph.size();
+        let advance = glyph.advance();
 
         display
             .fill_contiguous(
@@ -62,6 +50,6 @@ impl FontRenderer {
             )
             .map_err(Error::DisplayError)?;
 
-        Ok(d)
+        Ok(advance)
     }
 }
