@@ -1,8 +1,13 @@
-- Do font generation check in CI
-
-- Rotation (like in u8g2)
 - Vertical font position (like in u8g2, called font_calc_vref)
 - Add unicode retrieval
 
 - FontRenderer::get_text_dimensions
 - FontRenderer::render_text_aligned
+   - Problems: Where is the 'center' of the vertical alignment?
+               Where is the max/min? Should they depend on the actual letters? (Would make the entire text move vertically if a character changes)
+
+- Newline handling - especially with alignment
+   - total alignment vs text alignment
+
+- Rotation (like in u8g2)
+- Do font generation check in CI
