@@ -2,7 +2,7 @@ use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{font_reader::FontReader, Error, Font};
 
-/// Can render text of a specific [`Font`] to a [`DrawTarget`].
+/// Renders text of a specific [`Font`] to a [`DrawTarget`].
 pub struct FontRenderer {
     font: FontReader,
 }
@@ -76,4 +76,56 @@ impl FontRenderer {
 
         Ok(advance)
     }
+
+    /// Renders a string.
+    ///
+    /// Note that the background color is optional. Omitting it will render
+    /// the string with a transparent background.
+    ///
+    /// Not every font supports a background color, some fonts require a transparent background.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - The character to render.
+    /// * `position` - The position to render to.
+    /// * `foreground_color` - The foreground color.
+    /// * `background_color` - The background color.
+    /// * `display` - The display to render to.
+    ///
+    /// # Return
+    ///
+    /// The advance in pixels indicating the required offset to render the next character.
+    ///
+    pub fn render_text<Display>(
+        &self,
+        s: &str,
+        position: Point,
+        foreground_color: Display::Color,
+        background_color: Option<Display::Color>,
+        display: &mut Display,
+    ) -> Result<i32, Error<Display::Error>>
+    where
+        Display: DrawTarget,
+        Display::Error: core::fmt::Debug,
+    {
+        let mut advance = 0;
+
+        for ch in s.chars() {
+            if ch == '\n' {
+                todo!("Newline not implemented yet!");
+            }
+            advance += self.render_glyph(
+                ch,
+                Point::new(position.x + advance, position.y),
+                foreground_color,
+                background_color,
+                display,
+            )? as i32;
+        }
+
+        Ok(advance)
+    }
+
+    // TODO: render_text_aligned
+    // TODO: get_rendered_text_dimensions
 }
