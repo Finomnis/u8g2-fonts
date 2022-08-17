@@ -8,6 +8,9 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod renderer;
 
+/// A collection of fonts.
+///
+/// For more information about the specific fonts, visit the [U8g2 wiki](https://github.com/olikraus/u8g2/wiki/fntlistall).
 pub mod fonts;
 
 pub use error::Error;

@@ -1,5 +1,6 @@
 use core::fmt::{Debug, Display};
 
+/// The error types.
 #[derive(Debug)]
 pub enum Error<DisplayError> {
     /// Font does not support background color
