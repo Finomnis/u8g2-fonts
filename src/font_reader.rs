@@ -1,4 +1,4 @@
-use crate::Font;
+use crate::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, Error, Font};
 
 #[derive(Debug)]
 pub struct FontReader {
@@ -51,6 +51,40 @@ impl FontReader {
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
+        }
+    }
+
+    pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
+        // Retrieve u16 glyph value
+        let encoding = u16::try_from(ch as u32).map_err(|_| Error::GlyphNotFound(ch))?;
+
+        let mut glyph = GlyphSearcher::new(self);
+
+        println!("Searching for glyph {}", ch);
+
+        if encoding <= 255 {
+            if encoding >= b'a' as u16 {
+                if !glyph.jump_by(self.array_offset_lower_a) {
+                    return Err(Error::GlyphNotFound(ch));
+                };
+            } else if encoding >= b'A' as u16 {
+                if !glyph.jump_by(self.array_offset_upper_a) {
+                    return Err(Error::GlyphNotFound(ch));
+                };
+            }
+
+            while glyph.get_ch()? as u16 != encoding {
+                if !glyph.jump_to_next()? {
+                    return Err(Error::GlyphNotFound(ch));
+                }
+            }
+
+            glyph.into_glyph_reader()
+        } else {
+            let _glyph = glyph.into_unicode_mode(self.array_offset_0x0100)?;
+
+            // TODO: Support Unicode
+            todo!()
         }
     }
 }
