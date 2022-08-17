@@ -2,6 +2,7 @@ mod error;
 mod font;
 mod font_reader;
 mod glyph_reader;
+mod glyph_renderer;
 mod glyph_searcher;
 mod renderer;
 

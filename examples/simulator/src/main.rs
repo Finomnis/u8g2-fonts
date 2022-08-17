@@ -28,7 +28,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advance = FONT
         .render_glyph(
-            'ß',
+            'I',
             Point::new(20, 20),
             Rgb888::CSS_DARK_BLUE,
             Some(Rgb888::CSS_DARK_GRAY),

@@ -1,8 +1,8 @@
 use embedded_graphics_core::prelude::{Point, Size};
 
-use crate::{font_reader::FontReader, Error};
+use crate::{font_reader::FontReader, glyph_renderer::GlyphRenderer, Error};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GlyphReader {
     data: &'static [u8],
     bit_pos: u8,
@@ -100,5 +100,9 @@ impl GlyphReader {
 
     pub fn read_runlength_1<DisplayError>(&mut self) -> Result<u8, Error<DisplayError>> {
         self.read_unsigned(self.bitcount_1)
+    }
+
+    pub fn create_renderer(&self) -> GlyphRenderer {
+        GlyphRenderer::new(&self)
     }
 }
