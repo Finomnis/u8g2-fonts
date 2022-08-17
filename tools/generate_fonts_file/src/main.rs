@@ -58,9 +58,9 @@ fn process_font_entry<'a>(
         String::from_utf8(font_entry.name.to_vec()).unwrap(),
     );
 
-    out.extend_from_slice(b"#[allow(non_camel_case_types)]\npub struct ");
+    out.extend_from_slice(b"\npub struct ");
     out.extend_from_slice(font_entry.name);
-    out.extend_from_slice(b";\nimpl crate::font::Font for ");
+    out.extend_from_slice(b";\nimpl Font for ");
     out.extend_from_slice(font_entry.name);
     out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
 
@@ -75,7 +75,7 @@ fn process_font_entry<'a>(
         length
     );
 
-    out.extend_from_slice(b"\";\n}\n\n");
+    out.extend_from_slice(b"\";\n}\n");
 
     Ok(leftover_data)
 }
@@ -86,6 +86,8 @@ fn main() -> Result<()> {
     let input_data = read_input_file(&args.file_in).wrap_err("Reading input data failed")?;
 
     let mut out = Vec::new();
+
+    out.extend_from_slice(b"use crate::Font;\n");
 
     let mut leftover_data = input_data.as_slice();
     loop {
