@@ -46,7 +46,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advance = FONT
         .render_text(
-            "Angh Lorem ipsum dolor sit amet. Amit consectetur adipiscing elit. 20%! a",
+            "Angh Lorem ipsum dolor sit amet. A 20%!",
             Point::new(20, 50),
             Rgb888::CSS_ORANGE,
             None,
