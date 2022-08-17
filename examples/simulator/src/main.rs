@@ -5,9 +5,9 @@ use embedded_graphics::{
 };
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 
-use u8g2_fonts::{create_font_renderer, fonts, FontRenderer};
+use u8g2_fonts::{fonts, FontRenderer};
 
-const FONT: FontRenderer = create_font_renderer::<fonts::u8g2_font_lubBI14_tf>();
+const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_lubBI14_tf>();
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));

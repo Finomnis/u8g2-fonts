@@ -1,5 +1,5 @@
 use embedded_graphics_core::{
-    prelude::{DrawTarget, PixelColor, Point},
+    prelude::{DrawTarget, Point},
     primitives::Rectangle,
     Pixel,
 };
@@ -17,16 +17,15 @@ impl GlyphRenderer {
         }
     }
 
-    pub fn render_as_box_fill<Color, Display>(
+    pub fn render_as_box_fill<Display>(
         mut self,
         position: Point,
         display: &mut Display,
-        foreground_color: Color,
-        background_color: Color,
+        foreground_color: Display::Color,
+        background_color: Display::Color,
     ) -> Result<(), Error<Display::Error>>
     where
-        Color: PixelColor,
-        Display: DrawTarget<Color = Color>,
+        Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         let topleft = self.glyph.topleft(&position);
@@ -37,7 +36,7 @@ impl GlyphRenderer {
             let mut num_ones = self.glyph.read_runlength_1()?;
             let mut num_zeros_leftover = num_zeros;
             let mut num_ones_leftover = num_ones;
-            move || -> Option<Color> {
+            move || -> Option<Display::Color> {
                 if num_zeros_leftover == 0 && num_ones_leftover == 0 {
                     let repeat = self.glyph.read_unsigned::<Display::Error>(1).unwrap() != 0;
                     if !repeat {
@@ -68,15 +67,14 @@ impl GlyphRenderer {
             .map_err(Error::DisplayError)
     }
 
-    pub fn render_transparent<Color, Display>(
+    pub fn render_transparent<Display>(
         mut self,
         position: Point,
         display: &mut Display,
-        foreground_color: Color,
+        foreground_color: Display::Color,
     ) -> Result<(), Error<Display::Error>>
     where
-        Color: PixelColor,
-        Display: DrawTarget<Color = Color>,
+        Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         let topleft = self.glyph.topleft(&position);
@@ -97,7 +95,7 @@ impl GlyphRenderer {
                 y += 1;
             }
 
-            move || -> Option<Pixel<Color>> {
+            move || -> Option<Pixel<Display::Color>> {
                 if y >= height {
                     return None;
                 }

@@ -12,7 +12,6 @@ pub mod fonts;
 
 pub use error::Error;
 pub use font::Font;
-pub use renderer::create_font_renderer;
 pub use renderer::FontRenderer;
 
 #[cfg(test)]

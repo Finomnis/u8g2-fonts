@@ -1,10 +1,6 @@
-use embedded_graphics_core::prelude::{DrawTarget, PixelColor, Point};
+use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{font_reader::FontReader, Error, Font};
-
-pub const fn create_font_renderer<F: Font>() -> FontRenderer {
-    FontRenderer::new::<F>()
-}
 
 /// A font renderer.
 ///
@@ -18,9 +14,9 @@ impl FontRenderer {
     ///
     /// # Generics
     ///
-    /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts,
-    ///            and search on [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
-    pub(crate) const fn new<FONT: Font>() -> Self {
+    /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
+    ///            and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
+    pub const fn new<FONT: Font>() -> Self {
         Self {
             font: FontReader::new::<FONT>(),
         }
@@ -44,17 +40,16 @@ impl FontRenderer {
     /// # Return
     ///
     /// The advance in pixels where to render the next character, or an error on failure.
-    pub fn render_glyph<Color, Display>(
+    pub fn render_glyph<Display>(
         &self,
         ch: char,
         position: Point,
-        foreground_color: Color,
-        background_color: Option<Color>,
+        foreground_color: Display::Color,
+        background_color: Option<Display::Color>,
         display: &mut Display,
     ) -> Result<i8, Error<Display::Error>>
     where
-        Color: core::fmt::Debug + PixelColor,
-        Display: DrawTarget<Color = Color>,
+        Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         if background_color.is_some() && !self.font.supports_background_color {
