@@ -1,14 +1,21 @@
+use core::fmt::{Debug, Display};
+
 #[derive(Debug)]
-pub enum Error {
+pub enum Error<DisplayError> {
     /// Font does not support background color
     BackgroundColorNotSupported,
     /// Font does not contain given character
     GlyphNotFound(char),
     /// Internal error
     InternalError,
+    /// Writing to display failed
+    DisplayError(DisplayError),
 }
 
-impl core::fmt::Display for Error {
+impl<DisplayError> Display for Error<DisplayError>
+where
+    DisplayError: Display + Debug,
+{
     fn fmt(&self, f: &mut core::fmt::Formatter) -> std::fmt::Result {
         match self {
             Error::BackgroundColorNotSupported => {
@@ -20,6 +27,7 @@ impl core::fmt::Display for Error {
             Error::InternalError => {
                 write!(f, "Internal error.")
             }
+            Error::DisplayError(e) => write!(f, "Writing to display failed: {e}"),
         }
     }
 }

@@ -17,7 +17,7 @@ impl GlyphReader {
         }
     }
 
-    pub fn read_unsigned(&mut self, bits: u8) -> Result<u8, Error> {
+    pub fn read_unsigned<DisplayError>(&mut self, bits: u8) -> Result<u8, Error<DisplayError>> {
         let bit_start = self.bit_pos;
         let mut bit_end = bit_start + bits;
 
@@ -40,7 +40,7 @@ impl GlyphReader {
         Ok(out)
     }
 
-    pub fn read_signed(&mut self, bits: u8) -> Result<i8, Error> {
+    pub fn read_signed<DisplayError>(&mut self, bits: u8) -> Result<i8, Error<DisplayError>> {
         self.read_unsigned(bits)
             .map(|v| (v as i8).wrapping_sub(1 << (bits - 1)))
     }

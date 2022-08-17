@@ -1,4 +1,7 @@
-use embedded_graphics_core::prelude::Point;
+use embedded_graphics_core::{
+    prelude::{DrawTarget, Point, Size},
+    primitives::Rectangle,
+};
 
 use crate::{font_reader::FontReader, Error, Font};
 
@@ -17,16 +20,21 @@ impl FontRenderer {
         }
     }
 
-    pub fn render_glyph<Color>(
+    pub fn render_glyph<Color, Display>(
         &self,
         ch: char,
         pos: Point,
         fg: Color,
         bg: Option<Color>,
-    ) -> Result<i32, Error> {
-        if bg.is_some() && !self.font.supports_background_color {
-            return Err(Error::BackgroundColorNotSupported);
-        }
+        display: &mut Display,
+    ) -> Result<i8, Error<Display::Error>>
+    where
+        Color: Clone,
+        Display: DrawTarget<Color = Color>,
+    {
+        // if bg.is_some() && !self.font.supports_background_color {
+        //     return Err(Error::BackgroundColorNotSupported);
+        // }
         println!("{:#?}", self.font);
 
         let mut glyph = self.font.retrieve_glyph_data(ch)?;
@@ -44,6 +52,16 @@ impl FontRenderer {
         dbg!(y);
         dbg!(d);
 
-        todo!()
+        let topleft = Point::new(pos.x, pos.y);
+        let size = Size::new(glyph_width as u32, glyph_height as u32);
+
+        display
+            .fill_contiguous(
+                &Rectangle::new(topleft, size),
+                std::iter::from_fn(move || bg.clone()),
+            )
+            .map_err(Error::DisplayError)?;
+
+        Ok(d)
     }
 }

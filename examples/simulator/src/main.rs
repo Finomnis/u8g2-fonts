@@ -1,7 +1,7 @@
 use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
-    primitives::{Circle, PrimitiveStyle},
+    primitives::{Circle, Line, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 
@@ -18,12 +18,21 @@ fn main() -> Result<(), core::convert::Infallible> {
         .into_styled(PrimitiveStyle::with_fill(Rgb888::RED))
         .draw(&mut display)?;
 
+    Line::new(Point::new(0, 20), Point::new(40, 20))
+        .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+        .draw(&mut display)?;
+
+    Line::new(Point::new(20, 0), Point::new(20, 40))
+        .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+        .draw(&mut display)?;
+
     let advanced = FONT
         .render_glyph(
             'ß',
             Point::new(20, 20),
             Rgb888::CSS_DARK_BLUE,
-            None, //Some(Rgb888::CSS_DARK_GRAY),
+            Some(Rgb888::CSS_DARK_GRAY),
+            &mut display,
         )
         .unwrap();
 

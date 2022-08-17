@@ -54,7 +54,10 @@ impl FontReader {
         }
     }
 
-    pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
+    pub fn retrieve_glyph_data<DisplayError>(
+        &self,
+        ch: char,
+    ) -> Result<GlyphReader, Error<DisplayError>> {
         // Retrieve u16 glyph value
         let encoding = u16::try_from(ch as u32).map_err(|_| Error::GlyphNotFound(ch))?;
 
