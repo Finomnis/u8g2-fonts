@@ -1,4 +1,4 @@
-use embedded_graphics_core::prelude::{DrawTarget, Point};
+use embedded_graphics_core::prelude::{DrawTarget, PixelColor, Point};
 
 use crate::{font_reader::FontReader, Error, Font};
 
@@ -26,20 +26,21 @@ impl FontRenderer {
         display: &mut Display,
     ) -> Result<i8, Error<Display::Error>>
     where
-        Color: Clone + core::fmt::Debug,
+        Color: core::fmt::Debug + PixelColor,
         Display: DrawTarget<Color = Color>,
         Display::Error: core::fmt::Debug,
     {
-        let bg = bg.unwrap();
         // if bg.is_some() && !self.font.supports_background_color {
         //     return Err(Error::BackgroundColorNotSupported);
         // }
-        println!("{:#?}", self.font);
 
         let glyph = self.font.retrieve_glyph_data(ch)?;
-        glyph
-            .create_renderer()
-            .render_as_box_fill(pos, display, fg, bg)?;
+        let renderer = glyph.create_renderer();
+        if let Some(bg) = bg {
+            renderer.render_as_box_fill(pos, display, fg, bg)?;
+        } else {
+            renderer.render_transparent(pos, display, fg)?;
+        }
 
         Ok(glyph.advance())
     }

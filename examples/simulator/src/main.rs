@@ -40,7 +40,7 @@ fn main() -> Result<(), core::convert::Infallible> {
             'ß',
             Point::new(20 + advance as i32, 20),
             Rgb888::CSS_DARK_BLUE,
-            Some(Rgb888::CSS_DARK_GRAY),
+            None, //Some(Rgb888::CSS_DARK_GRAY),
             &mut display,
         )
         .unwrap();
@@ -57,6 +57,8 @@ fn main() -> Result<(), core::convert::Infallible> {
             }
         }
     }
+
+    println!("Shutting down ...");
 
     Ok(())
 }
