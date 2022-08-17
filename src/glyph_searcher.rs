@@ -2,8 +2,8 @@ use core::marker::PhantomData;
 
 use crate::{font_reader::FontReader, glyph_reader::GlyphReader, Error};
 
-pub struct ASCII_MODE;
-pub struct UTF8_MODE;
+pub struct AsciiMode;
+pub struct Utf8Mode;
 
 #[derive(Debug)]
 pub struct GlyphSearcher<MODE> {
@@ -23,7 +23,7 @@ impl<MODE> GlyphSearcher<MODE> {
 
 const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
 
-impl GlyphSearcher<ASCII_MODE> {
+impl GlyphSearcher<AsciiMode> {
     pub fn new(font: &FontReader) -> Self {
         Self {
             data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
@@ -60,4 +60,4 @@ impl GlyphSearcher<ASCII_MODE> {
     }
 }
 
-impl GlyphSearcher<UTF8_MODE> {}
+impl GlyphSearcher<Utf8Mode> {}
