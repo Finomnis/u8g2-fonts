@@ -7,7 +7,7 @@ use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEve
 
 use u8g2_fonts::{fonts, FontRenderer};
 
-const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_luRS24_tf>();
+const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>();
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));
@@ -46,7 +46,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advance = FONT
         .render_text(
-            "Angh Lorem ipsum dolor sit amet. A 20%!",
+            "Angh Lorem ipsum dolor sit amet. A 20%! \u{2603}",
             Point::new(20, 50),
             Rgb888::CSS_ORANGE,
             None,

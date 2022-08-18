@@ -85,7 +85,7 @@ impl FontReader {
             let _glyph = glyph.into_unicode_mode(self.array_offset_0x0100)?;
 
             // TODO: Support Unicode
-            todo!()
+            todo!("Unicode support not implemented yet!")
         }
     }
 }
