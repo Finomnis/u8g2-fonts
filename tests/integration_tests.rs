@@ -1,9 +1,42 @@
 mod util;
 
-use embedded_graphics_core::{pixelcolor::Rgb888, prelude::Point};
-use u8g2_fonts::{fonts, FontRenderer};
+use embedded_graphics_core::{
+    pixelcolor::Rgb888,
+    prelude::{Point, Size},
+};
+use u8g2_fonts::{fonts, Error, FontRenderer};
 
 use util::TestDrawTarget;
+
+#[test]
+fn letters_not_supported() {
+    let mut display = TestDrawTarget::new(Size::new(1, 1));
+
+    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>().render_glyph(
+        'a',
+        Point::new(2, 15),
+        Rgb888::new(237, 28, 36),
+        None,
+        &mut display,
+    );
+
+    assert!(matches!(result, Err(Error::GlyphNotFound('a'))))
+}
+
+#[test]
+fn unicode_not_supported() {
+    let mut display = TestDrawTarget::new(Size::new(1, 1));
+
+    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
+        '☃',
+        Point::new(2, 15),
+        Rgb888::new(237, 28, 36),
+        None,
+        &mut display,
+    );
+
+    assert!(matches!(result, Err(Error::GlyphNotFound('☃'))))
+}
 
 #[test]
 fn render_glyph() {

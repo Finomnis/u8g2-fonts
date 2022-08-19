@@ -65,11 +65,11 @@ impl FontReader {
 
         if encoding <= 255 {
             if encoding >= b'a' as u16 {
-                if !glyph.jump_by(self.array_offset_lower_a) {
+                if !glyph.jump_by(self.array_offset_lower_a as usize) {
                     return Err(Error::GlyphNotFound(ch));
                 };
             } else if encoding >= b'A' as u16 {
-                if !glyph.jump_by(self.array_offset_upper_a) {
+                if !glyph.jump_by(self.array_offset_upper_a as usize) {
                     return Err(Error::GlyphNotFound(ch));
                 };
             }
@@ -82,10 +82,29 @@ impl FontReader {
 
             glyph.into_glyph_reader()
         } else {
-            let _glyph = glyph.into_unicode_mode(self.array_offset_0x0100)?;
+            let (mut glyph, unicode_jump_table) =
+                glyph.into_unicode_mode(self.array_offset_0x0100)?;
 
-            // TODO: Support Unicode
-            todo!("Unicode support not implemented yet!")
+            let jump_offset = unicode_jump_table
+                .calculate_jump_offset(encoding)
+                .ok_or_else(|| Error::GlyphNotFound(ch))?;
+
+            glyph.jump_by(jump_offset);
+
+            loop {
+                let glyph_ch = glyph.get_ch()?;
+                if glyph_ch == 0 {
+                    return Err(Error::GlyphNotFound(ch));
+                }
+                if glyph_ch == encoding {
+                    break;
+                }
+                if !glyph.jump_to_next()? {
+                    return Err(Error::GlyphNotFound(ch));
+                }
+            }
+
+            glyph.into_glyph_reader()
         }
     }
 }
