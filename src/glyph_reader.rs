@@ -1,10 +1,11 @@
+use debug_ignore::DebugIgnore;
 use embedded_graphics_core::prelude::{Point, Size};
 
 use crate::{font_reader::FontReader, glyph_renderer::GlyphRenderer, Error};
 
 #[derive(Clone, Debug)]
 pub struct GlyphReader {
-    data: &'static [u8],
+    data: DebugIgnore<&'static [u8]>,
     bit_pos: u8,
     current_byte: u8,
     glyph_width: u8,
@@ -22,7 +23,7 @@ impl GlyphReader {
         font: &FontReader,
     ) -> Result<Self, Error<DisplayError>> {
         let mut this = Self {
-            data,
+            data: DebugIgnore(data),
             // Start at 8 to mark current_byte as invalid
             bit_pos: 8,
             current_byte: 0,
@@ -55,7 +56,7 @@ impl GlyphReader {
         // If necessary, fetch next byte
         if bit_end >= 8 {
             let value2 = *self.data.get(0).ok_or(Error::InternalError)?;
-            self.data = self.data.get(1..).ok_or(Error::InternalError)?;
+            *self.data = &self.data.get(1..).ok_or(Error::InternalError)?;
             bit_end -= 8;
             self.current_byte = value2;
 

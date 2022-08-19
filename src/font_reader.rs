@@ -1,8 +1,10 @@
+use debug_ignore::DebugIgnore;
+
 use crate::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, Error, Font};
 
 #[derive(Debug)]
 pub struct FontReader {
-    pub data: &'static [u8],
+    pub data: DebugIgnore<&'static [u8]>,
     pub supports_background_color: bool,
     pub glyph_count: u8,
     pub m0: u8,
@@ -30,7 +32,7 @@ impl FontReader {
         let data = F::DATA;
 
         Self {
-            data,
+            data: DebugIgnore(data),
             glyph_count: data[0],
             supports_background_color: data[1] != 0,
             m0: data[2],

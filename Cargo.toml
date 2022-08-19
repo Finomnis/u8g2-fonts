@@ -23,6 +23,7 @@ exclude = [
 
 [dependencies]
 embedded-graphics-core = "0.3.3"
+debug-ignore = "1.0.2"
 
 [dev-dependencies]
 boxed-array = "0.1.0"
