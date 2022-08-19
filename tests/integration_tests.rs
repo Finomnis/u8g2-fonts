@@ -39,6 +39,21 @@ fn unicode_not_supported() {
 }
 
 #[test]
+fn background_color_not_supported() {
+    let mut display = TestDrawTarget::new(Size::new(1, 1));
+
+    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
+        '☃',
+        Point::new(2, 15),
+        Rgb888::new(237, 28, 36),
+        Some(Rgb888::new(1, 1, 1)),
+        &mut display,
+    );
+
+    assert!(matches!(result, Err(Error::BackgroundColorNotSupported)))
+}
+
+#[test]
 fn render_glyph() {
     let advance =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_glyph.png"), |display| {
@@ -77,6 +92,26 @@ fn render_glyph_unicode() {
 }
 
 #[test]
+fn render_glyph_with_background_color() {
+    let advance = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_glyph_background.png"),
+        |display| {
+            FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
+                .render_glyph(
+                    'j',
+                    Point::new(2, 20),
+                    Rgb888::new(237, 28, 36),
+                    Some(Rgb888::new(1, 1, 1)),
+                    display,
+                )
+                .unwrap()
+        },
+    );
+
+    assert_eq!(advance, 10);
+}
+
+#[test]
 fn render_text() {
     let advance =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
@@ -112,6 +147,26 @@ fn render_text_unicode() {
     );
 
     assert_eq!(advance, 88);
+}
+
+#[test]
+fn render_text_with_background_color() {
+    let advance = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_background.png"),
+        |display| {
+            FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
+                .render_text(
+                    "Hello, W0rld!",
+                    Point::new(2, 20),
+                    Rgb888::new(237, 28, 36),
+                    Some(Rgb888::new(1, 1, 1)),
+                    display,
+                )
+                .unwrap()
+        },
+    );
+
+    assert_eq!(advance, 130);
 }
 
 #[test]
