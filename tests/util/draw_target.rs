@@ -62,11 +62,12 @@ impl Drop for TestDrawTarget {
                 let image::Rgb(expected) = *self.expected_image.get_pixel(x, y);
                 let actual = self.get_pixel(Point::new(x as i32, y as i32)).unwrap();
                 let actual = [actual.r(), actual.g(), actual.b()];
-                assert_eq!(
-                    expected, actual,
-                    "Pixel at position ({}, {}) does not match!",
-                    x, y
-                );
+                if expected != actual {
+                    panic!(
+                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\n",
+                        x, y, expected, actual
+                    );
+                }
             }
         }
     }
