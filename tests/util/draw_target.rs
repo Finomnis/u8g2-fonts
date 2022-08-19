@@ -35,7 +35,7 @@ impl TestDrawTarget {
         if p.x >= 0 && p.y >= 0 && (p.x as u32) < self.size.width && (p.y as u32) < self.size.height
         {
             self.data
-                .get(((p.y as u32) * self.size.height + p.x as u32) as usize)
+                .get(((p.y as u32) * self.size.width + p.x as u32) as usize)
                 .cloned()
         } else {
             None
@@ -47,12 +47,22 @@ impl TestDrawTarget {
         {
             if let Some(value) = self
                 .data
-                .get_mut(((p.y as u32) * self.size.height + p.x as u32) as usize)
+                .get_mut(((p.y as u32) * self.size.width + p.x as u32) as usize)
             {
                 *value = color;
             }
         }
     }
+}
+
+fn convert_image_to_data_url(img: &RgbImage) -> String {
+    let mut image_data = Vec::new();
+    let mut image_cursor = Cursor::new(&mut image_data);
+
+    img.write_to(&mut image_cursor, image::ImageFormat::Png)
+        .unwrap();
+
+    format!("data:image/png;base64,{}", base64::encode(image_data))
 }
 
 impl Drop for TestDrawTarget {
@@ -63,9 +73,19 @@ impl Drop for TestDrawTarget {
                 let actual = self.get_pixel(Point::new(x as i32, y as i32)).unwrap();
                 let actual = [actual.r(), actual.g(), actual.b()];
                 if expected != actual {
+                    let expected_data_url = convert_image_to_data_url(&self.expected_image);
+
+                    let actual_image =
+                        RgbImage::from_fn(self.size.width, self.size.height, |x, y| {
+                            let pix = self.get_pixel(Point::new(x as i32, y as i32)).unwrap();
+                            image::Rgb([pix.r(), pix.g(), pix.b()])
+                        });
+
+                    let actual_data_url = convert_image_to_data_url(&actual_image);
+
                     panic!(
-                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\n",
-                        x, y, expected, actual
+                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\nExpected image:\n{}\n\nActual image:\n{}\n\n",
+                        x, y, expected, actual, expected_data_url, actual_data_url
                     );
                 }
             }

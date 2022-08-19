@@ -1,9 +1,6 @@
 mod util;
 
-use embedded_graphics_core::{
-    pixelcolor::Rgb888,
-    prelude::{Point, RgbColor},
-};
+use embedded_graphics_core::{pixelcolor::Rgb888, prelude::Point};
 use u8g2_fonts::{fonts, FontRenderer};
 
 use util::TestDrawTarget;
@@ -16,7 +13,7 @@ fn render_text() {
         .render_text(
             "Hello World!",
             Point::new(2, 15),
-            Rgb888::RED,
+            Rgb888::new(237, 28, 36),
             None,
             &mut display,
         )
