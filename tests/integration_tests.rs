@@ -3,6 +3,7 @@ mod util;
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
     prelude::{Point, Size},
+    primitives::Rectangle,
 };
 use u8g2_fonts::{fonts, Error, FontRenderer};
 
@@ -51,6 +52,24 @@ fn background_color_not_supported() {
     );
 
     assert!(matches!(result, Err(Error::BackgroundColorNotSupported)))
+}
+
+#[test]
+fn get_ascent_and_descent() {
+    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+
+    assert_eq!(font.get_ascent(), 21);
+    assert_eq!(font.get_descent(), -7);
+}
+
+#[test]
+fn get_glyph_bounding_box() {
+    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+
+    assert_eq!(
+        font.get_glyph_bounding_box(),
+        Rectangle::new(Point::new(-1, -28), Size::new(31, 36))
+    );
 }
 
 #[test]

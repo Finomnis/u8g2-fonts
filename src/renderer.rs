@@ -1,8 +1,12 @@
-use embedded_graphics_core::prelude::{DrawTarget, Point};
+use embedded_graphics_core::{
+    prelude::{DrawTarget, Point, Size},
+    primitives::Rectangle,
+};
 
 use crate::{font_reader::FontReader, Error, Font};
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
+#[derive(Debug)]
 pub struct FontRenderer {
     font: FontReader,
 }
@@ -124,5 +128,34 @@ impl FontRenderer {
         }
 
         Ok(advance)
+    }
+
+    /// The ascent of the font.
+    ///
+    /// Usually a positive number.
+    pub fn get_ascent(&self) -> i8 {
+        self.font.ascent
+    }
+
+    /// The descent of the font.
+    ///
+    /// *IMPORTANT*: This is usually a *negative* number.
+    pub fn get_descent(&self) -> i8 {
+        self.font.descent
+    }
+
+    /// The maximum possible bounding box of a glyph if it was rendered with its baseline at (0,0).
+    pub fn get_glyph_bounding_box(&self) -> Rectangle {
+        Rectangle {
+            top_left: Point::new(
+                self.font.font_bounding_box_x_offset as i32,
+                -(self.font.font_bounding_box_height as i32
+                    + self.font.font_bounding_box_y_offset as i32),
+            ),
+            size: Size::new(
+                self.font.font_bounding_box_width as u32,
+                self.font.font_bounding_box_height as u32,
+            ),
+        }
     }
 }
