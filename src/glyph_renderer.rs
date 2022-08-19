@@ -17,6 +17,10 @@ impl GlyphRenderer {
         }
     }
 
+    fn get_glyph_bounding_box(&self, position: Point) -> Rectangle {
+        Rectangle::new(self.glyph.topleft(&position), self.glyph.size())
+    }
+
     pub fn render_as_box_fill<Display>(
         mut self,
         position: Point,
@@ -28,8 +32,7 @@ impl GlyphRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let topleft = self.glyph.topleft(&position);
-        let size = self.glyph.size();
+        let glyph_bounding_box = self.get_glyph_bounding_box(position);
 
         let color_iter = {
             let mut num_zeros = self.glyph.read_runlength_0()?;
@@ -60,10 +63,7 @@ impl GlyphRenderer {
         };
 
         display
-            .fill_contiguous(
-                &Rectangle::new(topleft, size),
-                core::iter::from_fn(color_iter),
-            )
+            .fill_contiguous(&glyph_bounding_box, core::iter::from_fn(color_iter))
             .map_err(Error::DisplayError)
     }
 
@@ -77,10 +77,9 @@ impl GlyphRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let topleft = self.glyph.topleft(&position);
-        let size = self.glyph.size();
-        let width = size.width as i32;
-        let height = size.height as i32;
+        let glyph_bounding_box = self.get_glyph_bounding_box(position);
+        let width = glyph_bounding_box.size.width as i32;
+        let height = glyph_bounding_box.size.height as i32;
 
         let pixel_iter = {
             let mut num_zeros = self.glyph.read_runlength_0()?;
@@ -117,7 +116,10 @@ impl GlyphRenderer {
                     num_ones_leftover = num_ones;
                 }
 
-                let pixel = Pixel(Point::new(topleft.x + x, topleft.y + y), foreground_color);
+                let pixel = Pixel(
+                    glyph_bounding_box.top_left + Point::new(x, y),
+                    foreground_color,
+                );
                 x += 1;
                 if x >= width {
                     x -= width;
