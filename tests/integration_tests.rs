@@ -209,49 +209,26 @@ fn render_text_with_font_pos() {
                 )
                 .unwrap();
 
-            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
-                .render_text(
-                    "Agi",
-                    Point::new(5, 25),
-                    Rgb888::new(237, 28, 36),
-                    None,
-                    FontPos::Center,
-                    display,
-                )
-                .unwrap();
-
-            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
-                .render_text(
-                    "Agi",
-                    Point::new(55, 25),
-                    Rgb888::new(237, 28, 36),
-                    None,
-                    FontPos::Top,
-                    display,
-                )
-                .unwrap();
-
-            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
-                .render_text(
-                    "Agi",
-                    Point::new(105, 25),
-                    Rgb888::new(237, 28, 36),
-                    None,
-                    FontPos::Baseline,
-                    display,
-                )
-                .unwrap();
-
-            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
-                .render_text(
-                    "Agi",
-                    Point::new(155, 25),
-                    Rgb888::new(237, 28, 36),
-                    None,
-                    FontPos::Bottom,
-                    display,
-                )
-                .unwrap();
+            for (x_position, font_pos) in [
+                FontPos::Center,
+                FontPos::Top,
+                FontPos::Baseline,
+                FontPos::Bottom,
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                    .render_text(
+                        "Agi",
+                        Point::new(5 + 50 * x_position as i32, 25),
+                        Rgb888::new(237, 28, 36),
+                        None,
+                        font_pos,
+                        display,
+                    )
+                    .unwrap();
+            }
         },
     );
 }
