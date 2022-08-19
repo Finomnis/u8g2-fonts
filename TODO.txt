@@ -8,5 +8,11 @@
 - Newline handling - especially with alignment
    - total alignment vs text alignment
 
-- Rotation (like in u8g2)
+- Create a big test case with all possible (multiline!) alignments in one image
+    (topleft, topmid, topright, midleft, midmid, etc)
+
 - Do font generation check in CI
+
+
+Maybe later, if requested:
+- Rotation (like in u8g2)
