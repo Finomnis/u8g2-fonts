@@ -7,7 +7,7 @@ use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEve
 
 use u8g2_fonts::{fonts, FontRenderer};
 
-const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_inb21_mn>();
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));
@@ -27,26 +27,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         .draw(&mut display)?;
 
     let advance = FONT
-        .render_glyph(
-            ' ',
-            Point::new(20, 20),
-            Rgb888::CSS_YELLOW,
-            None, //Some(Rgb888::CSS_DARK_GRAY),
-            &mut display,
-        )
-        .unwrap();
-    FONT.render_glyph(
-        'ß',
-        Point::new(20 + advance as i32, 20),
-        Rgb888::CSS_YELLOW,
-        None, //Some(Rgb888::CSS_DARK_GRAY),
-        &mut display,
-    )
-    .unwrap();
-
-    let advance = FONT
         .render_text(
-            "Angh Lorem ipsum dolor sit amet. A 20%!",
+            "1234567890-.,",
             Point::new(20, 50),
             Rgb888::CSS_ORANGE,
             None,

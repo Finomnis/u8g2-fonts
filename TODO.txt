@@ -1,5 +1,4 @@
 - Vertical font position (like in u8g2, called font_calc_vref)
-- Add unicode retrieval
 
 - FontRenderer::get_glyph_dimensions
 - FontRenderer::get_text_dimensions
