@@ -5,7 +5,7 @@ use embedded_graphics_core::{
     prelude::{Point, Size},
     primitives::Rectangle,
 };
-use u8g2_fonts::{fonts, Error, FontRenderer};
+use u8g2_fonts::{fonts, types::FontPos, Error, FontRenderer};
 
 use util::TestDrawTarget;
 
@@ -18,6 +18,7 @@ fn letters_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         None,
+        FontPos::default(),
         &mut display,
     );
 
@@ -33,6 +34,7 @@ fn unicode_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         None,
+        FontPos::default(),
         &mut display,
     );
 
@@ -48,6 +50,7 @@ fn background_color_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         Some(Rgb888::new(1, 1, 1)),
+        FontPos::default(),
         &mut display,
     );
 
@@ -82,6 +85,7 @@ fn render_glyph() {
                     Point::new(2, 15),
                     Rgb888::new(237, 28, 36),
                     None,
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()
@@ -101,6 +105,7 @@ fn render_glyph_unicode() {
                     Point::new(4, 19),
                     Rgb888::new(237, 28, 36),
                     None,
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()
@@ -121,6 +126,7 @@ fn render_glyph_with_background_color() {
                     Point::new(2, 20),
                     Rgb888::new(237, 28, 36),
                     Some(Rgb888::new(1, 1, 1)),
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()
@@ -140,6 +146,7 @@ fn render_text() {
                     Point::new(2, 15),
                     Rgb888::new(237, 28, 36),
                     None,
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()
@@ -159,6 +166,7 @@ fn render_text_unicode() {
                     Point::new(5, 20),
                     Rgb888::new(237, 28, 36),
                     None,
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()
@@ -179,6 +187,7 @@ fn render_text_with_background_color() {
                     Point::new(2, 20),
                     Rgb888::new(237, 28, 36),
                     Some(Rgb888::new(1, 1, 1)),
+                    FontPos::default(),
                     display,
                 )
                 .unwrap()

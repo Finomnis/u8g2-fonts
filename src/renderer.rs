@@ -3,7 +3,7 @@ use embedded_graphics_core::{
     primitives::Rectangle,
 };
 
-use crate::{font_reader::FontReader, Error, Font};
+use crate::{font_reader::FontReader, types::FontPos, Error, Font};
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug)]
@@ -37,6 +37,7 @@ impl FontRenderer {
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
+    /// * `font_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -49,6 +50,7 @@ impl FontRenderer {
         position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
+        font_pos: FontPos,
         display: &mut Display,
     ) -> Result<i8, Error<Display::Error>>
     where
@@ -65,16 +67,17 @@ impl FontRenderer {
         let size = glyph.size();
 
         if size.width > 0 && size.height > 0 {
-            let renderer = glyph.create_renderer();
+            let renderer = glyph.create_renderer(&self.font);
             if let Some(background_color) = background_color {
                 renderer.render_as_box_fill(
                     position,
+                    font_pos,
                     display,
                     foreground_color,
                     background_color,
                 )?;
             } else {
-                renderer.render_transparent(position, display, foreground_color)?;
+                renderer.render_transparent(position, font_pos, display, foreground_color)?;
             }
         }
 
@@ -94,6 +97,7 @@ impl FontRenderer {
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
+    /// * `font_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -106,6 +110,7 @@ impl FontRenderer {
         position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
+        font_pos: FontPos,
         display: &mut Display,
     ) -> Result<i32, Error<Display::Error>>
     where
@@ -123,6 +128,7 @@ impl FontRenderer {
                 Point::new(position.x + advance, position.y),
                 foreground_color,
                 background_color,
+                font_pos,
                 display,
             )? as i32;
         }

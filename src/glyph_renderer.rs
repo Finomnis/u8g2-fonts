@@ -4,26 +4,43 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{glyph_reader::GlyphReader, Error};
+use crate::{font_reader::FontReader, glyph_reader::GlyphReader, types::FontPos, Error};
 
-pub struct GlyphRenderer {
+pub struct GlyphRenderer<'a> {
     glyph: GlyphReader,
+    font: &'a FontReader,
 }
 
-impl GlyphRenderer {
-    pub fn new(glyph: &GlyphReader) -> Self {
+impl<'a> GlyphRenderer<'a> {
+    pub fn new(glyph: &GlyphReader, font: &'a FontReader) -> Self {
         Self {
             glyph: glyph.clone(),
+            font,
         }
     }
 
-    fn get_glyph_bounding_box(&self, position: Point) -> Rectangle {
-        Rectangle::new(self.glyph.topleft(&position), self.glyph.size())
+    fn get_glyph_bounding_box(&self, position: Point, font_pos: FontPos) -> Rectangle {
+        let mut topleft = self.glyph.topleft(&position);
+
+        // Taken directly from U8g2 code
+        let offset = match font_pos {
+            FontPos::Baseline => 0,
+            FontPos::Top => self.font.ascent as i32 + 1,
+            FontPos::Center => {
+                (self.font.ascent as i32 - self.font.descent as i32) / 2 + self.font.descent as i32
+            }
+            FontPos::Bottom => self.font.descent as i32,
+        };
+
+        topleft.y += offset;
+
+        Rectangle::new(topleft, self.glyph.size())
     }
 
     pub fn render_as_box_fill<Display>(
         mut self,
         position: Point,
+        font_pos: FontPos,
         display: &mut Display,
         foreground_color: Display::Color,
         background_color: Display::Color,
@@ -32,7 +49,7 @@ impl GlyphRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let glyph_bounding_box = self.get_glyph_bounding_box(position);
+        let glyph_bounding_box = self.get_glyph_bounding_box(position, font_pos);
 
         let color_iter = {
             let mut num_zeros = self.glyph.read_runlength_0()?;
@@ -70,6 +87,7 @@ impl GlyphRenderer {
     pub fn render_transparent<Display>(
         mut self,
         position: Point,
+        font_pos: FontPos,
         display: &mut Display,
         foreground_color: Display::Color,
     ) -> Result<(), Error<Display::Error>>
@@ -77,7 +95,7 @@ impl GlyphRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let glyph_bounding_box = self.get_glyph_bounding_box(position);
+        let glyph_bounding_box = self.get_glyph_bounding_box(position, font_pos);
         let width = glyph_bounding_box.size.width as i32;
         let height = glyph_bounding_box.size.height as i32;
 

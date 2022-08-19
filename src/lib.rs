@@ -25,6 +25,9 @@ mod unicode_jumptable_reader;
 #[allow(missing_docs)]
 pub mod fonts;
 
+/// Data types used in common API functions.
+pub mod types;
+
 pub use error::Error;
 pub use font::Font;
 pub use renderer::FontRenderer;
