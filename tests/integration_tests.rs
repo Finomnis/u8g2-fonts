@@ -2,7 +2,7 @@ mod util;
 
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
-    prelude::{Point, Size},
+    prelude::{DrawTarget, OriginDimensions, Point, Size},
     primitives::Rectangle,
 };
 use u8g2_fonts::{fonts, types::FontPos, Error, FontRenderer};
@@ -195,6 +195,65 @@ fn render_text_with_background_color() {
     );
 
     assert_eq!(advance, 130);
+}
+
+#[test]
+fn render_text_with_font_pos() {
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_with_font_pos.png"),
+        |display| {
+            display
+                .fill_solid(
+                    &Rectangle::new(Point::new(0, 25), Size::new(display.size().width, 1)),
+                    Rgb888::new(63, 72, 204),
+                )
+                .unwrap();
+
+            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                .render_text(
+                    "Agi",
+                    Point::new(5, 25),
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    FontPos::Center,
+                    display,
+                )
+                .unwrap();
+
+            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                .render_text(
+                    "Agi",
+                    Point::new(55, 25),
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    FontPos::Top,
+                    display,
+                )
+                .unwrap();
+
+            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                .render_text(
+                    "Agi",
+                    Point::new(105, 25),
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    FontPos::Baseline,
+                    display,
+                )
+                .unwrap();
+
+            FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                .render_text(
+                    "Agi",
+                    Point::new(155, 25),
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    FontPos::Bottom,
+                    display,
+                )
+                .unwrap();
+        },
+    );
 }
 
 #[test]
