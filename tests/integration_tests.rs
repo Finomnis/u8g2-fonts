@@ -64,7 +64,7 @@ fn render_glyph_unicode() {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
                 .render_glyph(
                     '☃',
-                    Point::new(2, 15),
+                    Point::new(4, 19),
                     Rgb888::new(237, 28, 36),
                     None,
                     display,
@@ -73,7 +73,7 @@ fn render_glyph_unicode() {
         },
     );
 
-    assert_eq!(advance, 4);
+    assert_eq!(advance, 16);
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn render_text_unicode() {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
                 .render_text(
                     "Snowman: ☃",
-                    Point::new(2, 15),
+                    Point::new(5, 20),
                     Rgb888::new(237, 28, 36),
                     None,
                     display,
@@ -111,7 +111,7 @@ fn render_text_unicode() {
         },
     );
 
-    assert_eq!(advance, 4);
+    assert_eq!(advance, 88);
 }
 
 #[test]
