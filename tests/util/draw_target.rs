@@ -6,29 +6,58 @@ use image::RgbImage;
 pub struct TestDrawTarget {
     size: Size,
     data: Vec<<Self as DrawTarget>::Color>,
-    expected_image: RgbImage,
 }
 
 impl TestDrawTarget {
-    pub fn expect_image(image_data: &'static [u8]) -> Self {
-        let image_reader = image::io::Reader::new(Cursor::new(image_data))
-            .with_guessed_format()
-            .expect("Reference image data is not a recognized image format!");
-        let image: RgbImage = image_reader
-            .decode()
-            .expect("Reference image data content is invalid")
-            .into_rgb8();
-
-        let size = Size::new(image.width(), image.height());
-
+    pub fn new(size: Size) -> Self {
         Self {
             size,
             data: vec![
                 <Self as DrawTarget>::Color::WHITE;
                 size.width as usize * size.height as usize
             ],
-            expected_image: image,
         }
+    }
+
+    pub fn expect_image<T>(image_data: &'static [u8], render: impl FnOnce(&mut Self) -> T) -> T {
+        let expected_image: RgbImage = image::io::Reader::new(Cursor::new(image_data))
+            .with_guessed_format()
+            .expect("Reference image data is not a recognized image format!")
+            .decode()
+            .expect("Reference image data content is invalid")
+            .into_rgb8();
+
+        let size = Size::new(expected_image.width(), expected_image.height());
+
+        let mut display = Self::new(size);
+
+        let result = render(&mut display);
+
+        // Check for expected result
+        for y in 0..size.height {
+            for x in 0..size.width {
+                let image::Rgb(expected) = *expected_image.get_pixel(x, y);
+                let actual = display.get_pixel(Point::new(x as i32, y as i32)).unwrap();
+                let actual = [actual.r(), actual.g(), actual.b()];
+                if expected != actual {
+                    let expected_data_url = convert_image_to_data_url(&expected_image);
+
+                    let actual_image = RgbImage::from_fn(size.width, size.height, |x, y| {
+                        let pix = display.get_pixel(Point::new(x as i32, y as i32)).unwrap();
+                        image::Rgb([pix.r(), pix.g(), pix.b()])
+                    });
+
+                    let actual_data_url = convert_image_to_data_url(&actual_image);
+
+                    panic!(
+                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\nExpected image:\n{}\n\nActual image:\n{}\n\n",
+                        x, y, expected, actual, expected_data_url, actual_data_url
+                    );
+                }
+            }
+        }
+
+        result
     }
 
     pub fn get_pixel(&self, p: Point) -> Option<<Self as DrawTarget>::Color> {
@@ -63,34 +92,6 @@ fn convert_image_to_data_url(img: &RgbImage) -> String {
         .unwrap();
 
     format!("data:image/png;base64,{}", base64::encode(image_data))
-}
-
-impl Drop for TestDrawTarget {
-    fn drop(&mut self) {
-        for y in 0..self.size.height {
-            for x in 0..self.size.width {
-                let image::Rgb(expected) = *self.expected_image.get_pixel(x, y);
-                let actual = self.get_pixel(Point::new(x as i32, y as i32)).unwrap();
-                let actual = [actual.r(), actual.g(), actual.b()];
-                if expected != actual {
-                    let expected_data_url = convert_image_to_data_url(&self.expected_image);
-
-                    let actual_image =
-                        RgbImage::from_fn(self.size.width, self.size.height, |x, y| {
-                            let pix = self.get_pixel(Point::new(x as i32, y as i32)).unwrap();
-                            image::Rgb([pix.r(), pix.g(), pix.b()])
-                        });
-
-                    let actual_data_url = convert_image_to_data_url(&actual_image);
-
-                    panic!(
-                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\nExpected image:\n{}\n\nActual image:\n{}\n\n",
-                        x, y, expected, actual, expected_data_url, actual_data_url
-                    );
-                }
-            }
-        }
-    }
 }
 
 impl DrawTarget for TestDrawTarget {
