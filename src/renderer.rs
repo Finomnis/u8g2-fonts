@@ -109,6 +109,7 @@ impl FontRenderer {
     /// # Return
     ///
     /// The total pixel advance of all rendered glyphs.
+    /// Two-dimensional, as newlines change the y position.
     ///
     pub fn render_text<Display>(
         &self,
@@ -118,25 +119,27 @@ impl FontRenderer {
         background_color: Option<Display::Color>,
         font_pos: FontPos,
         display: &mut Display,
-    ) -> Result<i32, Error<Display::Error>>
+    ) -> Result<Point, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let mut advance = 0;
+        let mut advance = Point::new(0, 0);
 
         for ch in text.chars() {
             if ch == '\n' {
-                todo!("Newline not implemented yet!");
+                advance.x = 0;
+                advance.y += self.font.font_bounding_box_height as i32 + 1;
+            } else {
+                advance.x += self.render_glyph(
+                    ch,
+                    position + advance,
+                    foreground_color,
+                    background_color,
+                    font_pos,
+                    display,
+                )? as i32;
             }
-            advance += self.render_glyph(
-                ch,
-                Point::new(position.x + advance, position.y),
-                foreground_color,
-                background_color,
-                font_pos,
-                display,
-            )? as i32;
         }
 
         Ok(advance)

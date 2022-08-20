@@ -152,7 +152,7 @@ fn render_text() {
                 .unwrap()
         });
 
-    assert_eq!(advance, 121);
+    assert_eq!(advance, Point::new(121, 0));
 }
 
 #[test]
@@ -173,7 +173,7 @@ fn render_text_unicode() {
         },
     );
 
-    assert_eq!(advance, 88);
+    assert_eq!(advance, Point::new(88, 0));
 }
 
 #[test]
@@ -194,7 +194,7 @@ fn render_text_with_background_color() {
         },
     );
 
-    assert_eq!(advance, 130);
+    assert_eq!(advance, Point::new(130, 0));
 }
 
 #[test]
@@ -231,6 +231,27 @@ fn render_text_with_font_pos() {
             }
         },
     );
+}
+
+#[test]
+fn render_text_with_newline() {
+    let advance = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_newline.png"),
+        |display| {
+            FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+                .render_text(
+                    "Hello,\nWorld!",
+                    Point::new(2, 15),
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    FontPos::default(),
+                    display,
+                )
+                .unwrap()
+        },
+    );
+
+    assert_eq!(advance, Point::new(65, 21));
 }
 
 #[test]
