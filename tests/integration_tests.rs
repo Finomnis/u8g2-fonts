@@ -234,6 +234,50 @@ fn render_text_with_font_pos() {
 }
 
 #[test]
+fn get_glyph_dimensions() {
+    let font = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/glyph_dimensions.png"),
+        |display| {
+            display
+                .fill_solid(
+                    &Rectangle::new(Point::new(0, 15), Size::new(display.size().width, 1)),
+                    Rgb888::new(63, 72, 204),
+                )
+                .unwrap();
+
+            for (pos, (ch, font_pos)) in [
+                ('j', FontPos::Baseline),
+                ('A', FontPos::Bottom),
+                ('c', FontPos::Top),
+                (')', FontPos::Center),
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                let position = Point::new(2 + 10 * pos as i32, 15);
+                let dim = font.get_glyph_dimensions(ch, position, font_pos).unwrap();
+
+                display
+                    .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(2, 2, 2))
+                    .unwrap();
+
+                font.render_glyph(
+                    ch,
+                    position,
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    font_pos,
+                    display,
+                )
+                .unwrap();
+            }
+        },
+    );
+}
+
+#[test]
 fn dimensions_text() {
     // let mut display = TestDrawTarget::expect_image(std::include_bytes!("assets/boxed.png"));
 

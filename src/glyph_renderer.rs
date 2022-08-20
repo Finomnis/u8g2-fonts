@@ -19,7 +19,7 @@ impl<'a> GlyphRenderer<'a> {
         }
     }
 
-    fn get_glyph_bounding_box(&self, position: Point, font_pos: FontPos) -> Rectangle {
+    pub fn get_glyph_bounding_box(&self, position: Point, font_pos: FontPos) -> Rectangle {
         let mut topleft = self.glyph.topleft(&position);
 
         // Taken directly from U8g2 code

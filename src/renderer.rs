@@ -1,9 +1,15 @@
+use core::convert::Infallible;
+
 use embedded_graphics_core::{
     prelude::{DrawTarget, Point, Size},
     primitives::Rectangle,
 };
 
-use crate::{font_reader::FontReader, types::FontPos, Error, Font};
+use crate::{
+    font_reader::FontReader,
+    types::{FontPos, RenderedDimensions},
+    Error, Font,
+};
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug)]
@@ -134,6 +140,42 @@ impl FontRenderer {
         }
 
         Ok(advance)
+    }
+
+    /// Calculates the dimensions that rendering a glyph with [render_glyph()] would produce
+    ///
+    /// # Arguments
+    ///
+    /// * `ch` - The character to render.
+    /// * `position` - The position to render to.
+    /// * `font_pos` - The vertical positioning.
+    /// * `display` - The display to render to.
+    ///
+    /// # Return
+    ///
+    /// The pixel advance of the rendered glyph, indicating the required offset to render the next character.
+    ///
+    pub fn get_glyph_dimensions(
+        &self,
+        ch: char,
+        position: Point,
+        font_pos: FontPos,
+    ) -> Result<RenderedDimensions, Error<Infallible>> {
+        let glyph = self.font.retrieve_glyph_data(ch)?;
+
+        let advance = glyph.advance();
+        let size = glyph.size();
+
+        let bounding_box = (size.width > 0 && size.height > 0).then(|| {
+            glyph
+                .create_renderer(&self.font)
+                .get_glyph_bounding_box(position, font_pos)
+        });
+
+        Ok(RenderedDimensions {
+            advance: Point::new(advance as i32, 0),
+            bounding_box,
+        })
     }
 
     /// The ascent of the font.
