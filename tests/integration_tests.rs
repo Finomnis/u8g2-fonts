@@ -299,6 +299,40 @@ fn get_glyph_dimensions() {
 }
 
 #[test]
+fn get_text_dimensions() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/text_dimensions.png"),
+        |display| {
+            let text = "Hello,\nWorld!";
+            let position = Point::new(2, 15);
+            let font_pos = FontPos::default();
+
+            let dim = font.get_text_dimensions(text, position, font_pos).unwrap();
+            assert_eq!(dim.advance, Point::new(65, 21));
+
+            display
+                .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(3, 3, 3))
+                .unwrap();
+
+            let advance = font
+                .render_text(
+                    text,
+                    position,
+                    Rgb888::new(237, 28, 36),
+                    None,
+                    font_pos,
+                    display,
+                )
+                .unwrap();
+
+            assert_eq!(advance, dim.advance);
+        },
+    );
+}
+
+#[test]
 fn dimensions_text() {
     // let mut display = TestDrawTarget::expect_image(std::include_bytes!("assets/boxed.png"));
 

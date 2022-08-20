@@ -8,6 +8,7 @@ use embedded_graphics_core::{
 use crate::{
     font_reader::FontReader,
     types::{FontPos, RenderedDimensions},
+    utils::combine_bounding_boxes,
     Error, Font,
 };
 
@@ -145,7 +146,7 @@ impl FontRenderer {
         Ok(advance)
     }
 
-    /// Calculates the dimensions that rendering a glyph with [render_glyph()] would produce
+    /// Calculates the dimensions that rendering a glyph with [render_glyph()] would produce.
     ///
     /// # Arguments
     ///
@@ -177,6 +178,46 @@ impl FontRenderer {
 
         Ok(RenderedDimensions {
             advance: Point::new(advance as i32, 0),
+            bounding_box,
+        })
+    }
+
+    /// Calculates the dimensions that rendering a text with [render_text()] would produce.
+    ///
+    /// # Arguments
+    ///
+    /// * `text` - The text to render.
+    /// * `position` - The position to render to.
+    /// * `font_pos` - The vertical positioning.
+    /// * `display` - The display to render to.
+    ///
+    /// # Return
+    ///
+    /// The pixel advance of the rendered text, indicating the required offset to render the next character.
+    ///
+    pub fn get_text_dimensions(
+        &self,
+        text: &str,
+        position: Point,
+        font_pos: FontPos,
+    ) -> Result<RenderedDimensions, Error<Infallible>> {
+        let mut advance = Point::new(0, 0);
+        let mut bounding_box = None;
+
+        for ch in text.chars() {
+            if ch == '\n' {
+                advance.x = 0;
+                advance.y += self.font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions = self.get_glyph_dimensions(ch, position + advance, font_pos)?;
+
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+            }
+        }
+
+        Ok(RenderedDimensions {
+            advance,
             bounding_box,
         })
     }
