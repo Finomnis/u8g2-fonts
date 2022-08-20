@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 
 use crate::{
     font_reader::FontReader,
-    types::{FontPos, RenderedDimensions},
+    types::{RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
     Error, Font,
 };
@@ -44,7 +44,7 @@ impl FontRenderer {
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
-    /// * `font_pos` - The vertical positioning.
+    /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -57,7 +57,7 @@ impl FontRenderer {
         position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
-        font_pos: FontPos,
+        vertical_pos: VerticalPosition,
         display: &mut Display,
     ) -> Result<i8, Error<Display::Error>>
     where
@@ -78,13 +78,13 @@ impl FontRenderer {
             if let Some(background_color) = background_color {
                 renderer.render_as_box_fill(
                     position,
-                    font_pos,
+                    vertical_pos,
                     display,
                     foreground_color,
                     background_color,
                 )?;
             } else {
-                renderer.render_transparent(position, font_pos, display, foreground_color)?;
+                renderer.render_transparent(position, vertical_pos, display, foreground_color)?;
             }
         }
 
@@ -104,7 +104,7 @@ impl FontRenderer {
     /// * `position` - The position to render to.
     /// * `foreground_color` - The foreground color.
     /// * `background_color` - The background color.
-    /// * `font_pos` - The vertical positioning.
+    /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -118,7 +118,7 @@ impl FontRenderer {
         position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
-        font_pos: FontPos,
+        vertical_pos: VerticalPosition,
         display: &mut Display,
     ) -> Result<Point, Error<Display::Error>>
     where
@@ -137,7 +137,7 @@ impl FontRenderer {
                     position + advance,
                     foreground_color,
                     background_color,
-                    font_pos,
+                    vertical_pos,
                     display,
                 )? as i32;
             }
@@ -152,7 +152,7 @@ impl FontRenderer {
     ///
     /// * `ch` - The character to render.
     /// * `position` - The position to render to.
-    /// * `font_pos` - The vertical positioning.
+    /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -163,7 +163,7 @@ impl FontRenderer {
         &self,
         ch: char,
         position: Point,
-        font_pos: FontPos,
+        vertical_pos: VerticalPosition,
     ) -> Result<RenderedDimensions, Error<Infallible>> {
         let glyph = self.font.retrieve_glyph_data(ch)?;
 
@@ -173,7 +173,7 @@ impl FontRenderer {
         let bounding_box = (size.width > 0 && size.height > 0).then(|| {
             glyph
                 .create_renderer(&self.font)
-                .get_glyph_bounding_box(position, font_pos)
+                .get_glyph_bounding_box(position, vertical_pos)
         });
 
         Ok(RenderedDimensions {
@@ -188,7 +188,7 @@ impl FontRenderer {
     ///
     /// * `text` - The text to render.
     /// * `position` - The position to render to.
-    /// * `font_pos` - The vertical positioning.
+    /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
     /// # Return
@@ -199,7 +199,7 @@ impl FontRenderer {
         &self,
         text: &str,
         position: Point,
-        font_pos: FontPos,
+        vertical_pos: VerticalPosition,
     ) -> Result<RenderedDimensions, Error<Infallible>> {
         let mut advance = Point::new(0, 0);
         let mut bounding_box = None;
@@ -209,7 +209,7 @@ impl FontRenderer {
                 advance.x = 0;
                 advance.y += self.font.font_bounding_box_height as i32 + 1;
             } else {
-                let dimensions = self.get_glyph_dimensions(ch, position + advance, font_pos)?;
+                let dimensions = self.get_glyph_dimensions(ch, position + advance, vertical_pos)?;
 
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);

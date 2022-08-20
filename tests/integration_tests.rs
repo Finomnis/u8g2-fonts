@@ -5,7 +5,7 @@ use embedded_graphics_core::{
     prelude::{DrawTarget, OriginDimensions, Point, Size},
     primitives::Rectangle,
 };
-use u8g2_fonts::{fonts, types::FontPos, Error, FontRenderer};
+use u8g2_fonts::{fonts, types::VerticalPosition, Error, FontRenderer};
 
 use util::TestDrawTarget;
 
@@ -18,7 +18,7 @@ fn letters_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         None,
-        FontPos::default(),
+        VerticalPosition::default(),
         &mut display,
     );
 
@@ -34,7 +34,7 @@ fn unicode_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         None,
-        FontPos::default(),
+        VerticalPosition::default(),
         &mut display,
     );
 
@@ -50,7 +50,7 @@ fn background_color_not_supported() {
         Point::new(2, 15),
         Rgb888::new(237, 28, 36),
         Some(Rgb888::new(1, 1, 1)),
-        FontPos::default(),
+        VerticalPosition::default(),
         &mut display,
     );
 
@@ -85,7 +85,7 @@ fn render_glyph() {
                     Point::new(2, 15),
                     Rgb888::new(237, 28, 36),
                     None,
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -105,7 +105,7 @@ fn render_glyph_unicode() {
                     Point::new(4, 19),
                     Rgb888::new(237, 28, 36),
                     None,
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -126,7 +126,7 @@ fn render_glyph_with_background_color() {
                     Point::new(2, 20),
                     Rgb888::new(237, 28, 36),
                     Some(Rgb888::new(1, 1, 1)),
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -146,7 +146,7 @@ fn render_text() {
                     Point::new(2, 15),
                     Rgb888::new(237, 28, 36),
                     None,
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -166,7 +166,7 @@ fn render_text_unicode() {
                     Point::new(5, 20),
                     Rgb888::new(237, 28, 36),
                     None,
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -187,7 +187,7 @@ fn render_text_with_background_color() {
                     Point::new(2, 20),
                     Rgb888::new(237, 28, 36),
                     Some(Rgb888::new(1, 1, 1)),
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -198,9 +198,9 @@ fn render_text_with_background_color() {
 }
 
 #[test]
-fn render_text_with_font_pos() {
+fn render_text_with_vertical_pos() {
     TestDrawTarget::expect_image(
-        std::include_bytes!("assets/render_text_with_font_pos.png"),
+        std::include_bytes!("assets/render_text_with_vertical_pos.png"),
         |display| {
             display
                 .fill_solid(
@@ -209,11 +209,11 @@ fn render_text_with_font_pos() {
                 )
                 .unwrap();
 
-            for (x_position, font_pos) in [
-                FontPos::Center,
-                FontPos::Top,
-                FontPos::Baseline,
-                FontPos::Bottom,
+            for (x_position, vertical_pos) in [
+                VerticalPosition::Center,
+                VerticalPosition::Top,
+                VerticalPosition::Baseline,
+                VerticalPosition::Bottom,
             ]
             .into_iter()
             .enumerate()
@@ -224,7 +224,7 @@ fn render_text_with_font_pos() {
                         Point::new(5 + 50 * x_position as i32, 25),
                         Rgb888::new(237, 28, 36),
                         None,
-                        font_pos,
+                        vertical_pos,
                         display,
                     )
                     .unwrap();
@@ -244,7 +244,7 @@ fn render_text_with_newline() {
                     Point::new(2, 15),
                     Rgb888::new(237, 28, 36),
                     None,
-                    FontPos::default(),
+                    VerticalPosition::default(),
                     display,
                 )
                 .unwrap()
@@ -268,17 +268,19 @@ fn get_glyph_dimensions() {
                 )
                 .unwrap();
 
-            for (pos, (ch, font_pos)) in [
-                ('j', FontPos::Baseline),
-                ('A', FontPos::Bottom),
-                ('c', FontPos::Top),
-                (')', FontPos::Center),
+            for (pos, (ch, vertical_pos)) in [
+                ('j', VerticalPosition::Baseline),
+                ('A', VerticalPosition::Bottom),
+                ('c', VerticalPosition::Top),
+                (')', VerticalPosition::Center),
             ]
             .into_iter()
             .enumerate()
             {
                 let position = Point::new(2 + 10 * pos as i32, 15);
-                let dim = font.get_glyph_dimensions(ch, position, font_pos).unwrap();
+                let dim = font
+                    .get_glyph_dimensions(ch, position, vertical_pos)
+                    .unwrap();
 
                 display
                     .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(2, 2, 2))
@@ -289,7 +291,7 @@ fn get_glyph_dimensions() {
                     position,
                     Rgb888::new(237, 28, 36),
                     None,
-                    font_pos,
+                    vertical_pos,
                     display,
                 )
                 .unwrap();
@@ -307,9 +309,11 @@ fn get_text_dimensions() {
         |display| {
             let text = "Hello,\nWorld!";
             let position = Point::new(2, 15);
-            let font_pos = FontPos::default();
+            let vertical_pos = VerticalPosition::default();
 
-            let dim = font.get_text_dimensions(text, position, font_pos).unwrap();
+            let dim = font
+                .get_text_dimensions(text, position, vertical_pos)
+                .unwrap();
             assert_eq!(dim.advance, Point::new(65, 21));
 
             display
@@ -322,7 +326,7 @@ fn get_text_dimensions() {
                     position,
                     Rgb888::new(237, 28, 36),
                     None,
-                    font_pos,
+                    vertical_pos,
                     display,
                 )
                 .unwrap();

@@ -5,7 +5,7 @@ use embedded_graphics::{
 };
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 
-use u8g2_fonts::{fonts, types::FontPos, FontRenderer};
+use u8g2_fonts::{fonts, types::VerticalPosition, FontRenderer};
 
 const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
@@ -32,7 +32,7 @@ fn main() -> Result<(), core::convert::Infallible> {
             Point::new(20, 50),
             Rgb888::CSS_ORANGE,
             None,
-            FontPos::default(),
+            VerticalPosition::default(),
             &mut display,
         )
         .unwrap();

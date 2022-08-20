@@ -5,11 +5,11 @@ use embedded_graphics_core::{prelude::Point, primitives::Rectangle};
 /// Note that metrics like [`FontRenderer::get_glyph_bounding_box()`](crate::FontRenderer::get_glyph_bounding_box),
 /// [`FontRenderer::get_ascent()`](crate::FontRenderer::get_ascent) or
 /// [`FontRenderer::get_descent()`](crate::FontRenderer::get_descent)
-/// are relative to [`FontPos::Baseline`].
+/// are relative to [`VerticalPosition::Baseline`].
 ///
-/// The default is [`FontPos::Baseline`].
+/// The default is [`VerticalPosition::Baseline`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum FontPos {
+pub enum VerticalPosition {
     /// Anchored at the font baseline
     Baseline,
     /// Anchored at the top
@@ -20,7 +20,7 @@ pub enum FontPos {
     Bottom,
 }
 
-impl Default for FontPos {
+impl Default for VerticalPosition {
     fn default() -> Self {
         Self::Baseline
     }
@@ -36,4 +36,15 @@ pub struct RenderedDimensions {
     /// Can be `None` if nothing was rendered, like for
     /// a whitespace character.
     pub bounding_box: Option<Rectangle>,
+}
+
+/// The horizontal rendering position of the font.
+///
+pub enum HorizontalAlignment {
+    /// Anchored at the left side
+    Left,
+    /// Anchored at the center
+    Center,
+    /// Anchored at the right side
+    Right,
 }
