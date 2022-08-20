@@ -1,4 +1,3 @@
-- FontRenderer::get_text_dimensions
 - FontRenderer::get_text_aligned_dimensions
 - FontRenderer::render_text_aligned
    - Problems: Where is the 'center' of the vertical alignment?
