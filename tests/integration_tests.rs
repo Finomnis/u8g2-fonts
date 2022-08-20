@@ -2,10 +2,14 @@ mod util;
 
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
-    prelude::{DrawTarget, OriginDimensions, Point, Size},
+    prelude::{DrawTarget, OriginDimensions, Point, Size, WebColors},
     primitives::Rectangle,
 };
-use u8g2_fonts::{fonts, types::VerticalPosition, Error, FontRenderer};
+use u8g2_fonts::{
+    fonts,
+    types::{HorizontalAlignment, VerticalPosition},
+    Error, FontRenderer,
+};
 
 use util::TestDrawTarget;
 
@@ -252,6 +256,98 @@ fn render_text_with_newline() {
     );
 
     assert_eq!(advance, Point::new(65, 21));
+}
+
+#[test]
+fn render_text_aligned() {
+    fn get_x(h: HorizontalAlignment) -> i32 {
+        match h {
+            HorizontalAlignment::Left => 5,
+            HorizontalAlignment::Center => 155,
+            HorizontalAlignment::Right => 305,
+        }
+    }
+
+    fn get_y(v: VerticalPosition) -> i32 {
+        match v {
+            VerticalPosition::Baseline => panic!("Should be handled separately!"),
+            VerticalPosition::Top => 7,
+            VerticalPosition::Center => 157,
+            VerticalPosition::Bottom => 307,
+        }
+    }
+
+    fn get_pos(h: HorizontalAlignment, v: VerticalPosition) -> Point {
+        Point::new(get_x(h), get_y(v))
+    }
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_aligned.png"),
+        |display| {
+            let vertical_rect = Size::new(
+                1,
+                (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top))
+                    .try_into()
+                    .unwrap(),
+            );
+            let horizontal_rect = Size::new(
+                (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left))
+                    .try_into()
+                    .unwrap(),
+                1,
+            );
+
+            for (hpos, color) in [
+                (HorizontalAlignment::Left, Rgb888::CSS_RED),
+                (HorizontalAlignment::Center, Rgb888::CSS_ORANGE),
+                (HorizontalAlignment::Right, Rgb888::CSS_RED),
+            ] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
+                        color,
+                    )
+                    .unwrap();
+            }
+
+            for (vpos, color) in [
+                (VerticalPosition::Top, Rgb888::CSS_RED),
+                (VerticalPosition::Center, Rgb888::CSS_ORANGE),
+                (VerticalPosition::Bottom, Rgb888::CSS_RED),
+            ] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
+                        color,
+                    )
+                    .unwrap();
+            }
+
+            for hpos in [
+                HorizontalAlignment::Left,
+                HorizontalAlignment::Center,
+                HorizontalAlignment::Right,
+            ] {
+                for vpos in [
+                    VerticalPosition::Top,
+                    VerticalPosition::Center,
+                    VerticalPosition::Bottom,
+                ] {
+                    FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+                        .render_text_aligned(
+                            "Hello,\nWorld!",
+                            get_pos(hpos, vpos),
+                            Rgb888::CSS_DARK_BLUE,
+                            None,
+                            vpos,
+                            hpos,
+                            display,
+                        )
+                        .unwrap();
+                }
+            }
+        },
+    );
 }
 
 #[test]

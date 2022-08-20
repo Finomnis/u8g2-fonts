@@ -27,6 +27,7 @@ impl Default for VerticalPosition {
 }
 
 /// The dimensions of a rendered glyph/text.
+#[derive(Debug, Clone)]
 pub struct RenderedDimensions {
     /// The relative offset where a following glyph
     /// would have to get rendered.
@@ -40,6 +41,7 @@ pub struct RenderedDimensions {
 
 /// The horizontal rendering position of the font.
 ///
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HorizontalAlignment {
     /// Anchored at the left side
     Left,

@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 
 use crate::{
     font_reader::FontReader,
-    types::{RenderedDimensions, VerticalPosition},
+    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
     Error, Font,
 };
@@ -144,6 +144,58 @@ impl FontRenderer {
         }
 
         Ok(advance)
+    }
+
+    /// Renders a string with horizontal alignment
+    ///
+    /// Note that the background color is optional. Omitting it will render
+    /// the string with a transparent background.
+    ///
+    /// Not every font supports a background color, some fonts require a transparent background.
+    ///
+    /// # Arguments
+    ///
+    /// * `text` - The string to render.
+    /// * `position` - The position to render to.
+    /// * `foreground_color` - The foreground color.
+    /// * `background_color` - The background color.
+    /// * `vertical_pos` - The vertical positioning.
+    /// * `horizontal_align` - The horizontal positioning.
+    /// * `display` - The display to render to.
+    ///
+    pub fn render_text_aligned<Display>(
+        &self,
+        text: &str,
+        position: Point,
+        foreground_color: Display::Color,
+        background_color: Option<Display::Color>,
+        vertical_pos: VerticalPosition,
+        horizontal_align: HorizontalAlignment,
+        display: &mut Display,
+    ) -> Result<(), Error<Display::Error>>
+    where
+        Display: DrawTarget,
+        Display::Error: core::fmt::Debug,
+    {
+        let mut advance = Point::new(0, 0);
+
+        for ch in text.chars() {
+            if ch == '\n' {
+                advance.x = 0;
+                advance.y += self.font.font_bounding_box_height as i32 + 1;
+            } else {
+                advance.x += self.render_glyph(
+                    ch,
+                    position + advance,
+                    foreground_color,
+                    background_color,
+                    vertical_pos,
+                    display,
+                )? as i32;
+            }
+        }
+
+        Ok(())
     }
 
     /// Calculates the dimensions that rendering a glyph with [render_glyph()] would produce.
