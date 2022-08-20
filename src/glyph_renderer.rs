@@ -31,7 +31,8 @@ impl<'a> GlyphRenderer<'a> {
             VerticalPosition::Baseline => 0,
             VerticalPosition::Top => self.font.ascent as i32 + 1,
             VerticalPosition::Center => {
-                (self.font.ascent as i32 - self.font.descent as i32) / 2 + self.font.descent as i32
+                (self.font.ascent as i32 - self.font.descent as i32 + 1) / 2
+                    + self.font.descent as i32
             }
             VerticalPosition::Bottom => self.font.descent as i32,
         };
