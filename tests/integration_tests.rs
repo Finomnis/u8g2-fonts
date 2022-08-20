@@ -270,7 +270,7 @@ fn render_text_aligned() {
 
     fn get_y(v: VerticalPosition) -> i32 {
         match v {
-            VerticalPosition::Baseline => panic!("Should be handled separately!"),
+            VerticalPosition::Baseline => 200,
             VerticalPosition::Top => 7,
             VerticalPosition::Center => 87,
             VerticalPosition::Bottom => 167,
@@ -297,15 +297,21 @@ fn render_text_aligned() {
                 1,
             );
 
-            display
-                .fill_solid(
-                    &Rectangle::new(
-                        get_pos(HorizontalAlignment::Center, VerticalPosition::Top),
-                        vertical_rect,
-                    ),
-                    Rgb888::CSS_ORANGE,
-                )
-                .unwrap();
+            for hpos in [
+                HorizontalAlignment::Left,
+                HorizontalAlignment::Center,
+                HorizontalAlignment::Right,
+            ] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(
+                            get_pos(hpos, VerticalPosition::Top),
+                            Size::new(1, display.size().height).try_into().unwrap(),
+                        ),
+                        Rgb888::CSS_ORANGE,
+                    )
+                    .unwrap();
+            }
 
             display
                 .fill_solid(
@@ -335,6 +341,16 @@ fn render_text_aligned() {
                     .unwrap();
             }
 
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        Point::new(0, get_y(VerticalPosition::Baseline)),
+                        Size::new(display.size().width, 1),
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+
             for hpos in [
                 HorizontalAlignment::Left,
                 HorizontalAlignment::Center,
@@ -359,6 +375,26 @@ fn render_text_aligned() {
                         )
                         .unwrap();
                 }
+            }
+
+            for hpos in [
+                HorizontalAlignment::Left,
+                HorizontalAlignment::Center,
+                HorizontalAlignment::Right,
+            ] {
+                FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+                    .render_text_aligned(
+                        //"Hello,\nWorld!",
+                        "Agi,\nigA!",
+                        //"Agi",
+                        get_pos(hpos, VerticalPosition::Baseline),
+                        Rgb888::CSS_DARK_BLUE,
+                        None,
+                        VerticalPosition::Baseline,
+                        hpos,
+                        display,
+                    )
+                    .unwrap();
             }
         },
     );
