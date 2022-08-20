@@ -272,8 +272,8 @@ fn render_text_aligned() {
         match v {
             VerticalPosition::Baseline => panic!("Should be handled separately!"),
             VerticalPosition::Top => 7,
-            VerticalPosition::Center => 157,
-            VerticalPosition::Bottom => 307,
+            VerticalPosition::Center => 87,
+            VerticalPosition::Bottom => 167,
         }
     }
 
@@ -286,39 +286,51 @@ fn render_text_aligned() {
         |display| {
             let vertical_rect = Size::new(
                 1,
-                (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top))
+                (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top) + 1)
                     .try_into()
                     .unwrap(),
             );
             let horizontal_rect = Size::new(
-                (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left))
+                (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left) + 1)
                     .try_into()
                     .unwrap(),
                 1,
             );
 
-            for (hpos, color) in [
-                (HorizontalAlignment::Left, Rgb888::CSS_RED),
-                (HorizontalAlignment::Center, Rgb888::CSS_ORANGE),
-                (HorizontalAlignment::Right, Rgb888::CSS_RED),
-            ] {
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        get_pos(HorizontalAlignment::Center, VerticalPosition::Top),
+                        vertical_rect,
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        get_pos(HorizontalAlignment::Left, VerticalPosition::Center),
+                        horizontal_rect,
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+
+            for hpos in [HorizontalAlignment::Left, HorizontalAlignment::Right] {
                 display
                     .fill_solid(
                         &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
-                        color,
+                        Rgb888::CSS_RED,
                     )
                     .unwrap();
             }
 
-            for (vpos, color) in [
-                (VerticalPosition::Top, Rgb888::CSS_RED),
-                (VerticalPosition::Center, Rgb888::CSS_ORANGE),
-                (VerticalPosition::Bottom, Rgb888::CSS_RED),
-            ] {
+            for vpos in [VerticalPosition::Top, VerticalPosition::Bottom] {
                 display
                     .fill_solid(
                         &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
-                        color,
+                        Rgb888::CSS_RED,
                     )
                     .unwrap();
             }
@@ -335,7 +347,9 @@ fn render_text_aligned() {
                 ] {
                     FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
                         .render_text_aligned(
-                            "Hello,\nWorld!",
+                            //"Hello,\nWorld!",
+                            "Agi,\nigA!",
+                            //"Agi",
                             get_pos(hpos, vpos),
                             Rgb888::CSS_DARK_BLUE,
                             None,
