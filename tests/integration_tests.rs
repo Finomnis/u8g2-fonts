@@ -264,6 +264,7 @@ fn render_text_with_newline() {
 #[test]
 fn render_text_aligned() {
     let text = "Agi,\niagmA!";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 
     fn get_x(h: HorizontalAlignment) -> i32 {
         match h {
@@ -366,17 +367,16 @@ fn render_text_aligned() {
                     VerticalPosition::Center,
                     VerticalPosition::Bottom,
                 ] {
-                    FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                        .render_text_aligned(
-                            text,
-                            get_pos(hpos, vpos),
-                            Rgb888::CSS_DARK_BLUE,
-                            None,
-                            vpos,
-                            hpos,
-                            display,
-                        )
-                        .unwrap();
+                    font.render_text_aligned(
+                        text,
+                        get_pos(hpos, vpos),
+                        Rgb888::CSS_DARK_BLUE,
+                        None,
+                        vpos,
+                        hpos,
+                        display,
+                    )
+                    .unwrap();
                 }
             }
 
@@ -385,17 +385,16 @@ fn render_text_aligned() {
                 HorizontalAlignment::Center,
                 HorizontalAlignment::Right,
             ] {
-                FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                    .render_text_aligned(
-                        text,
-                        get_pos(hpos, VerticalPosition::Baseline),
-                        Rgb888::CSS_DARK_BLUE,
-                        None,
-                        VerticalPosition::Baseline,
-                        hpos,
-                        display,
-                    )
-                    .unwrap();
+                font.render_text_aligned(
+                    text,
+                    get_pos(hpos, VerticalPosition::Baseline),
+                    Rgb888::CSS_DARK_BLUE,
+                    None,
+                    VerticalPosition::Baseline,
+                    hpos,
+                    display,
+                )
+                .unwrap();
             }
         },
     );

@@ -201,6 +201,9 @@ impl FontRenderer {
         for (line_num, line) in text.lines().enumerate() {
             let offset_x = if let HorizontalAlignment::Left = horizontal_align {
                 // Alignment: Left
+
+                // From experiments, it seems that alignment looks more symmetrical
+                // if everything is shifted by one in respect to the anchor point
                 1
             } else {
                 // Pre-render to determine
@@ -215,10 +218,13 @@ impl FontRenderer {
 
                         -(width as i32 / 2 + left)
                     } else {
-                        1
+                        0
                     }
                 } else {
                     // Alignment: Right
+
+                    // From experiments, it seems that alignment looks more symmetrical
+                    // if everything is shifted by one in respect to the anchor point
                     1 - dimensions.advance.x
                 }
             };
