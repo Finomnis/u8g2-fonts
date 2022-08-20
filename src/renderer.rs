@@ -146,10 +146,10 @@ impl FontRenderer {
 
     /// Renders a string with horizontal and vertical alignment.
     ///
-    /// Vertical alignment here means that multi-line strings will now anchor properly, compared to [`render_text()`],
+    /// Vertical alignment here means that multi-line strings will anchor properly, compared to [`render_text()`](crate::FontRenderer::render_text),
     /// which always anchors on the first line.
     ///
-    /// Note that this function is most likely a little bit slower than `render_text()`, so prefer [`render_text()`]
+    /// Note that this function is most likely a little bit slower than [`render_text()`](crate::FontRenderer::render_text), so prefer [`render_text()`](crate::FontRenderer::render_text)
     /// for left-aligned single-line strings.
     ///
     /// # Arguments
@@ -240,14 +240,13 @@ impl FontRenderer {
         Ok(())
     }
 
-    /// Calculates the dimensions that rendering a glyph with [render_glyph()] would produce.
+    /// Calculates the dimensions that rendering a glyph with [`render_glyph()`](crate::FontRenderer::render_glyph) would produce.
     ///
     /// # Arguments
     ///
     /// * `ch` - The character to render.
     /// * `position` - The position to render to.
     /// * `vertical_pos` - The vertical positioning.
-    /// * `display` - The display to render to.
     ///
     /// # Return
     ///
@@ -276,14 +275,13 @@ impl FontRenderer {
         })
     }
 
-    /// Calculates the dimensions that rendering a text with [render_text()] would produce.
+    /// Calculates the dimensions that rendering a text with [`render_text()`](crate::FontRenderer::render_text) would produce.
     ///
     /// # Arguments
     ///
     /// * `text` - The text to render.
     /// * `position` - The position to render to.
     /// * `vertical_pos` - The vertical positioning.
-    /// * `display` - The display to render to.
     ///
     /// # Return
     ///
