@@ -6,6 +6,7 @@
 - Create a big test case with all possible (multiline!) alignments in one image
     (topleft, topmid, topright, midleft, midmid, etc)
 
+- Do CI
 - Do font generation check in CI
 
 - Rename error types (maybe RenderError/LookupError)?

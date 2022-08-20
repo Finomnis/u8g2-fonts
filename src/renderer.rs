@@ -149,10 +149,8 @@ impl FontRenderer {
     /// Vertical alignment here means that multi-line strings will now anchor properly, compared to [`render_text()`],
     /// which always anchors on the first line.
     ///
-    /// Note that the background color is optional. Omitting it will render
-    /// the string with a transparent background.
-    ///
-    /// Not every font supports a background color, some fonts require a transparent background.
+    /// Note that this function is most likely a little bit slower than `render_text()`, so prefer [`render_text()`]
+    /// for left-aligned single-line strings.
     ///
     /// # Arguments
     ///
