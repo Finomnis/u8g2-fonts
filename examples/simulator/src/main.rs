@@ -5,9 +5,9 @@ use embedded_graphics::{
 };
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 
-use u8g2_fonts::{fonts, FontRenderer};
+use u8g2_fonts::{fonts, types::FontPos, FontRenderer};
 
-const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_inb21_mn>();
+const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));
@@ -28,10 +28,11 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let advance = FONT
         .render_text(
-            "1234567890-.,",
+            "Angh Lorem ipsum dolor sit\namet. A 20%!",
             Point::new(20, 50),
             Rgb888::CSS_ORANGE,
             None,
+            FontPos::default(),
             &mut display,
         )
         .unwrap();
