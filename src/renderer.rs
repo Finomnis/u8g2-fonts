@@ -194,7 +194,7 @@ impl FontRenderer {
             VerticalPosition::Top => ascent + 1,
             VerticalPosition::Center => {
                 let total_newline_advance = (num_lines - 1) as i32 * newline_advance;
-                (total_newline_advance + ascent - descent) / 2 + descent - total_newline_advance + 1
+                (total_newline_advance + ascent - descent + 1) / 2 + descent - total_newline_advance
             }
             VerticalPosition::Bottom => descent - (num_lines - 1) as i32 * newline_advance,
         };
