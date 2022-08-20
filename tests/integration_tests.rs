@@ -481,22 +481,3 @@ fn get_text_dimensions() {
         },
     );
 }
-
-#[test]
-fn dimensions_text() {
-    // let mut display = TestDrawTarget::expect_image(std::include_bytes!("assets/boxed.png"));
-
-    // let font = FontRenderer::new::<fonts::u8g2_font_helvR08_tr>();
-    // font.render_text("Cage", Point::new(5, 11), Rgb888::GREEN, None, &mut display)
-    //     .unwrap();
-}
-
-/*
-Missing tests:
-    - Background
-    - Glyph
-    - Dimensions
-        - text, glyph
-    - Unicode
-    - getAscent/Descent/height/width/etc
-*/
