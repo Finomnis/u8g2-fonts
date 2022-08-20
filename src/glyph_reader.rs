@@ -18,10 +18,7 @@ pub struct GlyphReader {
 }
 
 impl GlyphReader {
-    pub fn new<DisplayError>(
-        data: &'static [u8],
-        font: &FontReader,
-    ) -> Result<Self, Error<DisplayError>> {
+    pub fn new(data: &'static [u8], font: &FontReader) -> Result<Self, Error> {
         let mut this = Self {
             data: DebugIgnore(data),
             // Start at 8 to mark current_byte as invalid
@@ -46,7 +43,7 @@ impl GlyphReader {
         Ok(this)
     }
 
-    pub fn read_unsigned<DisplayError>(&mut self, bits: u8) -> Result<u8, Error<DisplayError>> {
+    pub fn read_unsigned(&mut self, bits: u8) -> Result<u8, Error> {
         let bit_start = self.bit_pos;
         let mut bit_end = bit_start + bits;
 
@@ -69,7 +66,7 @@ impl GlyphReader {
         Ok(out)
     }
 
-    pub fn read_signed<DisplayError>(&mut self, bits: u8) -> Result<i8, Error<DisplayError>> {
+    pub fn read_signed(&mut self, bits: u8) -> Result<i8, Error> {
         self.read_unsigned(bits)
             .map(|v| (v as i8).wrapping_sub(1 << (bits - 1)))
     }
@@ -89,11 +86,11 @@ impl GlyphReader {
         self.advance
     }
 
-    pub fn read_runlength_0<DisplayError>(&mut self) -> Result<u8, Error<DisplayError>> {
+    pub fn read_runlength_0(&mut self) -> Result<u8, Error> {
         self.read_unsigned(self.bitcount_0)
     }
 
-    pub fn read_runlength_1<DisplayError>(&mut self) -> Result<u8, Error<DisplayError>> {
+    pub fn read_runlength_1(&mut self) -> Result<u8, Error> {
         self.read_unsigned(self.bitcount_1)
     }
 

@@ -29,6 +29,7 @@ pub mod fonts;
 /// Data types used in common API functions.
 pub mod types;
 
+pub use error::DrawError;
 pub use error::Error;
 pub use font::Font;
 pub use renderer::FontRenderer;

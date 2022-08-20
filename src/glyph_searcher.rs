@@ -18,14 +18,14 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
         true
     }
 
-    fn get_offset<DisplayError>(&self) -> Result<u8, Error<DisplayError>> {
+    fn get_offset(&self) -> Result<u8, Error> {
         self.data
             .get(CHAR_WIDTH)
             .cloned()
             .ok_or(Error::InternalError)
     }
 
-    pub fn jump_to_next<DisplayError>(&mut self) -> Result<bool, Error<DisplayError>> {
+    pub fn jump_to_next(&mut self) -> Result<bool, Error> {
         let offset = self.get_offset()?;
         if offset == 0 {
             Ok(false)
@@ -36,7 +36,7 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
         }
     }
 
-    pub fn into_glyph_reader<DisplayError>(self) -> Result<GlyphReader, Error<DisplayError>> {
+    pub fn into_glyph_reader(self) -> Result<GlyphReader, Error> {
         GlyphReader::new(
             self.data
                 .get(CHAR_WIDTH + 1..)
@@ -56,14 +56,14 @@ impl<'a> GlyphSearcher<'a, 1> {
         }
     }
 
-    pub fn get_ch<DisplayError>(&self) -> Result<u8, Error<DisplayError>> {
+    pub fn get_ch(&self) -> Result<u8, Error> {
         self.data.get(0).cloned().ok_or(Error::InternalError)
     }
 
-    pub fn into_unicode_mode<DisplayError>(
+    pub fn into_unicode_mode(
         mut self,
         offset: u16,
-    ) -> Result<(GlyphSearcher<'a, 2>, UnicodeJumptableReader), Error<DisplayError>> {
+    ) -> Result<(GlyphSearcher<'a, 2>, UnicodeJumptableReader), Error> {
         if self.jump_by(offset as usize) {
             Ok((
                 GlyphSearcher {
@@ -79,7 +79,7 @@ impl<'a> GlyphSearcher<'a, 1> {
 }
 
 impl<'a> GlyphSearcher<'a, 2> {
-    pub fn get_ch<DisplayError>(&self) -> Result<u16, Error<DisplayError>> {
+    pub fn get_ch(&self) -> Result<u16, Error> {
         Ok(u16::from_be_bytes([
             self.data.get(0).cloned().ok_or(Error::InternalError)?,
             self.data.get(1).cloned().ok_or(Error::InternalError)?,

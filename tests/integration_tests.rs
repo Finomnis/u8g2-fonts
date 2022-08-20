@@ -8,7 +8,7 @@ use embedded_graphics_core::{
 use u8g2_fonts::{
     fonts,
     types::{HorizontalAlignment, VerticalPosition},
-    Error, FontRenderer,
+    DrawError, FontRenderer,
 };
 
 use util::TestDrawTarget;
@@ -26,7 +26,7 @@ fn letters_not_supported() {
         &mut display,
     );
 
-    assert!(matches!(result, Err(Error::GlyphNotFound('a'))))
+    assert!(matches!(result, Err(DrawError::GlyphNotFound('a'))))
 }
 
 #[test]
@@ -42,7 +42,7 @@ fn unicode_not_supported() {
         &mut display,
     );
 
-    assert!(matches!(result, Err(Error::GlyphNotFound('☃'))))
+    assert!(matches!(result, Err(DrawError::GlyphNotFound('☃'))))
 }
 
 #[test]
@@ -58,7 +58,10 @@ fn background_color_not_supported() {
         &mut display,
     );
 
-    assert!(matches!(result, Err(Error::BackgroundColorNotSupported)))
+    assert!(matches!(
+        result,
+        Err(DrawError::BackgroundColorNotSupported)
+    ))
 }
 
 #[test]

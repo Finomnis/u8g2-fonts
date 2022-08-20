@@ -1,5 +1,3 @@
-use core::convert::Infallible;
-
 use embedded_graphics_core::{
     prelude::{DrawTarget, Point, Size},
     primitives::Rectangle,
@@ -9,7 +7,7 @@ use crate::{
     font_reader::FontReader,
     types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
-    Error, Font,
+    DrawError, Error, Font,
 };
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
@@ -59,13 +57,13 @@ impl FontRenderer {
         background_color: Option<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<i8, Error<Display::Error>>
+    ) -> Result<i8, DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         if background_color.is_some() && !self.font.supports_background_color {
-            return Err(Error::BackgroundColorNotSupported);
+            return Err(DrawError::BackgroundColorNotSupported);
         }
 
         let glyph = self.font.retrieve_glyph_data(ch)?;
@@ -120,7 +118,7 @@ impl FontRenderer {
         background_color: Option<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<Point, Error<Display::Error>>
+    ) -> Result<Point, DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -175,7 +173,7 @@ impl FontRenderer {
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
         display: &mut Display,
-    ) -> Result<(), Error<Display::Error>>
+    ) -> Result<(), DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -201,14 +199,20 @@ impl FontRenderer {
         position.y += vertical_offset;
 
         for (line_num, line) in text.lines().enumerate() {
-            self.render_text(
-                line,
-                position + Point::new(0, line_num as i32 * newline_advance),
-                foreground_color,
-                background_color,
-                VerticalPosition::Baseline,
-                display,
-            )?;
+            if let HorizontalAlignment::Left = horizontal_align {
+                self.render_text(
+                    line,
+                    position + Point::new(0, line_num as i32 * newline_advance),
+                    foreground_color,
+                    background_color,
+                    VerticalPosition::Baseline,
+                    display,
+                )?;
+            } else {
+                // Pre-render to determine
+                // let d =
+                //     self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::default())?;
+            }
         }
 
         Ok(())
@@ -232,7 +236,7 @@ impl FontRenderer {
         ch: char,
         position: Point,
         vertical_pos: VerticalPosition,
-    ) -> Result<RenderedDimensions, Error<Infallible>> {
+    ) -> Result<RenderedDimensions, Error> {
         let glyph = self.font.retrieve_glyph_data(ch)?;
 
         let advance = glyph.advance();
@@ -268,7 +272,7 @@ impl FontRenderer {
         text: &str,
         position: Point,
         vertical_pos: VerticalPosition,
-    ) -> Result<RenderedDimensions, Error<Infallible>> {
+    ) -> Result<RenderedDimensions, Error> {
         let mut advance = Point::new(0, 0);
         let mut bounding_box = None;
 

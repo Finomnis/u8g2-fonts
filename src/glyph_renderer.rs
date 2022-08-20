@@ -4,7 +4,9 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{font_reader::FontReader, glyph_reader::GlyphReader, types::VerticalPosition, Error};
+use crate::{
+    font_reader::FontReader, glyph_reader::GlyphReader, types::VerticalPosition, DrawError,
+};
 
 pub struct GlyphRenderer<'a> {
     glyph: GlyphReader,
@@ -49,7 +51,7 @@ impl<'a> GlyphRenderer<'a> {
         display: &mut Display,
         foreground_color: Display::Color,
         background_color: Display::Color,
-    ) -> Result<(), Error<Display::Error>>
+    ) -> Result<(), DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -63,10 +65,10 @@ impl<'a> GlyphRenderer<'a> {
             let mut num_ones_leftover = num_ones;
             move || -> Option<Display::Color> {
                 if num_zeros_leftover == 0 && num_ones_leftover == 0 {
-                    let repeat = self.glyph.read_unsigned::<Display::Error>(1).unwrap() != 0;
+                    let repeat = self.glyph.read_unsigned(1).unwrap() != 0;
                     if !repeat {
-                        num_zeros = self.glyph.read_runlength_0::<Display::Error>().unwrap();
-                        num_ones = self.glyph.read_runlength_1::<Display::Error>().unwrap();
+                        num_zeros = self.glyph.read_runlength_0().unwrap();
+                        num_ones = self.glyph.read_runlength_1().unwrap();
                     }
                     num_zeros_leftover = num_zeros;
                     num_ones_leftover = num_ones;
@@ -86,7 +88,7 @@ impl<'a> GlyphRenderer<'a> {
 
         display
             .fill_contiguous(&glyph_bounding_box, core::iter::from_fn(color_iter))
-            .map_err(Error::DisplayError)
+            .map_err(DrawError::DisplayError)
     }
 
     pub fn render_transparent<Display>(
@@ -95,7 +97,7 @@ impl<'a> GlyphRenderer<'a> {
         vertical_pos: VerticalPosition,
         display: &mut Display,
         foreground_color: Display::Color,
-    ) -> Result<(), Error<Display::Error>>
+    ) -> Result<(), DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -123,10 +125,10 @@ impl<'a> GlyphRenderer<'a> {
                 }
 
                 while num_ones_leftover == 0 {
-                    let repeat = self.glyph.read_unsigned::<Display::Error>(1).unwrap() != 0;
+                    let repeat = self.glyph.read_unsigned(1).unwrap() != 0;
                     if !repeat {
-                        num_zeros = self.glyph.read_runlength_0::<Display::Error>().unwrap();
-                        num_ones = self.glyph.read_runlength_1::<Display::Error>().unwrap();
+                        num_zeros = self.glyph.read_runlength_0().unwrap();
+                        num_ones = self.glyph.read_runlength_1().unwrap();
                     }
                     x += num_zeros as i32;
                     while x >= width {
@@ -156,6 +158,6 @@ impl<'a> GlyphRenderer<'a> {
 
         display
             .draw_iter(core::iter::from_fn(pixel_iter))
-            .map_err(Error::DisplayError)
+            .map_err(DrawError::DisplayError)
     }
 }
