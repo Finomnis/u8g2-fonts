@@ -146,7 +146,10 @@ impl FontRenderer {
         Ok(advance)
     }
 
-    /// Renders a string with horizontal alignment
+    /// Renders a string with horizontal and vertical alignment.
+    ///
+    /// Vertical alignment here means that multi-line strings will now anchor properly, compared to [`render_text()`],
+    /// which always anchors on the first line.
     ///
     /// Note that the background color is optional. Omitting it will render
     /// the string with a transparent background.
@@ -166,7 +169,7 @@ impl FontRenderer {
     pub fn render_text_aligned<Display>(
         &self,
         text: &str,
-        position: Point,
+        mut position: Point,
         foreground_color: Display::Color,
         background_color: Option<Display::Color>,
         vertical_pos: VerticalPosition,
@@ -177,22 +180,35 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let mut advance = Point::new(0, 0);
+        let num_lines = text.lines().count();
+        let newline_advance = self.font.font_bounding_box_height as i32 + 1;
+        let ascent = self.font.ascent as i32;
+        let descent = self.font.descent as i32;
 
-        for ch in text.chars() {
-            if ch == '\n' {
-                advance.x = 0;
-                advance.y += self.font.font_bounding_box_height as i32 + 1;
-            } else {
-                advance.x += self.render_glyph(
-                    ch,
-                    position + advance,
-                    foreground_color,
-                    background_color,
-                    vertical_pos,
-                    display,
-                )? as i32;
+        if num_lines == 0 {
+            return Ok(());
+        }
+
+        let vertical_offset = match vertical_pos {
+            VerticalPosition::Baseline => 0,
+            VerticalPosition::Top => ascent + 1,
+            VerticalPosition::Center => {
+                let total_newline_advance = (num_lines - 1) as i32 * newline_advance;
+                (total_newline_advance + ascent - descent) / 2 + descent - total_newline_advance + 1
             }
+            VerticalPosition::Bottom => descent - (num_lines - 1) as i32 * newline_advance,
+        };
+        position.y += vertical_offset;
+
+        for (line_num, line) in text.lines().enumerate() {
+            self.render_text(
+                line,
+                position + Point::new(0, line_num as i32 * newline_advance),
+                foreground_color,
+                background_color,
+                VerticalPosition::Baseline,
+                display,
+            )?;
         }
 
         Ok(())
