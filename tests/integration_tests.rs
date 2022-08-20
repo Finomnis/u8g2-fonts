@@ -263,6 +263,8 @@ fn render_text_with_newline() {
 
 #[test]
 fn render_text_aligned() {
+    let text = "Agi,\niagmA!";
+
     fn get_x(h: HorizontalAlignment) -> i32 {
         match h {
             HorizontalAlignment::Left => 5,
@@ -366,9 +368,7 @@ fn render_text_aligned() {
                 ] {
                     FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
                         .render_text_aligned(
-                            //"Hello,\nWorld!",
-                            "Agi,\nigA!",
-                            //"Agi",
+                            text,
                             get_pos(hpos, vpos),
                             Rgb888::CSS_DARK_BLUE,
                             None,
@@ -387,9 +387,7 @@ fn render_text_aligned() {
             ] {
                 FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
                     .render_text_aligned(
-                        //"Hello,\nWorld!",
-                        "Agi,\nigA!",
-                        //"Agi",
+                        text,
                         get_pos(hpos, VerticalPosition::Baseline),
                         Rgb888::CSS_DARK_BLUE,
                         None,

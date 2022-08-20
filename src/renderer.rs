@@ -199,20 +199,38 @@ impl FontRenderer {
         position.y += vertical_offset;
 
         for (line_num, line) in text.lines().enumerate() {
-            if let HorizontalAlignment::Left = horizontal_align {
-                self.render_text(
-                    line,
-                    position + Point::new(0, line_num as i32 * newline_advance),
-                    foreground_color,
-                    background_color,
-                    VerticalPosition::Baseline,
-                    display,
-                )?;
+            let offset_x = if let HorizontalAlignment::Left = horizontal_align {
+                // Alignment: Left
+                1
             } else {
                 // Pre-render to determine
-                // let d =
-                //     self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::default())?;
-            }
+                let dimensions =
+                    self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::default())?;
+
+                if let HorizontalAlignment::Center = horizontal_align {
+                    // Alignment: Center
+                    if let Some(bounding_box) = dimensions.bounding_box {
+                        let width = bounding_box.size.width;
+                        let left = bounding_box.top_left.x;
+
+                        -(width as i32 / 2 + left)
+                    } else {
+                        1
+                    }
+                } else {
+                    // Alignment: Right
+                    1 - dimensions.advance.x
+                }
+            };
+
+            self.render_text(
+                line,
+                position + Point::new(offset_x, line_num as i32 * newline_advance),
+                foreground_color,
+                background_color,
+                VerticalPosition::Baseline,
+                display,
+            )?;
         }
 
         Ok(())

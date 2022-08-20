@@ -8,6 +8,7 @@
 
 - Do font generation check in CI
 
+- Rename error types (maybe RenderError/LookupError)?
 
 Maybe later, if requested:
 - Rotation (like in u8g2)
