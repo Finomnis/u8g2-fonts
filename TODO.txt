@@ -1,4 +1,4 @@
-- FontRenderer::get_text_aligned_dimensions
+- FontRenderer::get_aligned_text_dimensions
 
 - Readme
 - Docs front page
