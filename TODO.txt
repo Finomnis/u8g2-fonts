@@ -1,10 +1,8 @@
 - FontRenderer::get_text_aligned_dimensions
-- FontRenderer::render_text_aligned
-   - Problems: Where is the 'center' of the vertical alignment?
-               Where is the max/min? Should they depend on the actual letters? (Would make the entire text move vertically if a character changes)
 
-- Create a big test case with all possible (multiline!) alignments in one image
-    (topleft, topmid, topright, midleft, midmid, etc)
+- Readme
+- Docs front page
+- Docs examples?
 
 - Do CI
 - Do font generation check in CI
