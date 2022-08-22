@@ -54,7 +54,7 @@ pub enum HorizontalAlignment {
 }
 
 /// The color of the rendered text.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FontColor<Color>
 where
     Color: PixelColor,
