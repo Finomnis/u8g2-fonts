@@ -38,17 +38,10 @@ font.render_text_aligned(
 .unwrap();
 ```
 
-This example is based on the `hello-world` of the official [embedded-graphics examples](https://github.com/embedded-graphics/examples.
+This example is based on the `hello-world` of the official [embedded-graphics examples](https://github.com/embedded-graphics/examples).
 
-If we replace the text rendering section of the example with the code above, it produces this output:
+If we [replace the text rendering section](examples/simulator/src/bin/embedded_graphics_hello_world.rs) of the example with the code above, it produces this output:
 
-[![Embedded-graphics example with our U8g2 font](assets/embedded_graphics_hello_world.png?raw=true)](examples/simulator/src/bin/embedded_graphics_hello_world.rs)
+![Embedded-graphics example with our U8g2 font](assets/embedded_graphics_hello_world.png?raw=true)
 
-If you [run this code](examples/simulator/src/bin/readme_example.rs) against a [`DrawTarget`](https://docs.rs/embedded-graphics-core/latest/embedded_graphics_core/draw_target/trait.DrawTarget.html) of your choice, you will see:
-
-![Hello World rendered using this crate](assets/readme_example.png)
-
-
-Similarly, rendered to a real b/w display:
-
-![Hello World text rendered on a real display](assets/hello_world_display.jpg?raw=true)
+Note that the letter `i` sits snuck in between the `h` and the `c`, compared to the original example. This is not a monospace font.
