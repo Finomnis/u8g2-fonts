@@ -35,6 +35,22 @@ jobs:
           command: build
           args: --release --target=${{ matrix.target }}
 
+  build_std:
+    name: Build with 'std' feature
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --features std
+
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -168,7 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: github.event_name == 'release'
-    needs: [build, test, lints, docs, leaks, check_fonts]
+    needs: [build, build_std, test, lints, docs, leaks, check_fonts]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
