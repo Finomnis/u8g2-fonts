@@ -1,12 +1,9 @@
-use std::{thread, time::Duration};
+use simulator::*;
 
-use embedded_graphics::{
-    pixelcolor::Rgb888,
-    prelude::*,
-    primitives::{Line, PrimitiveStyleBuilder},
-};
-use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
+use embedded_graphics::prelude::*;
+use embedded_graphics::primitives::{Line, PrimitiveStyleBuilder};
 
+use u8g2_fonts::types::HorizontalAlignment;
 use u8g2_fonts::{
     fonts,
     types::{FontColor, VerticalPosition},
@@ -14,17 +11,16 @@ use u8g2_fonts::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(425, 101));
-    let mut window = Window::new("Text Rendering Demo", &OutputSettings::default());
+    let mut display = init_display(425, 101);
 
     let center = display.bounding_box().center();
 
     let text = "Hello, Rust World!\nU8g2 meets embedded-graphics!";
 
     let line_style = PrimitiveStyleBuilder::new()
-        .stroke_color(Rgb888::CSS_BLUE)
+        .stroke_color(COLOR::CSS_BLUE)
         .stroke_width(2)
-        .fill_color(Rgb888::BLACK)
+        .fill_color(COLOR::BLACK)
         .build();
 
     for (start, end) in [
@@ -49,7 +45,7 @@ fn main() -> anyhow::Result<()> {
             text,
             center,
             VerticalPosition::Center,
-            u8g2_fonts::types::HorizontalAlignment::Center,
+            HorizontalAlignment::Center,
         )?
         .unwrap();
 
@@ -61,24 +57,11 @@ fn main() -> anyhow::Result<()> {
     font.render_text_aligned(
         text,
         center,
-        FontColor::Transparent(Rgb888::CSS_ORANGE),
+        FontColor::Transparent(COLOR::CSS_ORANGE),
         VerticalPosition::Center,
-        u8g2_fonts::types::HorizontalAlignment::Center,
+        HorizontalAlignment::Center,
         &mut display,
     )?;
 
-    'running: loop {
-        window.update(&display);
-
-        for event in window.events() {
-            match event {
-                SimulatorEvent::Quit => break 'running,
-                _ => {}
-            }
-        }
-
-        thread::sleep(Duration::from_millis(3));
-    }
-
-    Ok(())
+    show(display)
 }
