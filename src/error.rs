@@ -63,3 +63,12 @@ impl<T> From<Error> for DrawError<T> {
         }
     }
 }
+
+#[cfg(feature = "std")]
+impl std::error::Error for Error {}
+
+#[cfg(feature = "std")]
+impl<DisplayError> std::error::Error for DrawError<DisplayError> where
+    DisplayError: core::fmt::Debug + core::fmt::Display
+{
+}

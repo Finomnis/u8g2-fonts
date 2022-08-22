@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-u8g2-fonts = { path = "../.." }
+u8g2-fonts = { path = "../..", features = ["std"] }
 embedded-graphics = "0.7"
 embedded-graphics-simulator = "0.3"
+anyhow = "1"

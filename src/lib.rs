@@ -9,6 +9,9 @@
     test(attr(allow(dead_code)))
 )]
 
+#[cfg(feature = "std")]
+extern crate std;
+
 mod error;
 mod font;
 mod font_reader;

@@ -1,54 +1,71 @@
+use std::{thread, time::Duration};
+
 use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
-    primitives::{Circle, Line, PrimitiveStyle},
+    primitives::{Line, PrimitiveStyleBuilder},
 };
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 
-use u8g2_fonts::{fonts, types::VerticalPosition, FontRenderer};
+use u8g2_fonts::{
+    fonts,
+    types::{FontColor, VerticalPosition},
+    FontRenderer,
+};
 
-const FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
-
-fn main() -> Result<(), core::convert::Infallible> {
-    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(800, 480));
+fn main() -> anyhow::Result<()> {
+    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(365, 85));
     let mut window = Window::new("Text Rendering Demo", &OutputSettings::default());
 
-    let position = Point::new(200, 200);
-    Circle::with_center(position, 200)
-        .into_styled(PrimitiveStyle::with_fill(Rgb888::RED))
-        .draw(&mut display)?;
+    let center = display.bounding_box().center();
 
-    Line::new(Point::new(0, 50), Point::new(40, 50))
-        .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DARK_GREEN, 1))
-        .draw(&mut display)?;
+    let text = "Hello, Rust World!\nU8g2 meets embedded-graphics!";
 
-    Line::new(Point::new(20, 0), Point::new(20, 100))
-        .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DARK_GREEN, 1))
-        .draw(&mut display)?;
+    let line_style = PrimitiveStyleBuilder::new()
+        .stroke_color(Rgb888::CSS_BLUE)
+        .stroke_width(2)
+        .fill_color(Rgb888::BLACK)
+        .build();
 
-    let advance = FONT
-        .render_text(
-            "Angh Lorem ipsum dolor sit\namet. A 20%!",
-            Point::new(20, 50),
-            Rgb888::CSS_ORANGE,
-            None,
-            VerticalPosition::default(),
-            &mut display,
-        )
+    for (start, end) in [
+        (
+            Point::new(center.x, 0),
+            Point::new(center.x, display.size().height as i32),
+        ),
+        (
+            Point::new(0, center.y),
+            Point::new(display.size().width as i32, center.y),
+        ),
+    ] {
+        Line::new(start, end)
+            .into_styled(line_style)
+            .draw(&mut display)?;
+    }
+
+    let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
+
+    let font_bounding_box = font
+        .get_aligned_text_dimensions(
+            text,
+            center,
+            VerticalPosition::Center,
+            u8g2_fonts::types::HorizontalAlignment::Center,
+        )?
         .unwrap();
 
-    let bounding_box = FONT.get_glyph_bounding_box();
-    println!("BBox: {:?}", bounding_box);
-    bounding_box
-        .translate(Point::new(20, 50))
-        .offset(1)
-        .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_ORANGE, 1))
-        .draw(&mut display)
-        .unwrap();
+    font_bounding_box
+        .offset(6)
+        .into_styled(line_style)
+        .draw(&mut display)?;
 
-    println!("Advance: {}", advance);
-
-    println!("{:#?}", FONT);
+    font.render_text_aligned(
+        text,
+        center,
+        FontColor::Transparent(Rgb888::CSS_ORANGE),
+        VerticalPosition::Center,
+        u8g2_fonts::types::HorizontalAlignment::Center,
+        &mut display,
+    )?;
 
     'running: loop {
         window.update(&display);
@@ -59,9 +76,9 @@ fn main() -> Result<(), core::convert::Infallible> {
                 _ => {}
             }
         }
-    }
 
-    println!("Shutting down ...");
+        thread::sleep(Duration::from_millis(3));
+    }
 
     Ok(())
 }

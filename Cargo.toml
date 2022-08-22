@@ -21,6 +21,10 @@ exclude = [
     "/UPCOMING_VERSION_CHANGES.txt",
 ]
 
+[features]
+# Enables std::error::Error impls
+std = []
+
 [dependencies]
 embedded-graphics-core = "0.3.3"
 debug-ignore = "1.0.2"
