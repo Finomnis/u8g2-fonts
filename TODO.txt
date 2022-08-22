@@ -1,11 +1,10 @@
-- FontRenderer::get_aligned_text_dimensions
+- Render from format_args!()
+- Rewrite renderer, use a prettier structure
 
 - Readme
 - Docs front page
 - Docs examples?
 
-- Do CI
-- Do font generation check in CI
 
 - Rename error types (maybe RenderError/LookupError)?
 
