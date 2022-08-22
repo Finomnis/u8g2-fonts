@@ -4,9 +4,9 @@ extern crate embedded_graphics;
 extern crate embedded_graphics_simulator;
 
 use embedded_graphics::{
-    pixelcolor::{BinaryColor, Rgb888},
+    pixelcolor::BinaryColor,
     prelude::*,
-    primitives::{Circle, PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment},
+    primitives::{PrimitiveStyleBuilder, StrokeAlignment},
 };
 use embedded_graphics_simulator::{
     BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
@@ -21,12 +21,10 @@ const MOUSE_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_haxrcorp40
 const TEXT_POS_X: Point = Point::new(6, 62);
 const TEXT_POS_Y: Point = Point::new(124, 62);
 
-fn update_mouse_text(pos: Point, display: &mut SimulatorDisplay<BinaryColor>) {
-    static prev: Point = Point { x: 0, y: 0 };
-
+fn update_mouse_text(pos: Point, prev: Point, display: &mut SimulatorDisplay<BinaryColor>) {
     MOUSE_FONT
-        .render_text(
-            "x: 69",
+        .render_args(
+            format_args!("x: {}", prev.x),
             TEXT_POS_X,
             FontColor::Transparent(BinaryColor::Off),
             VerticalPosition::Baseline,
@@ -35,8 +33,8 @@ fn update_mouse_text(pos: Point, display: &mut SimulatorDisplay<BinaryColor>) {
         .unwrap();
 
     MOUSE_FONT
-        .render_text(
-            "x: 69",
+        .render_args(
+            format_args!("x: {}", pos.x),
             TEXT_POS_X,
             FontColor::Transparent(BinaryColor::On),
             VerticalPosition::Baseline,
@@ -82,13 +80,14 @@ fn main() -> Result<(), core::convert::Infallible> {
         .into_styled(border_stroke)
         .draw(&mut display)?;
 
-    update_mouse_text(Point::new(0, 0), &mut display);
+    let mut mouse_pos = Point::new(0, 0);
+    update_mouse_text(Point::new(0, 0), mouse_pos, &mut display);
 
     // Create and display the window
     let output_settings = OutputSettingsBuilder::new()
         .theme(BinaryColorTheme::OledBlue)
         .build();
-    let mut window = Window::new("Click to move circle", &output_settings);
+    let mut window = Window::new("Dynamic text content", &output_settings);
 
     'running: loop {
         window.update(&display);
@@ -97,7 +96,9 @@ fn main() -> Result<(), core::convert::Infallible> {
             match event {
                 SimulatorEvent::Quit => break 'running,
                 SimulatorEvent::MouseMove { point } => {
-                    println!("{:?}", point);
+                    let prev = mouse_pos;
+                    mouse_pos = point;
+                    update_mouse_text(mouse_pos, prev, &mut display);
                 }
                 _ => {}
             }

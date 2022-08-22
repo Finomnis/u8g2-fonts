@@ -1,3 +1,5 @@
+use core::fmt::Arguments;
+
 use embedded_graphics_core::{
     prelude::{DrawTarget, Point, Size},
     primitives::Rectangle,
@@ -6,7 +8,7 @@ use embedded_graphics_core::{
 use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    utils::combine_bounding_boxes,
+    utils::{combine_bounding_boxes, FormatArgsReader},
     Error, Font, LookupError,
 };
 
@@ -247,6 +249,60 @@ impl FontRenderer {
         }
 
         Ok(bounding_box)
+    }
+
+    /// Renders format string arguments.
+    ///
+    /// Apart of being able to render format strings, this function is identical
+    /// to [`render_text()`](crate::FontRenderer::render_text).
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - The format string arguments to render.
+    /// * `position` - The position to render to.
+    /// * `color` - The font color.
+    /// * `vertical_pos` - The vertical positioning.
+    /// * `display` - The display to render to.
+    ///
+    /// # Return
+    ///
+    /// The dimensions of the rendered text.
+    /// The advance might be two-dimensional, as newlines change the y position.
+    ///
+    pub fn render_args<Display>(
+        &self,
+        args: Arguments<'_>,
+        position: Point,
+        color: FontColor<Display::Color>,
+        vertical_pos: VerticalPosition,
+        display: &mut Display,
+    ) -> Result<RenderedDimensions, Error<Display::Error>>
+    where
+        Display: DrawTarget,
+        Display::Error: core::fmt::Debug,
+    {
+        let mut advance = Point::new(0, 0);
+
+        let mut bounding_box = None;
+
+        FormatArgsReader::new(|ch| -> Result<(), Error<Display::Error>> {
+            if ch == '\n' {
+                advance.x = 0;
+                advance.y += self.font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions =
+                    self.render_glyph(ch, position + advance, color, vertical_pos, display)?;
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+            }
+            Ok(())
+        })
+        .process_args(args)?;
+
+        Ok(RenderedDimensions {
+            advance,
+            bounding_box,
+        })
     }
 
     /// Calculates the dimensions that rendering a glyph with [`render_glyph()`](crate::FontRenderer::render_glyph) would produce.

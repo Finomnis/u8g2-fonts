@@ -1,4 +1,12 @@
 - Render from format_args!()
+- Tests for render_args
+- Tests for render_args_aligned
+
+- Implement get_args_dimensions
+- Implement get_aligned_args_dimensions
+- Tests for get_args_dimensions
+- Tests for get_aligned_args_dimensions
+
 - Rewrite renderer, use a prettier structure
 
     - Problem: how to structure?
