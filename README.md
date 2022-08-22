@@ -22,3 +22,24 @@ For more information about the font licenses, read the [license agreement](https
 
 
 ## Example
+
+```rust
+let mut display = init_display(150, 50);
+
+let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
+
+font.render_text_aligned(
+    "Hello, World!",
+    display.bounding_box().center(),
+    FontColor::Transparent(COLOR::GREEN),
+    VerticalPosition::Center,
+    HorizontalAlignment::Center,
+    &mut display,
+)?;
+
+show(display);
+```
+
+If you [run this code](examples/simulator/src/bin/readme_example.rs), you will get the following output:
+
+![Hello World text rendered by this crate](examples/readme_example.png?raw=true)
