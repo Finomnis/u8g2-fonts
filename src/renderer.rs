@@ -341,7 +341,7 @@ impl FontRenderer {
     }
 
     /// Calculates the dimensions that rendering a text with
-    /// [`render_text_aligned()`](crate::FontRenderer::render_textaligned) would produce.
+    /// [`render_text_aligned()`](crate::FontRenderer::render_text_aligned) would produce.
     ///
     /// # Arguments
     ///
