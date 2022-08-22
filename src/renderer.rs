@@ -5,7 +5,7 @@ use embedded_graphics_core::{
 
 use crate::{
     font_reader::FontReader,
-    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
+    types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
     DrawError, Error, Font,
 };
@@ -40,8 +40,7 @@ impl FontRenderer {
     ///
     /// * `ch` - The character to render.
     /// * `position` - The position to render to.
-    /// * `foreground_color` - The foreground color.
-    /// * `background_color` - The background color.
+    /// * `color` - The font color.
     /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
@@ -54,8 +53,7 @@ impl FontRenderer {
         &self,
         ch: char,
         position: Point,
-        foreground_color: Display::Color,
-        background_color: Option<Display::Color>,
+        color: FontColor<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
     ) -> Result<RenderedDimensions, DrawError<Display::Error>>
@@ -63,7 +61,7 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        if background_color.is_some() && !self.font.supports_background_color {
+        if color.has_background() && !self.font.supports_background_color {
             return Err(DrawError::BackgroundColorNotSupported);
         }
 
@@ -74,16 +72,13 @@ impl FontRenderer {
 
         let bounding_box = if size.width > 0 && size.height > 0 {
             let renderer = glyph.create_renderer(&self.font);
-            Some(if let Some(background_color) = background_color {
-                renderer.render_as_box_fill(
-                    position,
-                    vertical_pos,
-                    display,
-                    foreground_color,
-                    background_color,
-                )?
-            } else {
-                renderer.render_transparent(position, vertical_pos, display, foreground_color)?
+            Some(match color {
+                FontColor::Transparent(color) => {
+                    renderer.render_transparent(position, vertical_pos, display, color)?
+                }
+                FontColor::WithBackground { fg, bg } => {
+                    renderer.render_as_box_fill(position, vertical_pos, display, fg, bg)?
+                }
             })
         } else {
             None
@@ -106,8 +101,7 @@ impl FontRenderer {
     ///
     /// * `text` - The string to render.
     /// * `position` - The position to render to.
-    /// * `foreground_color` - The foreground color.
-    /// * `background_color` - The background color.
+    /// * `color` - The font color.
     /// * `vertical_pos` - The vertical positioning.
     /// * `display` - The display to render to.
     ///
@@ -120,8 +114,7 @@ impl FontRenderer {
         &self,
         text: &str,
         position: Point,
-        foreground_color: Display::Color,
-        background_color: Option<Display::Color>,
+        color: FontColor<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
     ) -> Result<RenderedDimensions, DrawError<Display::Error>>
@@ -138,14 +131,8 @@ impl FontRenderer {
                 advance.x = 0;
                 advance.y += self.font.font_bounding_box_height as i32 + 1;
             } else {
-                let dimensions = self.render_glyph(
-                    ch,
-                    position + advance,
-                    foreground_color,
-                    background_color,
-                    vertical_pos,
-                    display,
-                )?;
+                let dimensions =
+                    self.render_glyph(ch, position + advance, color, vertical_pos, display)?;
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
@@ -169,8 +156,7 @@ impl FontRenderer {
     ///
     /// * `text` - The string to render.
     /// * `position` - The position to render to.
-    /// * `foreground_color` - The foreground color.
-    /// * `background_color` - The background color.
+    /// * `color` - The font color.
     /// * `vertical_pos` - The vertical positioning.
     /// * `horizontal_align` - The horizontal positioning.
     /// * `display` - The display to render to.
@@ -183,13 +169,11 @@ impl FontRenderer {
     /// as due to the alignment it would be meaningless.
     ///
     ///
-    #[allow(clippy::too_many_arguments)]
     pub fn render_text_aligned<Display>(
         &self,
         text: &str,
         mut position: Point,
-        foreground_color: Display::Color,
-        background_color: Option<Display::Color>,
+        color: FontColor<Display::Color>,
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
         display: &mut Display,
@@ -254,8 +238,7 @@ impl FontRenderer {
             let dimensions = self.render_text(
                 line,
                 position + Point::new(offset_x, line_num as i32 * newline_advance),
-                foreground_color,
-                background_color,
+                color,
                 VerticalPosition::Baseline,
                 display,
             )?;

@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 };
 use u8g2_fonts::{
     fonts,
-    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
+    types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     DrawError, FontRenderer,
 };
 
@@ -20,8 +20,7 @@ fn letters_not_supported() {
     let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>().render_glyph(
         'a',
         Point::new(2, 15),
-        Rgb888::new(237, 28, 36),
-        None,
+        FontColor::Transparent(Rgb888::new(237, 28, 36)),
         VerticalPosition::default(),
         &mut display,
     );
@@ -36,8 +35,7 @@ fn unicode_not_supported() {
     let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
         '☃',
         Point::new(2, 15),
-        Rgb888::new(237, 28, 36),
-        None,
+        FontColor::Transparent(Rgb888::new(237, 28, 36)),
         VerticalPosition::default(),
         &mut display,
     );
@@ -52,8 +50,10 @@ fn background_color_not_supported() {
     let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
         '☃',
         Point::new(2, 15),
-        Rgb888::new(237, 28, 36),
-        Some(Rgb888::new(1, 1, 1)),
+        FontColor::WithBackground {
+            fg: Rgb888::new(237, 28, 36),
+            bg: Rgb888::new(1, 1, 1),
+        },
         VerticalPosition::default(),
         &mut display,
     );
@@ -90,8 +90,7 @@ fn render_glyph() {
                 .render_glyph(
                     'j',
                     Point::new(2, 15),
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     VerticalPosition::default(),
                     display,
                 )
@@ -116,8 +115,7 @@ fn render_glyph_unicode() {
                 .render_glyph(
                     '☃',
                     Point::new(4, 19),
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     VerticalPosition::default(),
                     display,
                 )
@@ -143,8 +141,10 @@ fn render_glyph_with_background_color() {
                 .render_glyph(
                     'j',
                     Point::new(2, 20),
-                    Rgb888::new(237, 28, 36),
-                    Some(Rgb888::new(1, 1, 1)),
+                    FontColor::WithBackground {
+                        fg: Rgb888::new(237, 28, 36),
+                        bg: Rgb888::new(1, 1, 1),
+                    },
                     VerticalPosition::default(),
                     display,
                 )
@@ -169,8 +169,7 @@ fn render_text() {
                 .render_text(
                     "Hello World!",
                     Point::new(2, 15),
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     VerticalPosition::default(),
                     display,
                 )
@@ -195,8 +194,7 @@ fn render_text_unicode() {
                 .render_text(
                     "Snowman: ☃",
                     Point::new(5, 20),
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     VerticalPosition::default(),
                     display,
                 )
@@ -222,8 +220,10 @@ fn render_text_with_background_color() {
                 .render_text(
                     "Hello, W0rld!",
                     Point::new(2, 20),
-                    Rgb888::new(237, 28, 36),
-                    Some(Rgb888::new(1, 1, 1)),
+                    FontColor::WithBackground {
+                        fg: Rgb888::new(237, 28, 36),
+                        bg: Rgb888::new(1, 1, 1),
+                    },
                     VerticalPosition::default(),
                     display,
                 )
@@ -265,8 +265,7 @@ fn render_text_with_vertical_pos() {
                     .render_text(
                         "Agi",
                         Point::new(5 + 50 * x_position as i32, 25),
-                        Rgb888::new(237, 28, 36),
-                        None,
+                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
                         vertical_pos,
                         display,
                     )
@@ -301,8 +300,7 @@ fn render_text_with_newline() {
                 .render_text(
                     "Hello,\nWorld!",
                     Point::new(2, 15),
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     VerticalPosition::default(),
                     display,
                 )
@@ -430,8 +428,7 @@ fn render_text_aligned() {
                         .render_text_aligned(
                             text,
                             get_pos(hpos, vpos),
-                            Rgb888::CSS_DARK_BLUE,
-                            None,
+                            FontColor::Transparent(Rgb888::CSS_DARK_BLUE),
                             vpos,
                             hpos,
                             display,
@@ -487,8 +484,7 @@ fn get_glyph_dimensions() {
                     .render_glyph(
                         ch,
                         position,
-                        Rgb888::new(237, 28, 36),
-                        None,
+                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
                         vertical_pos,
                         display,
                     )
@@ -524,8 +520,7 @@ fn get_text_dimensions() {
                 .render_text(
                     text,
                     position,
-                    Rgb888::new(237, 28, 36),
-                    None,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
                     vertical_pos,
                     display,
                 )
@@ -656,8 +651,7 @@ fn get_aligned_text_dimensions() {
                         .render_text_aligned(
                             text,
                             get_pos(hpos, vpos),
-                            Rgb888::CSS_BLUE,
-                            None,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
                             vpos,
                             hpos,
                             display,

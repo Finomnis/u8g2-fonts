@@ -1,4 +1,7 @@
-use embedded_graphics_core::{prelude::Point, primitives::Rectangle};
+use embedded_graphics_core::{
+    prelude::{PixelColor, Point},
+    primitives::Rectangle,
+};
 
 /// The vertical rendering position of the font.
 ///
@@ -40,7 +43,6 @@ pub struct RenderedDimensions {
 }
 
 /// The horizontal rendering position of the font.
-///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HorizontalAlignment {
     /// Anchored at the left side
@@ -49,4 +51,32 @@ pub enum HorizontalAlignment {
     Center,
     /// Anchored at the right side
     Right,
+}
+
+/// The color of the rendered text.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontColor<Color>
+where
+    Color: PixelColor,
+{
+    /// Only draw the text, do not touch the background.
+    Transparent(Color),
+    /// Draw the text and the background.
+    ///
+    /// Note that not all fonts support a background color.
+    WithBackground {
+        /// The foreground color
+        fg: Color,
+        /// The background color
+        bg: Color,
+    },
+}
+
+impl<Color> FontColor<Color>
+where
+    Color: PixelColor,
+{
+    pub(crate) fn has_background(&self) -> bool {
+        matches!(self, Self::WithBackground { .. })
+    }
 }
