@@ -34,7 +34,7 @@ impl UnicodeJumptableReader {
     }
 
     fn next_byte(&mut self) -> Option<u8> {
-        let value = *self.data.get(0)?;
+        let value = *self.data.first()?;
         self.data = self.data.get(1..)?;
         Some(value)
     }

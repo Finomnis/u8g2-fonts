@@ -64,19 +64,22 @@ impl FontReader {
 
         if encoding <= 255 {
             if encoding >= b'a' as u16 {
-                if !glyph.jump_by(self.array_offset_lower_a as usize) {
-                    return Err(Error::GlyphNotFound(ch));
-                };
+                glyph
+                    .jump_by(self.array_offset_lower_a as usize)
+                    .then_some(())
+                    .ok_or(Error::GlyphNotFound(ch))?;
             } else if encoding >= b'A' as u16 {
-                if !glyph.jump_by(self.array_offset_upper_a as usize) {
-                    return Err(Error::GlyphNotFound(ch));
-                };
+                glyph
+                    .jump_by(self.array_offset_upper_a as usize)
+                    .then_some(())
+                    .ok_or(Error::GlyphNotFound(ch))?;
             }
 
             while glyph.get_ch()? as u16 != encoding {
-                if !glyph.jump_to_next()? {
-                    return Err(Error::GlyphNotFound(ch));
-                }
+                glyph
+                    .jump_to_next()?
+                    .then_some(())
+                    .ok_or(Error::GlyphNotFound(ch))?;
             }
 
             glyph.into_glyph_reader()
@@ -86,7 +89,7 @@ impl FontReader {
 
             let jump_offset = unicode_jump_table
                 .calculate_jump_offset(encoding)
-                .ok_or_else(|| Error::GlyphNotFound(ch))?;
+                .ok_or(Error::GlyphNotFound(ch))?;
 
             glyph.jump_by(jump_offset);
 

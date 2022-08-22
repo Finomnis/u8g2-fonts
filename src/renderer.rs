@@ -182,6 +182,8 @@ impl FontRenderer {
     /// Does not return an advance value like the other methods,
     /// as due to the alignment it would be meaningless.
     ///
+    ///
+    #[allow(clippy::too_many_arguments)]
     pub fn render_text_aligned<Display>(
         &self,
         text: &str,
@@ -386,15 +388,13 @@ impl FontRenderer {
             let dimensions =
                 self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::Baseline)?;
 
-            let offset_x = if let HorizontalAlignment::Left = horizontal_align {
-                // Alignment: Left
-
-                // From experiments, it seems that alignment looks more symmetrical
-                // if everything is shifted by one in respect to the anchor point
-                1
-            } else {
-                if let HorizontalAlignment::Center = horizontal_align {
-                    // Alignment: Center
+            let offset_x = match horizontal_align {
+                HorizontalAlignment::Left => {
+                    // From experiments, it seems that alignment looks more symmetrical
+                    // if everything is shifted by one in respect to the anchor point
+                    1
+                }
+                HorizontalAlignment::Center => {
                     if let Some(bounding_box) = dimensions.bounding_box {
                         let width = bounding_box.size.width;
                         let left = bounding_box.top_left.x;
@@ -403,9 +403,8 @@ impl FontRenderer {
                     } else {
                         0
                     }
-                } else {
-                    // Alignment: Right
-
+                }
+                HorizontalAlignment::Right => {
                     // From experiments, it seems that alignment looks more symmetrical
                     // if everything is shifted by one in respect to the anchor point
                     1 - dimensions.advance.x

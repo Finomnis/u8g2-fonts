@@ -1,6 +1,7 @@
 pub fn write_byte(out: &mut Vec<u8>, c: u8) {
     match c {
-        b'\0' => out.extend_from_slice(br"\0"),
+        // '\0' creates a clippy warning, as it looks like an octal escape
+        //b'\0' => out.extend_from_slice(br"\0"),
         b'\n' => out.extend_from_slice(br"\n"),
         b'\r' => out.extend_from_slice(br"\r"),
         b'\t' => out.extend_from_slice(br"\t"),

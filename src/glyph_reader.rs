@@ -52,8 +52,8 @@ impl GlyphReader {
 
         // If necessary, fetch next byte
         if bit_end >= 8 {
-            let value2 = *self.data.get(0).ok_or(Error::InternalError)?;
-            *self.data = &self.data.get(1..).ok_or(Error::InternalError)?;
+            let value2 = *self.data.first().ok_or(Error::InternalError)?;
+            *self.data = self.data.get(1..).ok_or(Error::InternalError)?;
             bit_end -= 8;
             self.current_byte = value2;
 
@@ -95,6 +95,6 @@ impl GlyphReader {
     }
 
     pub fn create_renderer<'a>(&self, font: &'a FontReader) -> GlyphRenderer<'a> {
-        GlyphRenderer::new(&self, font)
+        GlyphRenderer::new(self, font)
     }
 }

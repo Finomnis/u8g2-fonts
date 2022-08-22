@@ -57,7 +57,7 @@ impl<'a> GlyphSearcher<'a, 1> {
     }
 
     pub fn get_ch(&self) -> Result<u8, Error> {
-        self.data.get(0).cloned().ok_or(Error::InternalError)
+        self.data.first().cloned().ok_or(Error::InternalError)
     }
 
     pub fn into_unicode_mode(
@@ -81,7 +81,7 @@ impl<'a> GlyphSearcher<'a, 1> {
 impl<'a> GlyphSearcher<'a, 2> {
     pub fn get_ch(&self) -> Result<u16, Error> {
         Ok(u16::from_be_bytes([
-            self.data.get(0).cloned().ok_or(Error::InternalError)?,
+            self.data.first().cloned().ok_or(Error::InternalError)?,
             self.data.get(1).cloned().ok_or(Error::InternalError)?,
         ]))
     }
