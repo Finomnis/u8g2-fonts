@@ -8,7 +8,7 @@ use std::{
 };
 
 use clap::Parser;
-use miette::{IntoDiagnostic, Result, WrapErr};
+use miette::{bail, IntoDiagnostic, Result, WrapErr};
 
 use crate::{font_data::consume_font_data, font_entry::FontEntry};
 
@@ -23,6 +23,12 @@ struct Args {
     /// The path of the rust output file
     #[clap(value_parser)]
     file_out: String,
+
+    /// Doesn't write anything, but instead returns
+    /// a non-zero exitcode if the generated code
+    /// differs from the existing code
+    #[clap(long)]
+    check: bool,
 }
 
 fn read_input_file(file: &str) -> Result<Vec<u8>> {
@@ -45,6 +51,23 @@ fn write_output_file(file: &str, data: &[u8]) -> Result<()> {
         .write_all(data)
         .into_diagnostic()
         .wrap_err("Error while writing file")
+}
+
+fn check_output_file(file: &str, data: &[u8]) -> Result<()> {
+    let mut existing_data = Vec::new();
+
+    File::open(&file)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Unable to open '{}'", &file))?
+        .read_to_end(&mut existing_data)
+        .into_diagnostic()
+        .wrap_err("Error while reading file")?;
+
+    if data != existing_data {
+        bail!("The generated code differs from the existing code!");
+    }
+
+    Ok(())
 }
 
 fn process_font_entry<'a>(
@@ -107,5 +130,10 @@ fn main() -> Result<()> {
         }
     }
 
-    write_output_file(&args.file_out, &out).wrap_err("Unable to write converted file")
+    if args.check {
+        check_output_file(&args.file_out, &out)
+            .wrap_err("Verifying integrity of generated file failed")
+    } else {
+        write_output_file(&args.file_out, &out).wrap_err("Unable to write converted file")
+    }
 }

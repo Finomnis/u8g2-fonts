@@ -26,8 +26,5 @@ jobs:
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Regenerate
-        run: ./regenerate_funts_file.sh
-
-      - name: Check for changes
-        run: "! [[ `git status --porcelain` ]]""
+      - name: Regenerate and check
+        run: ./regenerate_fonts_file.sh --check
