@@ -7,7 +7,7 @@ use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
-    DrawError, Error, Font,
+    Error, Font, LookupError,
 };
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
@@ -56,13 +56,13 @@ impl FontRenderer {
         color: FontColor<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<RenderedDimensions, DrawError<Display::Error>>
+    ) -> Result<RenderedDimensions, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         if color.has_background() && !self.font.supports_background_color {
-            return Err(DrawError::BackgroundColorNotSupported);
+            return Err(Error::BackgroundColorNotSupported);
         }
 
         let glyph = self.font.retrieve_glyph_data(ch)?;
@@ -117,7 +117,7 @@ impl FontRenderer {
         color: FontColor<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<RenderedDimensions, DrawError<Display::Error>>
+    ) -> Result<RenderedDimensions, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -177,7 +177,7 @@ impl FontRenderer {
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
         display: &mut Display,
-    ) -> Result<Option<Rectangle>, DrawError<Display::Error>>
+    ) -> Result<Option<Rectangle>, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -266,7 +266,7 @@ impl FontRenderer {
         ch: char,
         position: Point,
         vertical_pos: VerticalPosition,
-    ) -> Result<RenderedDimensions, Error> {
+    ) -> Result<RenderedDimensions, LookupError> {
         let glyph = self.font.retrieve_glyph_data(ch)?;
 
         let advance = glyph.advance();
@@ -301,7 +301,7 @@ impl FontRenderer {
         text: &str,
         position: Point,
         vertical_pos: VerticalPosition,
-    ) -> Result<RenderedDimensions, Error> {
+    ) -> Result<RenderedDimensions, LookupError> {
         let mut advance = Point::new(0, 0);
         let mut bounding_box = None;
 
@@ -343,7 +343,7 @@ impl FontRenderer {
         mut position: Point,
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
-    ) -> Result<Option<Rectangle>, Error> {
+    ) -> Result<Option<Rectangle>, LookupError> {
         let num_lines = text.lines().count();
         let newline_advance = self.font.font_bounding_box_height as i32 + 1;
         let ascent = self.font.ascent as i32;

@@ -1,6 +1,6 @@
 use crate::{
     font_reader::FontReader, glyph_reader::GlyphReader,
-    unicode_jumptable_reader::UnicodeJumptableReader, Error,
+    unicode_jumptable_reader::UnicodeJumptableReader, LookupError,
 };
 
 #[derive(Debug)]
@@ -18,29 +18,29 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
         true
     }
 
-    fn get_offset(&self) -> Result<u8, Error> {
+    fn get_offset(&self) -> Result<u8, LookupError> {
         self.data
             .get(CHAR_WIDTH)
             .cloned()
-            .ok_or(Error::InternalError)
+            .ok_or(LookupError::InternalError)
     }
 
-    pub fn jump_to_next(&mut self) -> Result<bool, Error> {
+    pub fn jump_to_next(&mut self) -> Result<bool, LookupError> {
         let offset = self.get_offset()?;
         if offset == 0 {
             Ok(false)
         } else if self.jump_by(offset as usize) {
             Ok(true)
         } else {
-            Err(Error::InternalError)
+            Err(LookupError::InternalError)
         }
     }
 
-    pub fn into_glyph_reader(self) -> Result<GlyphReader, Error> {
+    pub fn into_glyph_reader(self) -> Result<GlyphReader, LookupError> {
         GlyphReader::new(
             self.data
                 .get(CHAR_WIDTH + 1..)
-                .ok_or(Error::InternalError)?,
+                .ok_or(LookupError::InternalError)?,
             self.font,
         )
     }
@@ -56,14 +56,14 @@ impl<'a> GlyphSearcher<'a, 1> {
         }
     }
 
-    pub fn get_ch(&self) -> Result<u8, Error> {
-        self.data.first().cloned().ok_or(Error::InternalError)
+    pub fn get_ch(&self) -> Result<u8, LookupError> {
+        self.data.first().cloned().ok_or(LookupError::InternalError)
     }
 
     pub fn into_unicode_mode(
         mut self,
         offset: u16,
-    ) -> Result<(GlyphSearcher<'a, 2>, UnicodeJumptableReader), Error> {
+    ) -> Result<(GlyphSearcher<'a, 2>, UnicodeJumptableReader), LookupError> {
         if self.jump_by(offset as usize) {
             Ok((
                 GlyphSearcher {
@@ -73,16 +73,22 @@ impl<'a> GlyphSearcher<'a, 1> {
                 UnicodeJumptableReader::new(self.data),
             ))
         } else {
-            Err(Error::InternalError)
+            Err(LookupError::InternalError)
         }
     }
 }
 
 impl<'a> GlyphSearcher<'a, 2> {
-    pub fn get_ch(&self) -> Result<u16, Error> {
+    pub fn get_ch(&self) -> Result<u16, LookupError> {
         Ok(u16::from_be_bytes([
-            self.data.first().cloned().ok_or(Error::InternalError)?,
-            self.data.get(1).cloned().ok_or(Error::InternalError)?,
+            self.data
+                .first()
+                .cloned()
+                .ok_or(LookupError::InternalError)?,
+            self.data
+                .get(1)
+                .cloned()
+                .ok_or(LookupError::InternalError)?,
         ]))
     }
 }

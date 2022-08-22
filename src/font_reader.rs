@@ -1,5 +1,5 @@
 use crate::{
-    glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, utils::DebugIgnore, Error, Font,
+    glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, utils::DebugIgnore, Font, LookupError,
 };
 
 #[derive(Debug)]
@@ -56,9 +56,9 @@ impl FontReader {
         }
     }
 
-    pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, Error> {
+    pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
         // Retrieve u16 glyph value
-        let encoding = u16::try_from(ch as u32).map_err(|_| Error::GlyphNotFound(ch))?;
+        let encoding = u16::try_from(ch as u32).map_err(|_| LookupError::GlyphNotFound(ch))?;
 
         let mut glyph = GlyphSearcher::new(self);
 
@@ -67,19 +67,19 @@ impl FontReader {
                 glyph
                     .jump_by(self.array_offset_lower_a as usize)
                     .then_some(())
-                    .ok_or(Error::GlyphNotFound(ch))?;
+                    .ok_or(LookupError::GlyphNotFound(ch))?;
             } else if encoding >= b'A' as u16 {
                 glyph
                     .jump_by(self.array_offset_upper_a as usize)
                     .then_some(())
-                    .ok_or(Error::GlyphNotFound(ch))?;
+                    .ok_or(LookupError::GlyphNotFound(ch))?;
             }
 
             while glyph.get_ch()? as u16 != encoding {
                 glyph
                     .jump_to_next()?
                     .then_some(())
-                    .ok_or(Error::GlyphNotFound(ch))?;
+                    .ok_or(LookupError::GlyphNotFound(ch))?;
             }
 
             glyph.into_glyph_reader()
@@ -89,20 +89,20 @@ impl FontReader {
 
             let jump_offset = unicode_jump_table
                 .calculate_jump_offset(encoding)
-                .ok_or(Error::GlyphNotFound(ch))?;
+                .ok_or(LookupError::GlyphNotFound(ch))?;
 
             glyph.jump_by(jump_offset);
 
             loop {
                 let glyph_ch = glyph.get_ch()?;
                 if glyph_ch == 0 {
-                    return Err(Error::GlyphNotFound(ch));
+                    return Err(LookupError::GlyphNotFound(ch));
                 }
                 if glyph_ch == encoding {
                     break;
                 }
                 if !glyph.jump_to_next()? {
-                    return Err(Error::GlyphNotFound(ch));
+                    return Err(LookupError::GlyphNotFound(ch));
                 }
             }
 

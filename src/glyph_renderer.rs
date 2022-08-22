@@ -4,9 +4,7 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{
-    font_reader::FontReader, glyph_reader::GlyphReader, types::VerticalPosition, DrawError,
-};
+use crate::{font_reader::FontReader, glyph_reader::GlyphReader, types::VerticalPosition, Error};
 
 pub struct GlyphRenderer<'a> {
     glyph: GlyphReader,
@@ -51,7 +49,7 @@ impl<'a> GlyphRenderer<'a> {
         display: &mut Display,
         foreground_color: Display::Color,
         background_color: Display::Color,
-    ) -> Result<Rectangle, DrawError<Display::Error>>
+    ) -> Result<Rectangle, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -88,7 +86,7 @@ impl<'a> GlyphRenderer<'a> {
 
         display
             .fill_contiguous(&glyph_bounding_box, core::iter::from_fn(color_iter))
-            .map_err(DrawError::DisplayError)?;
+            .map_err(Error::DisplayError)?;
 
         Ok(glyph_bounding_box)
     }
@@ -99,7 +97,7 @@ impl<'a> GlyphRenderer<'a> {
         vertical_pos: VerticalPosition,
         display: &mut Display,
         foreground_color: Display::Color,
-    ) -> Result<Rectangle, DrawError<Display::Error>>
+    ) -> Result<Rectangle, Error<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -160,7 +158,7 @@ impl<'a> GlyphRenderer<'a> {
 
         display
             .draw_iter(core::iter::from_fn(pixel_iter))
-            .map_err(DrawError::DisplayError)?;
+            .map_err(Error::DisplayError)?;
 
         Ok(glyph_bounding_box)
     }
