@@ -24,6 +24,14 @@
             - alignment vert / vert+hor
             - color/background/only_dimensions (e.g. color/background optional; only-dimensions does not require display)
 
+            - finished with .draw(display)/.compute();
+
+        maybe:
+            .with_content(glyph/text/args)
+            .
+
+        or:
+            .render_glyph()/.render_text()/.render_args()
 
 
 - Docs front page
