@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 };
 use u8g2_fonts::{
     fonts,
-    types::{HorizontalAlignment, VerticalPosition},
+    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     DrawError, FontRenderer,
 };
 
@@ -84,7 +84,7 @@ fn get_glyph_bounding_box() {
 
 #[test]
 fn render_glyph() {
-    let advance =
+    let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_glyph.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
                 .render_glyph(
@@ -98,12 +98,18 @@ fn render_glyph() {
                 .unwrap()
         });
 
-    assert_eq!(advance, 4);
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(4, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 6), Size::new(6, 11)))
+        }
+    );
 }
 
 #[test]
 fn render_glyph_unicode() {
-    let advance = TestDrawTarget::expect_image(
+    let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
@@ -119,12 +125,18 @@ fn render_glyph_unicode() {
         },
     );
 
-    assert_eq!(advance, 16);
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(16, 0),
+            bounding_box: Some(Rectangle::new(Point::new(4, 5), Size::new(16, 16)))
+        }
+    );
 }
 
 #[test]
 fn render_glyph_with_background_color() {
-    let advance = TestDrawTarget::expect_image(
+    let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
@@ -140,12 +152,18 @@ fn render_glyph_with_background_color() {
         },
     );
 
-    assert_eq!(advance, 10);
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(10, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 4), Size::new(10, 20)))
+        }
+    );
 }
 
 #[test]
 fn render_text() {
-    let advance =
+    let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
                 .render_text(
@@ -159,12 +177,18 @@ fn render_text() {
                 .unwrap()
         });
 
-    assert_eq!(advance, Point::new(121, 0));
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(121, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 1), Size::new(120, 14)))
+        }
+    );
 }
 
 #[test]
 fn render_text_unicode() {
-    let advance = TestDrawTarget::expect_image(
+    let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
@@ -180,12 +204,18 @@ fn render_text_unicode() {
         },
     );
 
-    assert_eq!(advance, Point::new(88, 0));
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(88, 0),
+            bounding_box: Some(Rectangle::new(Point::new(6, 6), Size::new(87, 16)))
+        }
+    );
 }
 
 #[test]
 fn render_text_with_background_color() {
-    let advance = TestDrawTarget::expect_image(
+    let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
@@ -201,7 +231,13 @@ fn render_text_with_background_color() {
         },
     );
 
-    assert_eq!(advance, Point::new(130, 0));
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(130, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 4), Size::new(130, 20)))
+        }
+    );
 }
 
 #[test]
@@ -225,7 +261,7 @@ fn render_text_with_vertical_pos() {
             .into_iter()
             .enumerate()
             {
-                FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
+                let bounding_box = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
                     .render_text(
                         "Agi",
                         Point::new(5 + 50 * x_position as i32, 25),
@@ -234,7 +270,23 @@ fn render_text_with_vertical_pos() {
                         vertical_pos,
                         display,
                     )
-                    .unwrap();
+                    .unwrap()
+                    .bounding_box;
+
+                let expected_bounding_box_y = match vertical_pos {
+                    VerticalPosition::Baseline => -18,
+                    VerticalPosition::Top => 1,
+                    VerticalPosition::Center => -11,
+                    VerticalPosition::Bottom => -23,
+                };
+
+                assert_eq!(
+                    bounding_box,
+                    Some(Rectangle::new(
+                        Point::new(5 + 50 * x_position as i32, 25 + expected_bounding_box_y),
+                        Size::new(42, 23)
+                    ))
+                );
             }
         },
     );
@@ -242,7 +294,7 @@ fn render_text_with_vertical_pos() {
 
 #[test]
 fn render_text_with_newline() {
-    let advance = TestDrawTarget::expect_image(
+    let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_newline.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
@@ -258,7 +310,13 @@ fn render_text_with_newline() {
         },
     );
 
-    assert_eq!(advance, Point::new(65, 21));
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(65, 21),
+            bounding_box: Some(Rectangle::new(Point::new(1, 1), Size::new(65, 35)))
+        }
+    );
 }
 
 #[test]
@@ -357,26 +415,35 @@ fn render_text_aligned() {
                 )
                 .unwrap();
 
-            for hpos in [
-                HorizontalAlignment::Left,
-                HorizontalAlignment::Center,
-                HorizontalAlignment::Right,
+            for (hpos, expected_x, expected_width) in [
+                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Center, 122, 67),
+                (HorizontalAlignment::Right, 238, 67),
             ] {
-                for vpos in [
-                    VerticalPosition::Top,
-                    VerticalPosition::Center,
-                    VerticalPosition::Bottom,
+                for (vpos, expected_y) in [
+                    (VerticalPosition::Top, 8),
+                    (VerticalPosition::Center, 68),
+                    (VerticalPosition::Bottom, 128),
                 ] {
-                    font.render_text_aligned(
-                        text,
-                        get_pos(hpos, vpos),
-                        Rgb888::CSS_DARK_BLUE,
-                        None,
-                        vpos,
-                        hpos,
-                        display,
-                    )
-                    .unwrap();
+                    let bounding_box = font
+                        .render_text_aligned(
+                            text,
+                            get_pos(hpos, vpos),
+                            Rgb888::CSS_DARK_BLUE,
+                            None,
+                            vpos,
+                            hpos,
+                            display,
+                        )
+                        .unwrap();
+
+                    assert_eq!(
+                        bounding_box,
+                        Some(Rectangle::new(
+                            Point::new(expected_x, expected_y),
+                            Size::new(expected_width, 39)
+                        ))
+                    );
                 }
             }
 
@@ -432,15 +499,18 @@ fn get_glyph_dimensions() {
                     .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(2, 2, 2))
                     .unwrap();
 
-                font.render_glyph(
-                    ch,
-                    position,
-                    Rgb888::new(237, 28, 36),
-                    None,
-                    vertical_pos,
-                    display,
-                )
-                .unwrap();
+                let rendered_dim = font
+                    .render_glyph(
+                        ch,
+                        position,
+                        Rgb888::new(237, 28, 36),
+                        None,
+                        vertical_pos,
+                        display,
+                    )
+                    .unwrap();
+
+                assert_eq!(dim, rendered_dim);
             }
         },
     );
@@ -466,7 +536,7 @@ fn get_text_dimensions() {
                 .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(3, 3, 3))
                 .unwrap();
 
-            let advance = font
+            let rendered_dim = font
                 .render_text(
                     text,
                     position,
@@ -477,7 +547,7 @@ fn get_text_dimensions() {
                 )
                 .unwrap();
 
-            assert_eq!(advance, dim.advance);
+            assert_eq!(dim, rendered_dim);
         },
     );
 }

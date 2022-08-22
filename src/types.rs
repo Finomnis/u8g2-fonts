@@ -27,7 +27,7 @@ impl Default for VerticalPosition {
 }
 
 /// The dimensions of a rendered glyph/text.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderedDimensions {
     /// The relative offset where a following glyph
     /// would have to get rendered.

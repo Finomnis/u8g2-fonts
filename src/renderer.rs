@@ -47,7 +47,8 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The pixel advance of the rendered glyph, indicating the required offset to render the next character.
+    /// The dimensions of the rendered glyph.
+    /// The y component of the advance will always be zero.
     ///
     pub fn render_glyph<Display>(
         &self,
@@ -57,7 +58,7 @@ impl FontRenderer {
         background_color: Option<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<i8, DrawError<Display::Error>>
+    ) -> Result<RenderedDimensions, DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -71,22 +72,27 @@ impl FontRenderer {
         let advance = glyph.advance();
         let size = glyph.size();
 
-        if size.width > 0 && size.height > 0 {
+        let bounding_box = if size.width > 0 && size.height > 0 {
             let renderer = glyph.create_renderer(&self.font);
-            if let Some(background_color) = background_color {
+            Some(if let Some(background_color) = background_color {
                 renderer.render_as_box_fill(
                     position,
                     vertical_pos,
                     display,
                     foreground_color,
                     background_color,
-                )?;
+                )?
             } else {
-                renderer.render_transparent(position, vertical_pos, display, foreground_color)?;
-            }
-        }
+                renderer.render_transparent(position, vertical_pos, display, foreground_color)?
+            })
+        } else {
+            None
+        };
 
-        Ok(advance)
+        Ok(RenderedDimensions {
+            advance: Point::new(advance as i32, 0),
+            bounding_box,
+        })
     }
 
     /// Renders a string.
@@ -107,8 +113,8 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The total pixel advance of all rendered glyphs.
-    /// Two-dimensional, as newlines change the y position.
+    /// The dimensions of the rendered text.
+    /// The advance might be two-dimensional, as newlines change the y position.
     ///
     pub fn render_text<Display>(
         &self,
@@ -118,30 +124,37 @@ impl FontRenderer {
         background_color: Option<Display::Color>,
         vertical_pos: VerticalPosition,
         display: &mut Display,
-    ) -> Result<Point, DrawError<Display::Error>>
+    ) -> Result<RenderedDimensions, DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
         let mut advance = Point::new(0, 0);
 
+        let mut bounding_box = None;
+
         for ch in text.chars() {
             if ch == '\n' {
                 advance.x = 0;
                 advance.y += self.font.font_bounding_box_height as i32 + 1;
             } else {
-                advance.x += self.render_glyph(
+                let dimensions = self.render_glyph(
                     ch,
                     position + advance,
                     foreground_color,
                     background_color,
                     vertical_pos,
                     display,
-                )? as i32;
+                )?;
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
         }
 
-        Ok(advance)
+        Ok(RenderedDimensions {
+            advance,
+            bounding_box,
+        })
     }
 
     /// Renders a string with horizontal and vertical alignment.
@@ -162,6 +175,13 @@ impl FontRenderer {
     /// * `horizontal_align` - The horizontal positioning.
     /// * `display` - The display to render to.
     ///
+    /// # Return
+    ///
+    /// The bounding box of the rendered text.
+    ///
+    /// Does not return an advance value like the other methods,
+    /// as due to the alignment it would be meaningless.
+    ///
     pub fn render_text_aligned<Display>(
         &self,
         text: &str,
@@ -171,7 +191,7 @@ impl FontRenderer {
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
         display: &mut Display,
-    ) -> Result<(), DrawError<Display::Error>>
+    ) -> Result<Option<Rectangle>, DrawError<Display::Error>>
     where
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
@@ -182,7 +202,7 @@ impl FontRenderer {
         let descent = self.font.descent as i32;
 
         if num_lines == 0 {
-            return Ok(());
+            return Ok(None);
         }
 
         let vertical_offset = match vertical_pos {
@@ -195,6 +215,8 @@ impl FontRenderer {
             VerticalPosition::Bottom => descent - (num_lines - 1) as i32 * newline_advance,
         };
         position.y += vertical_offset;
+
+        let mut bounding_box = None;
 
         for (line_num, line) in text.lines().enumerate() {
             let offset_x = if let HorizontalAlignment::Left = horizontal_align {
@@ -227,7 +249,7 @@ impl FontRenderer {
                 }
             };
 
-            self.render_text(
+            let dimensions = self.render_text(
                 line,
                 position + Point::new(offset_x, line_num as i32 * newline_advance),
                 foreground_color,
@@ -235,9 +257,11 @@ impl FontRenderer {
                 VerticalPosition::Baseline,
                 display,
             )?;
+
+            bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
         }
 
-        Ok(())
+        Ok(bounding_box)
     }
 
     /// Calculates the dimensions that rendering a glyph with [`render_glyph()`](crate::FontRenderer::render_glyph) would produce.
