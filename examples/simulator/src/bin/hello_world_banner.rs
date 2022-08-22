@@ -1,3 +1,5 @@
+//! This is the banner from the README.
+
 use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,

@@ -1,10 +1,8 @@
 - Render from format_args!()
 - Rewrite renderer, use a prettier structure
 
-- Readme
 - Docs front page
 - Docs examples?
-
 
 - Rename error types (maybe RenderError/LookupError)?
 
