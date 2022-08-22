@@ -4,7 +4,7 @@
 #![no_std]
 #![deny(missing_docs)]
 #![doc(
-    issue_tracker_base_url = "https://github.com/Finomnis/tokio-graceful-shutdown/issues",
+    issue_tracker_base_url = "https://github.com/Finomnis/u8g2-fonts/issues",
     test(no_crate_inject, attr(deny(warnings))),
     test(attr(allow(dead_code)))
 )]
