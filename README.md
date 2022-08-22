@@ -1,5 +1,7 @@
 # u8g2-fonts
 
+[![Hello World text rendered by this crate](examples/hello_world.png?raw=true)](examples/simulator/src/main.rs)
+
 [![Crates.io](https://img.shields.io/crates/v/u8g2-fonts)](https://crates.io/crates/u8g2-fonts)
 [![Crates.io](https://img.shields.io/crates/d/u8g2-fonts)](https://crates.io/crates/u8g2-fonts)
 [![License](https://img.shields.io/crates/l/u8g2-fonts)](https://github.com/Finomnis/u8g2-fonts/blob/main/LICENSE)

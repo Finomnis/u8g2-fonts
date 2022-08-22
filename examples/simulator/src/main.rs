@@ -14,7 +14,7 @@ use u8g2_fonts::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(365, 85));
+    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(425, 101));
     let mut window = Window::new("Text Rendering Demo", &OutputSettings::default());
 
     let center = display.bounding_box().center();
@@ -54,7 +54,7 @@ fn main() -> anyhow::Result<()> {
         .unwrap();
 
     font_bounding_box
-        .offset(6)
+        .offset(8)
         .into_styled(line_style)
         .draw(&mut display)?;
 
