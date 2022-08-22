@@ -424,6 +424,7 @@ fn render_text_aligned() {
                     (VerticalPosition::Top, 8),
                     (VerticalPosition::Center, 68),
                     (VerticalPosition::Bottom, 128),
+                    (VerticalPosition::Baseline, 186),
                 ] {
                     let bounding_box = font
                         .render_text_aligned(
@@ -445,23 +446,6 @@ fn render_text_aligned() {
                         ))
                     );
                 }
-            }
-
-            for hpos in [
-                HorizontalAlignment::Left,
-                HorizontalAlignment::Center,
-                HorizontalAlignment::Right,
-            ] {
-                font.render_text_aligned(
-                    text,
-                    get_pos(hpos, VerticalPosition::Baseline),
-                    Rgb888::CSS_DARK_BLUE,
-                    None,
-                    VerticalPosition::Baseline,
-                    hpos,
-                    display,
-                )
-                .unwrap();
             }
         },
     );
@@ -548,6 +532,142 @@ fn get_text_dimensions() {
                 .unwrap();
 
             assert_eq!(dim, rendered_dim);
+        },
+    );
+}
+
+#[test]
+fn get_aligned_text_dimensions() {
+    let text = "Agi,\niagmA!";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+
+    fn get_x(h: HorizontalAlignment) -> i32 {
+        match h {
+            HorizontalAlignment::Left => 5,
+            HorizontalAlignment::Center => 155,
+            HorizontalAlignment::Right => 305,
+        }
+    }
+
+    fn get_y(v: VerticalPosition) -> i32 {
+        match v {
+            VerticalPosition::Baseline => 200,
+            VerticalPosition::Top => 7,
+            VerticalPosition::Center => 87,
+            VerticalPosition::Bottom => 167,
+        }
+    }
+
+    fn get_pos(h: HorizontalAlignment, v: VerticalPosition) -> Point {
+        Point::new(get_x(h), get_y(v))
+    }
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/aligned_text_dimensions.png"),
+        |display| {
+            let vertical_rect = Size::new(
+                1,
+                (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top) + 1)
+                    .try_into()
+                    .unwrap(),
+            );
+            let horizontal_rect = Size::new(
+                (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left) + 1)
+                    .try_into()
+                    .unwrap(),
+                1,
+            );
+
+            for hpos in [
+                HorizontalAlignment::Left,
+                HorizontalAlignment::Center,
+                HorizontalAlignment::Right,
+            ] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(
+                            get_pos(hpos, VerticalPosition::Top),
+                            Size::new(1, display.size().height).try_into().unwrap(),
+                        ),
+                        Rgb888::CSS_ORANGE,
+                    )
+                    .unwrap();
+            }
+
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        get_pos(HorizontalAlignment::Left, VerticalPosition::Center),
+                        horizontal_rect,
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+
+            for hpos in [HorizontalAlignment::Left, HorizontalAlignment::Right] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
+                        Rgb888::CSS_RED,
+                    )
+                    .unwrap();
+            }
+
+            for vpos in [VerticalPosition::Top, VerticalPosition::Bottom] {
+                display
+                    .fill_solid(
+                        &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
+                        Rgb888::CSS_RED,
+                    )
+                    .unwrap();
+            }
+
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        Point::new(0, get_y(VerticalPosition::Baseline)),
+                        Size::new(display.size().width, 1),
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+
+            for hpos in [
+                HorizontalAlignment::Left,
+                HorizontalAlignment::Center,
+                HorizontalAlignment::Right,
+            ] {
+                for vpos in [
+                    VerticalPosition::Top,
+                    VerticalPosition::Center,
+                    VerticalPosition::Bottom,
+                    VerticalPosition::Baseline,
+                ] {
+                    let bounding_box = font
+                        .get_aligned_text_dimensions(text, get_pos(hpos, vpos), vpos, hpos)
+                        .unwrap()
+                        .unwrap();
+
+                    display
+                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
+                        .unwrap();
+
+                    let rendered_bounding_box = font
+                        .render_text_aligned(
+                            text,
+                            get_pos(hpos, vpos),
+                            Rgb888::CSS_BLUE,
+                            None,
+                            vpos,
+                            hpos,
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    assert_eq!(bounding_box, rendered_bounding_box);
+                }
+            }
         },
     );
 }

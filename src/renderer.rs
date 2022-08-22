@@ -228,7 +228,7 @@ impl FontRenderer {
             } else {
                 // Pre-render to determine
                 let dimensions =
-                    self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::default())?;
+                    self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::Baseline)?;
 
                 if let HorizontalAlignment::Center = horizontal_align {
                     // Alignment: Center
@@ -274,7 +274,7 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The pixel advance of the rendered glyph, indicating the required offset to render the next character.
+    /// The dimensions of the rendered glyph
     ///
     pub fn get_glyph_dimensions(
         &self,
@@ -309,7 +309,7 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The pixel advance of the rendered text, indicating the required offset to render the next character.
+    /// The dimensions if the rendered text.
     ///
     pub fn get_text_dimensions(
         &self,
@@ -336,6 +336,93 @@ impl FontRenderer {
             advance,
             bounding_box,
         })
+    }
+
+    /// Calculates the dimensions that rendering a text with
+    /// [`render_text_aligned()`](crate::FontRenderer::render_textaligned) would produce.
+    ///
+    /// # Arguments
+    ///
+    /// * `text` - The text to render.
+    /// * `position` - The position to render to.
+    /// * `vertical_pos` - The vertical positioning.
+    /// * `horizontal_align` - The horizontal alignment.
+    ///
+    /// # Return
+    ///
+    /// The bounding box of the rendered text
+    ///
+    pub fn get_aligned_text_dimensions(
+        &self,
+        text: &str,
+        mut position: Point,
+        vertical_pos: VerticalPosition,
+        horizontal_align: HorizontalAlignment,
+    ) -> Result<Option<Rectangle>, Error> {
+        let num_lines = text.lines().count();
+        let newline_advance = self.font.font_bounding_box_height as i32 + 1;
+        let ascent = self.font.ascent as i32;
+        let descent = self.font.descent as i32;
+
+        if num_lines == 0 {
+            return Ok(None);
+        }
+
+        let vertical_offset = match vertical_pos {
+            VerticalPosition::Baseline => 0,
+            VerticalPosition::Top => ascent + 1,
+            VerticalPosition::Center => {
+                let total_newline_advance = (num_lines - 1) as i32 * newline_advance;
+                (total_newline_advance + ascent - descent + 1) / 2 + descent - total_newline_advance
+            }
+            VerticalPosition::Bottom => descent - (num_lines - 1) as i32 * newline_advance,
+        };
+        position.y += vertical_offset;
+
+        let mut bounding_box = None;
+
+        for (line_num, line) in text.lines().enumerate() {
+            // Pre-render to determine
+            let dimensions =
+                self.get_text_dimensions(line, Point::new(0, 0), VerticalPosition::Baseline)?;
+
+            let offset_x = if let HorizontalAlignment::Left = horizontal_align {
+                // Alignment: Left
+
+                // From experiments, it seems that alignment looks more symmetrical
+                // if everything is shifted by one in respect to the anchor point
+                1
+            } else {
+                if let HorizontalAlignment::Center = horizontal_align {
+                    // Alignment: Center
+                    if let Some(bounding_box) = dimensions.bounding_box {
+                        let width = bounding_box.size.width;
+                        let left = bounding_box.top_left.x;
+
+                        -(width as i32 / 2 + left)
+                    } else {
+                        0
+                    }
+                } else {
+                    // Alignment: Right
+
+                    // From experiments, it seems that alignment looks more symmetrical
+                    // if everything is shifted by one in respect to the anchor point
+                    1 - dimensions.advance.x
+                }
+            };
+
+            bounding_box = combine_bounding_boxes(
+                bounding_box,
+                dimensions.bounding_box.map(|mut d| {
+                    d.top_left +=
+                        position + Point::new(offset_x, line_num as i32 * newline_advance);
+                    d
+                }),
+            );
+        }
+
+        Ok(bounding_box)
     }
 
     /// The ascent of the font.
