@@ -24,21 +24,25 @@ For more information about the font licenses, read the [license agreement](https
 ## Example
 
 ```rust
-let mut display = init_display(132, 32);
-
-let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
+let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+let text = "embedded-graphics";
 
 font.render_text_aligned(
-    "Hello, World!",
-    display.bounding_box().center(),
-    FontColor::Transparent(COLOR::GREEN),
-    VerticalPosition::Center,
+    text,
+    display.bounding_box().center() + Point::new(0, 16),
+    u8g2_fonts::types::FontColor::Transparent(BinaryColor::On),
+    VerticalPosition::Baseline,
     HorizontalAlignment::Center,
     &mut display,
-)?;
-
-show(display);
+)
+.unwrap();
 ```
+
+This example is based on the `hello-world` of the official [embedded-graphics examples](https://github.com/embedded-graphics/examples.
+
+If we replace the text rendering section of the example with the code above, it produces this output:
+
+[![Embedded-graphics example with our U8g2 font](assets/embedded_graphics_hello_world.png?raw=true)](examples/simulator/src/bin/embedded_graphics_hello_world.rs)
 
 If you [run this code](examples/simulator/src/bin/readme_example.rs) against a [`DrawTarget`](https://docs.rs/embedded-graphics-core/latest/embedded_graphics_core/draw_target/trait.DrawTarget.html) of your choice, you will see:
 

@@ -1,7 +1,9 @@
-use simulator::*;
-
-use embedded_graphics::prelude::*;
-use embedded_graphics::primitives::{Line, PrimitiveStyleBuilder};
+use embedded_graphics::{
+    pixelcolor::Rgb888,
+    prelude::*,
+    primitives::{Line, PrimitiveStyleBuilder},
+};
+use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, Window};
 
 use u8g2_fonts::types::HorizontalAlignment;
 use u8g2_fonts::{
@@ -11,16 +13,16 @@ use u8g2_fonts::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let mut display = init_display(425, 101);
+    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(425, 101));
 
     let center = display.bounding_box().center();
 
     let text = "Hello, Rust World!\nU8g2 meets embedded-graphics!";
 
     let line_style = PrimitiveStyleBuilder::new()
-        .stroke_color(COLOR::CSS_BLUE)
+        .stroke_color(Rgb888::CSS_BLUE)
         .stroke_width(2)
-        .fill_color(COLOR::BLACK)
+        .fill_color(Rgb888::BLACK)
         .build();
 
     for (start, end) in [
@@ -57,11 +59,17 @@ fn main() -> anyhow::Result<()> {
     font.render_text_aligned(
         text,
         center,
-        FontColor::Transparent(COLOR::CSS_ORANGE),
+        FontColor::Transparent(Rgb888::CSS_ORANGE),
         VerticalPosition::Center,
         HorizontalAlignment::Center,
         &mut display,
     )?;
 
-    show(display)
+    Window::new(
+        "U8g2 Fonts Demo for embedded-graphics",
+        &OutputSettings::default(),
+    )
+    .show_static(&display);
+
+    Ok(())
 }
