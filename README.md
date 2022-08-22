@@ -1,6 +1,6 @@
 # u8g2-fonts
 
-[![Hello World text rendered by this crate](examples/hello_world.png?raw=true)](examples/simulator/src/bin/hello_world_banner.rs)
+[![Hello World text rendered by this crate](assets/hello_world.png?raw=true)](examples/simulator/src/bin/hello_world_banner.rs)
 
 [![Crates.io](https://img.shields.io/crates/v/u8g2-fonts)](https://crates.io/crates/u8g2-fonts)
 [![Crates.io](https://img.shields.io/crates/d/u8g2-fonts)](https://crates.io/crates/u8g2-fonts)
@@ -24,7 +24,7 @@ For more information about the font licenses, read the [license agreement](https
 ## Example
 
 ```rust
-let mut display = init_display(150, 50);
+let mut display = init_display(132, 32);
 
 let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
 
@@ -40,6 +40,11 @@ font.render_text_aligned(
 show(display);
 ```
 
-If you [run this code](examples/simulator/src/bin/readme_example.rs), you will get the following output:
+If you [run this code](examples/simulator/src/bin/readme_example.rs) against a [`DrawTarget`](https://docs.rs/embedded-graphics-core/latest/embedded_graphics_core/draw_target/trait.DrawTarget.html) of your choice, you will see:
 
-![Hello World text rendered by this crate](examples/readme_example.png?raw=true)
+![Hello World rendered using this crate](assets/readme_example.png)
+
+
+Similarly, rendered to a real b/w display:
+
+![Hello World text rendered on a real display](assets/hello_world_display.jpg?raw=true)
