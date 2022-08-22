@@ -142,12 +142,33 @@ jobs:
           command: test
           args: --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
 
+  check_fonts:
+    name: Check generated fonts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Regenerate and check
+        run: ./regenerate_fonts_file.sh --check
+
   release:
     name: Publish version
     runs-on: ubuntu-latest
     environment: production
     if: github.event_name == 'release'
-    needs: [build, test, lints, docs, leaks]
+    needs: [build, test, lints, docs, leaks, check_fonts]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2

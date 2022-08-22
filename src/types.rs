@@ -54,6 +54,7 @@ pub enum HorizontalAlignment {
 }
 
 /// The color of the rendered text.
+#[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FontColor<Color>
 where
