@@ -1,6 +1,6 @@
-use debug_ignore::DebugIgnore;
-
-use crate::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, Error, Font};
+use crate::{
+    glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, utils::DebugIgnore, Error, Font,
+};
 
 #[derive(Debug)]
 pub struct FontReader {

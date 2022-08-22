@@ -1,7 +1,6 @@
-use debug_ignore::DebugIgnore;
 use embedded_graphics_core::prelude::{Point, Size};
 
-use crate::{font_reader::FontReader, glyph_renderer::GlyphRenderer, Error};
+use crate::{font_reader::FontReader, glyph_renderer::GlyphRenderer, utils::DebugIgnore, Error};
 
 #[derive(Clone, Debug)]
 pub struct GlyphReader {
