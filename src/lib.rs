@@ -1,3 +1,17 @@
+//! This crate is a pure Rust reimplementation of the font subsystem of [U8g2](https://github.com/olikraus/u8g2).
+//!
+//! It is intended for the [embedded-graphics](https://crates.io/crates/embedded-graphics) ecosystem.
+//!
+//!
+//! # Licensing
+//!
+//! While this crate is MIT / Apache-2.0 licensed, note that the fonts themselves *are not*.
+//!
+//! For more information about the font licenses, read the [license agreement](https://github.com/olikraus/u8g2/blob/master/LICENSE) of U8g2.
+//!
+//!
+//! # Rendering
+//!
 //!
 //!
 
