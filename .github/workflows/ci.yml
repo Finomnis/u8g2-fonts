@@ -1,0 +1,187 @@
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+name: CI
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+          - x86_64-pc-windows-gnu
+          - x86_64-unknown-linux-gnu
+          - arm-unknown-linux-gnueabi
+          - armv7-unknown-linux-gnueabihf
+          - riscv64gc-unknown-linux-gnu
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target=${{ matrix.target }}
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: -- --test-threads 1
+
+  lints:
+    name: Lints
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features -- -D warnings
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run cargo doc
+        env:
+          RUSTDOCFLAGS: "-Dwarnings"
+        uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --no-deps
+
+  leaks:
+    name: Memory leaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install llvm
+        # Required to resolve symbols in sanitizer output
+        run: sudo apt-get install -y llvm
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        env:
+          RUSTFLAGS: "-Z sanitizer=address"
+        with:
+          command: build
+          args: --target x86_64-unknown-linux-gnu --tests
+
+      - name: Run tests with leak sanitizer
+        uses: actions-rs/cargo@v1
+        env:
+          RUSTFLAGS: "-Z sanitizer=address"
+        with:
+          command: test
+          args: --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
+
+  release:
+    name: Publish version
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'release'
+    needs: [build, test, lints, docs, leaks]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Query crate version
+        run: echo "crate_version=$(cargo metadata --format-version=1 --no-deps | python -c "import sys,json; print('v' + json.load(sys.stdin)['packages'][0]['version'])")" >> $GITHUB_ENV
+
+      - name: Query release tag version
+        run: echo "release_tag_version=${{ github.event.release.name }}" >> $GITHUB_ENV
+
+      - name: Print versions
+        run: echo "Crate - ${{ env.crate_version }}, Release - ${{ env.release_tag_version }}"
+
+      - name: Check version not empty
+        run: test -n ${{ env.crate_version }}
+
+      - name: Check matching versions
+        run: test ${{ env.crate_version }} = ${{ env.release_tag_version }}
+
+      - name: Cargo login
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: Cargo publish
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
