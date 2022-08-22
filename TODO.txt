@@ -1,10 +1,26 @@
 - Render from format_args!()
 - Rewrite renderer, use a prettier structure
 
+    - Problem: how to structure?
+
+        current:
+            - render_glyph
+            - render_text
+            - render_text_aligned
+            - get_glyph_dimensions
+            - get_text_dimensions
+            - get_aligned_text_dimensions
+
+        functionality:
+            - glyph/text/args
+            - alignment vert / vert+hor
+            - color/background/only_dimensions (e.g. color/background optional; only-dimensions does not require display)
+
+
+
 - Docs front page
 - Docs examples?
 
-- Rename error types (maybe RenderError/LookupError)?
 
 Maybe later, if requested:
 - Rotation (like in u8g2)
