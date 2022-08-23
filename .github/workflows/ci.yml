@@ -51,6 +51,23 @@ jobs:
           command: build
           args: --release --features std
 
+  build_examples:
+    name: Build examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo build
+        working-directory: ./examples/simulator
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all
+
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -184,7 +201,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: github.event_name == 'release'
-    needs: [build, build_std, test, lints, docs, leaks, check_fonts]
+    needs: [build, build_std, build_examples, test, lints, docs, leaks, check_fonts]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
