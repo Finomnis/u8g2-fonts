@@ -32,7 +32,8 @@
 
         or:
             .render_glyph()/.render_text()/.render_args()
-
+            Returns drawbuilder with generic holding the data
+            
 
 - Docs front page
 - Docs examples?
