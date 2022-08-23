@@ -59,6 +59,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Install libsdl2-dev
+        run: sudo apt-get install -y libsdl2-dev
+
       #- uses: Swatinem/rust-cache@v1
 
       - name: Run cargo build
