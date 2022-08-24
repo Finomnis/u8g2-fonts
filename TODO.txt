@@ -20,10 +20,10 @@
             - get_aligned_text_dimensions
 
         functionality:
-            - glyph/text/args
-            - alignment vert / vert+hor
+            - glyph/text/args   - no influence on rest, should be first
+            - alignment vert / vert+hor   - no influence on outcome, but on algorithm
             - color/background/only_dimensions (e.g. color/background optional; only-dimensions does not require display)
-
+                    - influence on result type, should cause a generic to change
             - finished with .draw(display)/.compute();
 
         maybe:
@@ -33,7 +33,7 @@
         or:
             .render_glyph()/.render_text()/.render_args()
             Returns drawbuilder with generic holding the data
-            
+
 
 - Docs front page
 - Docs examples?
