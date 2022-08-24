@@ -446,6 +446,30 @@ fn render_text_aligned() {
 }
 
 #[test]
+fn render_args() {
+    let dimensions =
+        TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
+            FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+                .render_args(
+                    format_args!("!{}?", 42.69),
+                    Point::new(2, 15),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    VerticalPosition::default(),
+                    display,
+                )
+                .unwrap()
+        });
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(65, 0),
+            bounding_box: Some(Rectangle::new(Point::new(3, 1), Size::new(63, 14)))
+        }
+    );
+}
+
+#[test]
 fn get_glyph_dimensions() {
     let font = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>();
 
