@@ -1,6 +1,11 @@
-use crate::{
-    glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher, utils::DebugIgnore, Font, LookupError,
-};
+use crate::{utils::DebugIgnore, Font, LookupError};
+
+use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+
+mod glyph_reader;
+mod glyph_renderer;
+mod glyph_searcher;
+mod unicode_jumptable_reader;
 
 #[derive(Debug)]
 pub struct FontReader {

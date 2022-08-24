@@ -4,7 +4,11 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{font_reader::FontReader, glyph_reader::GlyphReader, types::VerticalPosition, Error};
+use crate::{
+    font_reader::{glyph_reader::GlyphReader, FontReader},
+    types::VerticalPosition,
+    Error,
+};
 
 pub struct GlyphRenderer<'a> {
     glyph: GlyphReader,

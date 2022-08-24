@@ -1,6 +1,8 @@
 use crate::{
-    font_reader::FontReader, glyph_reader::GlyphReader,
-    unicode_jumptable_reader::UnicodeJumptableReader, LookupError,
+    font_reader::{
+        glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader, FontReader,
+    },
+    LookupError,
 };
 
 #[derive(Debug)]

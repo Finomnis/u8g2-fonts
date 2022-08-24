@@ -1,7 +1,9 @@
 use embedded_graphics_core::prelude::{Point, Size};
 
 use crate::{
-    font_reader::FontReader, glyph_renderer::GlyphRenderer, utils::DebugIgnore, LookupError,
+    font_reader::{glyph_renderer::GlyphRenderer, FontReader},
+    utils::DebugIgnore,
+    LookupError,
 };
 
 #[derive(Clone, Debug)]

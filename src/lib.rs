@@ -29,11 +29,7 @@ extern crate std;
 mod error;
 mod font;
 mod font_reader;
-mod glyph_reader;
-mod glyph_renderer;
-mod glyph_searcher;
 mod renderer;
-mod unicode_jumptable_reader;
 mod utils;
 
 /// A collection of [U8g2 fonts](https://github.com/olikraus/u8g2/wiki/fntlistall).
