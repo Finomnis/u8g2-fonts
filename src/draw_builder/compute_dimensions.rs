@@ -34,20 +34,21 @@ pub fn compute_glyph_dimensions(
 
 pub fn compute_line_dimensions(
     line: &str,
-    position: Point,
+    mut position: Point,
     font: &FontReader,
 ) -> Result<RenderedDimensions, LookupError> {
     let mut bounding_box: Option<Rectangle> = None;
-    let mut advance = 0;
+
+    let x0 = position.x;
 
     for ch in line.chars() {
         let dimensions = compute_glyph_dimensions(ch, position, font)?;
-        advance += dimensions.advance.x;
+        position.x += dimensions.advance.x;
         bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
     }
 
     Ok(RenderedDimensions {
-        advance: Point::new(advance, 0),
+        advance: Point::new(position.x - x0, 0),
         bounding_box,
     })
 }
