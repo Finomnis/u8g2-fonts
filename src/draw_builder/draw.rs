@@ -93,8 +93,8 @@ where
 }
 
 pub fn draw_aligned<T, Display>(
-    args: &DrawBuilder<'_, T, DrawColor<Display::Color>, HorizontalAlignment>,
-    display: &mut Display,
+    _args: &DrawBuilder<'_, T, DrawColor<Display::Color>, HorizontalAlignment>,
+    _display: &mut Display,
 ) -> Result<Option<Rectangle>, Error<Display::Error>>
 where
     T: Content,

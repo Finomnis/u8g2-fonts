@@ -1,16 +1,13 @@
-use embedded_graphics_core::{
-    prelude::{DrawTarget, Point},
-    primitives::Rectangle,
-};
+use embedded_graphics_core::{prelude::Point, primitives::Rectangle};
 
 use crate::{
     font_reader::FontReader,
     types::{HorizontalAlignment, RenderedDimensions},
     utils::combine_bounding_boxes,
-    DrawBuilder, Error, LookupError,
+    DrawBuilder, LookupError,
 };
 
-use super::{content::Content, DrawColor};
+use super::content::Content;
 
 fn compute_glyph_dimensions(
     ch: char,
@@ -34,8 +31,6 @@ fn compute_glyph_dimensions(
         bounding_box,
     })
 }
-
-pub fn compute_line_dimensions(text: &str) -> Result<RenderedDimensions, LookupError> {}
 
 pub fn compute_dimensions_unaligned<T, C>(
     args: &DrawBuilder<'_, T, C, ()>,
@@ -75,7 +70,7 @@ where
 }
 
 pub fn compute_dimensions_aligned<T, C>(
-    args: &DrawBuilder<'_, T, C, HorizontalAlignment>,
+    _args: &DrawBuilder<'_, T, C, HorizontalAlignment>,
 ) -> Result<Option<Rectangle>, LookupError>
 where
     T: Content,

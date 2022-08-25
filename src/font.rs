@@ -7,8 +7,3 @@ pub trait Font {
     #[doc(hidden)]
     const DATA: &'static [u8];
 }
-
-/// A marker trait that indicates that a font supports background colors.
-///
-/// Many fonts do not support this, because their glyphs overlap.
-pub trait SupportsBackgroundColor {}

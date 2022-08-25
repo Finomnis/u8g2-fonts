@@ -440,20 +440,18 @@ fn get_glyph_dimensions() {
             .enumerate()
             {
                 let position = Point::new(2 + 10 * pos as i32, 15);
-                let dim = font
-                    .get_glyph_dimensions(ch, position, vertical_pos)
-                    .unwrap();
+                let glyph_drawer = font
+                    .render_glyph(ch)
+                    .position(position, vertical_pos)
+                    .color(Rgb888::new(237, 28, 36));
+
+                let dim = glyph_drawer.compute_dimensions().unwrap();
 
                 display
                     .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(2, 2, 2))
                     .unwrap();
 
-                let rendered_dim = font
-                    .render_glyph(ch)
-                    .position(position, vertical_pos)
-                    .color(Rgb888::new(237, 28, 36))
-                    .draw(display)
-                    .unwrap();
+                let rendered_dim = glyph_drawer.draw(display).unwrap();
 
                 assert_eq!(dim, rendered_dim);
             }
@@ -472,21 +470,19 @@ fn get_text_dimensions() {
             let position = Point::new(2, 15);
             let vertical_pos = VerticalPosition::default();
 
-            let dim = font
-                .get_text_dimensions(text, position, vertical_pos)
-                .unwrap();
+            let text_drawer = font
+                .render_text(text)
+                .position(position, vertical_pos)
+                .color(Rgb888::new(237, 28, 36));
+
+            let dim = text_drawer.compute_dimensions().unwrap();
             assert_eq!(dim.advance, Point::new(65, 21));
 
             display
                 .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(3, 3, 3))
                 .unwrap();
 
-            let rendered_dim = font
-                .render_text(text)
-                .position(position, vertical_pos)
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
-                .unwrap();
+            let rendered_dim = text_drawer.draw(display).unwrap();
 
             assert_eq!(dim, rendered_dim);
         },
@@ -600,23 +596,19 @@ fn get_aligned_text_dimensions() {
                     VerticalPosition::Bottom,
                     VerticalPosition::Baseline,
                 ] {
-                    let bounding_box = font
-                        .get_aligned_text_dimensions(text, get_pos(hpos, vpos), vpos, hpos)
-                        .unwrap()
-                        .unwrap();
+                    let text_drawer = font
+                        .render_text(text)
+                        .position(get_pos(hpos, vpos), vpos)
+                        .alignment(hpos)
+                        .color(Rgb888::CSS_BLUE);
+
+                    let bounding_box = text_drawer.compute_dimensions().unwrap().unwrap();
 
                     display
                         .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
                         .unwrap();
 
-                    let rendered_bounding_box = font
-                        .render_text(text)
-                        .position(get_pos(hpos, vpos), vpos)
-                        .alignment(hpos)
-                        .color(Rgb888::CSS_BLUE)
-                        .draw(display)
-                        .unwrap()
-                        .unwrap();
+                    let rendered_bounding_box = text_drawer.draw(display).unwrap().unwrap();
 
                     assert_eq!(bounding_box, rendered_bounding_box);
                 }

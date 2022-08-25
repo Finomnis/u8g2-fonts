@@ -4,7 +4,6 @@ use embedded_graphics_core::{
 };
 
 use crate::{
-    font::SupportsBackgroundColor,
     font_reader::FontReader,
     types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     Error, LookupError,
@@ -27,9 +26,9 @@ pub struct DrawBuilder<'a, T, Color, Align> {
     content: T,
     position: Point,
     vertical_pos: VerticalPosition,
-    horizontal_align: Align,
-    color: Color,
     font: &'a FontReader,
+    color: Color,
+    horizontal_align: Align,
 }
 
 impl<'a, T> DrawBuilder<'a, T, (), ()>
@@ -131,5 +130,23 @@ where
         Display::Error: core::fmt::Debug,
     {
         draw::draw_aligned(self, display)
+    }
+}
+
+impl<T, C> DrawBuilder<'_, T, C, ()>
+where
+    T: Content,
+{
+    pub fn compute_dimensions(&self) -> Result<RenderedDimensions, LookupError> {
+        compute_dimensions::compute_dimensions_unaligned(self)
+    }
+}
+
+impl<T, C> DrawBuilder<'_, T, C, HorizontalAlignment>
+where
+    T: Content,
+{
+    pub fn compute_dimensions(&self) -> Result<Option<Rectangle>, LookupError> {
+        compute_dimensions::compute_dimensions_aligned(self)
     }
 }

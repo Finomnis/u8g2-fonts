@@ -8,9 +8,7 @@ use embedded_graphics_core::{
 use crate::{
     draw_builder::content::{ArgsContent, GlyphContent, TextContent},
     font_reader::FontReader,
-    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    utils::combine_bounding_boxes,
-    DrawBuilder, Font, LookupError,
+    DrawBuilder, Font,
 };
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
@@ -291,6 +289,8 @@ impl FontRenderer {
         DrawBuilder::new(&self.font, ArgsContent(args))
     }
 
+    /*
+
     /// Calculates the dimensions that rendering a glyph with [`render_glyph()`](crate::FontRenderer::render_glyph) would produce.
     ///
     /// # Arguments
@@ -444,7 +444,7 @@ impl FontRenderer {
         }
 
         Ok(bounding_box)
-    }
+    }*/
 
     /// The ascent of the font.
     ///
