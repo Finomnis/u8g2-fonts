@@ -245,6 +245,43 @@ fn render_text_with_vertical_pos() {
 }
 
 #[test]
+fn get_text_dimensions_with_vertical_pos() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>();
+
+    for (x_position, vertical_pos) in [
+        VerticalPosition::Center,
+        VerticalPosition::Top,
+        VerticalPosition::Baseline,
+        VerticalPosition::Bottom,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let bounding_box = font
+            .render_text("Agi")
+            .position(Point::new(5 + 50 * x_position as i32, 25), vertical_pos)
+            .compute_dimensions()
+            .unwrap()
+            .bounding_box;
+
+        let expected_bounding_box_y = match vertical_pos {
+            VerticalPosition::Baseline => -18,
+            VerticalPosition::Top => 1,
+            VerticalPosition::Center => -11,
+            VerticalPosition::Bottom => -23,
+        };
+
+        assert_eq!(
+            bounding_box,
+            Some(Rectangle::new(
+                Point::new(5 + 50 * x_position as i32, 25 + expected_bounding_box_y),
+                Size::new(42, 23)
+            ))
+        );
+    }
+}
+
+#[test]
 fn render_text_with_newline() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_newline.png"),
