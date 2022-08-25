@@ -16,7 +16,7 @@
 //!
 
 #![no_std]
-#![deny(missing_docs)]
+//#![deny(missing_docs)]
 #![doc(
     issue_tracker_base_url = "https://github.com/Finomnis/u8g2-fonts/issues",
     test(no_crate_inject, attr(deny(warnings))),
@@ -26,6 +26,7 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+mod draw_builder;
 mod error;
 mod font;
 mod font_reader;
@@ -42,6 +43,7 @@ pub mod fonts;
 /// Data types used in common API functions.
 pub mod types;
 
+pub use draw_builder::DrawBuilder;
 pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;

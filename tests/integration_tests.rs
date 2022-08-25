@@ -2,7 +2,7 @@ mod util;
 
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
-    prelude::{DrawTarget, OriginDimensions, Point, Size, WebColors},
+    prelude::{Dimensions, DrawTarget, OriginDimensions, Point, Size, WebColors},
     primitives::Rectangle,
 };
 use u8g2_fonts::{
@@ -458,6 +458,39 @@ fn render_args() {
                     display,
                 )
                 .unwrap()
+        });
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(65, 0),
+            bounding_box: Some(Rectangle::new(Point::new(3, 1), Size::new(63, 14)))
+        }
+    );
+}
+
+#[test]
+fn render_args_with_builder() {
+    // TODO remove and move into render_args
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let dimensions =
+        TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
+            font.render_args_with_builder(format_args!("!{}?", 42.69))
+                .position(display.bounding_box().center(), VerticalPosition::Center)
+                .alignment(HorizontalAlignment::Center)
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
+                .unwrap()
+
+            // FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+            //     .render_args(
+            //         format_args!("!{}?", 42.69),
+            //         Point::new(2, 15),
+            //         FontColor::Transparent(Rgb888::new(237, 28, 36)),
+            //         VerticalPosition::default(),
+            //         display,
+            //     )
+            //     .unwrap()
         });
 
     assert_eq!(

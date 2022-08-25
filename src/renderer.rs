@@ -6,10 +6,11 @@ use embedded_graphics_core::{
 };
 
 use crate::{
+    draw_builder::content::ArgsContent,
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, FormatArgsReader},
-    Error, Font, LookupError,
+    DrawBuilder, Error, Font, LookupError,
 };
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
@@ -490,5 +491,12 @@ impl FontRenderer {
                 self.font.font_bounding_box_height as u32,
             ),
         }
+    }
+
+    pub fn render_args_with_builder<'a>(
+        &self,
+        args: Arguments<'a>,
+    ) -> DrawBuilder<ArgsContent<'a>, ()> {
+        DrawBuilder::from_args(args)
     }
 }
