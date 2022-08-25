@@ -1,4 +1,7 @@
-use embedded_graphics_core::prelude::{DrawTarget, Point};
+use embedded_graphics_core::{
+    prelude::{DrawTarget, Point},
+    primitives::Rectangle,
+};
 
 use crate::{
     font::SupportsBackgroundColor,
@@ -127,7 +130,7 @@ where
     pub fn draw<Display>(
         &self,
         display: &mut Display,
-    ) -> Result<RenderedDimensions, Error<Display::Error>>
+    ) -> Result<Option<Rectangle>, Error<Display::Error>>
     where
         Display: DrawTarget<Color = Color>,
         Display::Error: core::fmt::Debug,

@@ -608,14 +608,11 @@ fn get_aligned_text_dimensions() {
                         .unwrap();
 
                     let rendered_bounding_box = font
-                        .render_text_aligned(
-                            text,
-                            get_pos(hpos, vpos),
-                            FontColor::Transparent(Rgb888::CSS_BLUE),
-                            vpos,
-                            hpos,
-                            display,
-                        )
+                        .render_text(text)
+                        .position(get_pos(hpos, vpos), vpos)
+                        .alignment(hpos)
+                        .color(Rgb888::CSS_BLUE)
+                        .draw(display)
                         .unwrap()
                         .unwrap();
 

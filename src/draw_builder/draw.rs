@@ -1,4 +1,7 @@
-use embedded_graphics_core::prelude::{DrawTarget, Point};
+use embedded_graphics_core::{
+    prelude::{DrawTarget, Point},
+    primitives::Rectangle,
+};
 
 use crate::{
     font_reader::FontReader,
@@ -92,7 +95,7 @@ where
 pub fn draw_aligned<T, Display>(
     args: &DrawBuilder<'_, T, DrawColor<Display::Color>, HorizontalAlignment>,
     display: &mut Display,
-) -> Result<RenderedDimensions, Error<Display::Error>>
+) -> Result<Option<Rectangle>, Error<Display::Error>>
 where
     T: Content,
     Display: DrawTarget,
