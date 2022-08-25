@@ -104,6 +104,12 @@ where
     Display: DrawTarget,
     Display::Error: core::fmt::Debug,
 {
+    // This function is a little more complicated.
+    // To properly align horizontally, we need to iterate over every line twice.
+    // This is really hard with format_args.
+    // Therefore we introduce a line_dimensions_iterator that is almost no overhead for
+    // glyphs/lines, but makes it possible to implement the format_args case.
+
     let mut position = args.position;
     let font = args.font;
     let horizontal_align = args.horizontal_align;

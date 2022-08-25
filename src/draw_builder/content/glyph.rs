@@ -31,20 +31,16 @@ impl Content for GlyphContent {
     type LineDimensionsIter = GlyphLineDimensionsIterator;
 
     fn line_dimensions_iterator(&self) -> GlyphLineDimensionsIterator {
-        GlyphLineDimensionsIterator { ch: Some(self.0) }
+        GlyphLineDimensionsIterator { ch: self.0 }
     }
 }
 
 pub struct GlyphLineDimensionsIterator {
-    ch: Option<char>,
+    ch: char,
 }
 
 impl LineDimensionsIterator for GlyphLineDimensionsIterator {
     fn next(&mut self, font: &FontReader) -> Result<RenderedDimensions, LookupError> {
-        compute_glyph_dimensions(
-            self.ch.take().ok_or(LookupError::InternalError)?,
-            Point::new(0, 0),
-            font,
-        )
+        compute_glyph_dimensions(self.ch, Point::new(0, 0), font)
     }
 }

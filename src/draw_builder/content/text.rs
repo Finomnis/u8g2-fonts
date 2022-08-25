@@ -43,7 +43,7 @@ pub struct TextLineDimensionsIterator<'a> {
 
 impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
     fn next(&mut self, font: &FontReader) -> Result<RenderedDimensions, LookupError> {
-        let line = self.data.next().ok_or(LookupError::InternalError)?;
+        let line = self.data.next().unwrap_or("");
         compute_line_dimensions(line, Point::new(0, 0), font)
     }
 }
