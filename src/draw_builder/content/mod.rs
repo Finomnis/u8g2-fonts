@@ -26,7 +26,7 @@ pub trait Content {
     }
 
     fn get_newline_count(&self) -> u32 {
-        let mut count = 1;
+        let mut count = 0;
         self.for_each_char_infallible(|char| {
             if char == '\n' {
                 count += 1;
