@@ -10,7 +10,10 @@ use crate::{
     DrawBuilder, Error,
 };
 
-use super::{content::Content, line_dimensions_iterator::LineDimensionsIterator, DrawColor};
+use super::{
+    common::compute_horizontal_offset, content::Content,
+    line_dimensions_iterator::LineDimensionsIterator, DrawColor,
+};
 
 fn render_glyph<Display>(
     ch: char,
@@ -90,34 +93,6 @@ where
         advance,
         bounding_box,
     })
-}
-
-fn compute_horizontal_offset(
-    horizontal_align: HorizontalAlignment,
-    line_dimensions: RenderedDimensions,
-) -> i32 {
-    match horizontal_align {
-        HorizontalAlignment::Left => {
-            // From experiments, it seems that alignment looks more symmetrical
-            // if everything is shifted by one in respect to the anchor point
-            1
-        }
-        HorizontalAlignment::Center => {
-            if let Some(bounding_box) = line_dimensions.bounding_box {
-                let width = bounding_box.size.width;
-                let left = bounding_box.top_left.x;
-
-                -(width as i32 / 2 + left)
-            } else {
-                0
-            }
-        }
-        HorizontalAlignment::Right => {
-            // From experiments, it seems that alignment looks more symmetrical
-            // if everything is shifted by one in respect to the anchor point
-            1 - line_dimensions.advance.x
-        }
-    }
 }
 
 pub fn draw_aligned<T, Display>(

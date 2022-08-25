@@ -1,5 +1,6 @@
 pub mod content;
 
+mod common;
 mod compute_dimensions;
 mod draw;
 mod line_dimensions_iterator;

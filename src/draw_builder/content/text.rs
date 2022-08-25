@@ -1,7 +1,7 @@
 use embedded_graphics_core::prelude::Point;
 
 use crate::{
-    draw_builder::compute_dimensions::compute_line_dimensions, font_reader::FontReader,
+    draw_builder::common::compute_line_dimensions, font_reader::FontReader,
     types::RenderedDimensions, LookupError,
 };
 
