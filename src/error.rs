@@ -12,8 +12,6 @@ pub enum LookupError {
 /// All possible errors a draw call can cause.
 #[derive(Debug)]
 pub enum Error<DisplayError> {
-    /// Font does not support a background color.
-    BackgroundColorNotSupported,
     /// Font does not contain given character.
     GlyphNotFound(char),
     /// Internal error.
@@ -28,9 +26,6 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
-            Error::BackgroundColorNotSupported => {
-                write!(f, "This font does not support a background color.")
-            }
             Error::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }

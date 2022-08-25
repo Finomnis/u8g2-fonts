@@ -2,7 +2,7 @@ mod util;
 
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
-    prelude::{Dimensions, DrawTarget, OriginDimensions, Point, Size, WebColors},
+    prelude::{DrawTarget, OriginDimensions, Point, Size, WebColors},
     primitives::Rectangle,
 };
 use u8g2_fonts::{
@@ -41,24 +41,6 @@ fn unicode_not_supported() {
     );
 
     assert!(matches!(result, Err(Error::GlyphNotFound('☃'))))
-}
-
-#[test]
-fn background_color_not_supported() {
-    let mut display = TestDrawTarget::new(Size::new(1, 1));
-
-    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
-        '☃',
-        Point::new(2, 15),
-        FontColor::WithBackground {
-            fg: Rgb888::new(237, 28, 36),
-            bg: Rgb888::new(1, 1, 1),
-        },
-        VerticalPosition::default(),
-        &mut display,
-    );
-
-    assert!(matches!(result, Err(Error::BackgroundColorNotSupported)))
 }
 
 #[test]
@@ -476,8 +458,7 @@ fn render_args_with_builder() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
             font.render_args_with_builder(format_args!("!{}?", 42.69))
-                .position(display.bounding_box().center(), VerticalPosition::Center)
-                .alignment(HorizontalAlignment::Center)
+                .position(Point::new(2, 15), VerticalPosition::Baseline)
                 .color(Rgb888::new(237, 28, 36))
                 .draw(display)
                 .unwrap()

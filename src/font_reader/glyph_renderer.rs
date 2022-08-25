@@ -6,7 +6,6 @@ use embedded_graphics_core::{
 
 use crate::{
     font_reader::{glyph_reader::GlyphReader, FontReader},
-    types::VerticalPosition,
     Error,
 };
 
@@ -23,33 +22,13 @@ impl<'a> GlyphRenderer<'a> {
         }
     }
 
-    pub fn get_glyph_bounding_box(
-        &self,
-        position: Point,
-        vertical_pos: VerticalPosition,
-    ) -> Rectangle {
-        let mut topleft = self.glyph.topleft(&position);
-
-        // Taken directly from U8g2 code
-        let offset = match vertical_pos {
-            VerticalPosition::Baseline => 0,
-            VerticalPosition::Top => self.font.ascent as i32 + 1,
-            VerticalPosition::Center => {
-                (self.font.ascent as i32 - self.font.descent as i32 + 1) / 2
-                    + self.font.descent as i32
-            }
-            VerticalPosition::Bottom => self.font.descent as i32,
-        };
-
-        topleft.y += offset;
-
-        Rectangle::new(topleft, self.glyph.size())
+    pub fn get_glyph_bounding_box(&self, position: Point) -> Rectangle {
+        Rectangle::new(self.glyph.topleft(&position), self.glyph.size())
     }
 
     pub fn render_as_box_fill<Display>(
         mut self,
         position: Point,
-        vertical_pos: VerticalPosition,
         display: &mut Display,
         foreground_color: Display::Color,
         background_color: Display::Color,
@@ -58,7 +37,7 @@ impl<'a> GlyphRenderer<'a> {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let glyph_bounding_box = self.get_glyph_bounding_box(position, vertical_pos);
+        let glyph_bounding_box = self.get_glyph_bounding_box(position);
 
         let color_iter = {
             let mut num_zeros = self.glyph.read_runlength_0()?;
@@ -98,7 +77,6 @@ impl<'a> GlyphRenderer<'a> {
     pub fn render_transparent<Display>(
         mut self,
         position: Point,
-        vertical_pos: VerticalPosition,
         display: &mut Display,
         foreground_color: Display::Color,
     ) -> Result<Rectangle, Error<Display::Error>>
@@ -106,7 +84,7 @@ impl<'a> GlyphRenderer<'a> {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let glyph_bounding_box = self.get_glyph_bounding_box(position, vertical_pos);
+        let glyph_bounding_box = self.get_glyph_bounding_box(position);
         let width = glyph_bounding_box.size.width as i32;
         let height = glyph_bounding_box.size.height as i32;
 

@@ -4,4 +4,4 @@ mod format_args_reader;
 
 pub use combine_bounding_boxes::combine_bounding_boxes;
 pub use debug_ignore::DebugIgnore;
-pub use format_args_reader::FormatArgsReader;
+pub use format_args_reader::{FormatArgsReader, FormatArgsReaderInfallible};

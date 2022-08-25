@@ -43,3 +43,32 @@ where
         Ok(())
     }
 }
+
+pub struct FormatArgsReaderInfallible<F> {
+    action: F,
+}
+
+impl<F> FormatArgsReaderInfallible<F>
+where
+    F: FnMut(char),
+{
+    pub fn new(action: F) -> Self {
+        Self { action }
+    }
+
+    pub fn process_args(mut self, args: Arguments<'_>) {
+        core::fmt::write(&mut self, args).ok();
+    }
+}
+
+impl<F> Write for FormatArgsReaderInfallible<F>
+where
+    F: FnMut(char),
+{
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        for char in s.chars() {
+            (self.action)(char);
+        }
+        Ok(())
+    }
+}

@@ -64,10 +64,6 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        if color.has_background() && !self.font.supports_background_color {
-            return Err(Error::BackgroundColorNotSupported);
-        }
-
         let glyph = self.font.retrieve_glyph_data(ch)?;
 
         let advance = glyph.advance();
@@ -77,10 +73,10 @@ impl FontRenderer {
             let renderer = glyph.create_renderer(&self.font);
             Some(match color {
                 FontColor::Transparent(color) => {
-                    renderer.render_transparent(position, vertical_pos, display, color)?
+                    renderer.render_transparent(position, display, color)?
                 }
                 FontColor::WithBackground { fg, bg } => {
-                    renderer.render_as_box_fill(position, vertical_pos, display, fg, bg)?
+                    renderer.render_as_box_fill(position, display, fg, bg)?
                 }
             })
         } else {
@@ -332,7 +328,7 @@ impl FontRenderer {
         let bounding_box = (size.width > 0 && size.height > 0).then(|| {
             glyph
                 .create_renderer(&self.font)
-                .get_glyph_bounding_box(position, vertical_pos)
+                .get_glyph_bounding_box(position)
         });
 
         Ok(RenderedDimensions {
@@ -494,9 +490,9 @@ impl FontRenderer {
     }
 
     pub fn render_args_with_builder<'a>(
-        &self,
+        &'a self,
         args: Arguments<'a>,
     ) -> DrawBuilder<ArgsContent<'a>, ()> {
-        DrawBuilder::from_args(args)
+        DrawBuilder::from_args(&self.font, args)
     }
 }

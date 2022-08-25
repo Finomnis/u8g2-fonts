@@ -3,6 +3,8 @@ use core::fmt::Arguments;
 use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
+    font::SupportsBackgroundColor,
+    font_reader::FontReader,
     types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     Error, LookupError,
 };
@@ -10,6 +12,7 @@ use crate::{
 use self::content::{ArgsContent, Content};
 
 pub mod content;
+mod draw;
 
 pub struct DrawColor<Color> {
     fg: Color,
@@ -17,27 +20,29 @@ pub struct DrawColor<Color> {
 }
 
 /// A builder for rendering text.
-pub struct DrawBuilder<T, Color> {
+pub struct DrawBuilder<'a, T, Color> {
     content: T,
     position: Point,
     vertical_pos: VerticalPosition,
     horizontal_align: Option<HorizontalAlignment>,
     color: Color,
+    font: &'a FontReader,
 }
 
-impl<'a> DrawBuilder<ArgsContent<'a>, ()> {
-    pub(crate) fn from_args(args: Arguments<'a>) -> Self {
+impl<'a> DrawBuilder<'a, ArgsContent<'a>, ()> {
+    pub(crate) fn from_args(font: &'a FontReader, args: Arguments<'a>) -> Self {
         Self {
             content: ArgsContent(args),
             position: Point::new(0, 0),
             vertical_pos: VerticalPosition::default(),
             horizontal_align: None,
             color: (),
+            font,
         }
     }
 }
 
-impl<T, C> DrawBuilder<T, C> {
+impl<'a, T, C> DrawBuilder<'a, T, C> {
     pub fn position(mut self, position: Point, vertical_pos: VerticalPosition) -> Self {
         self.position = position;
         self.vertical_pos = vertical_pos;
@@ -54,8 +59,8 @@ impl<T, C> DrawBuilder<T, C> {
     }
 }
 
-impl<T> DrawBuilder<T, ()> {
-    pub fn color<Color>(self, color: Color) -> DrawBuilder<T, DrawColor<Color>> {
+impl<'a, T> DrawBuilder<'a, T, ()> {
+    pub fn color<Color>(self, color: Color) -> DrawBuilder<'a, T, DrawColor<Color>> {
         DrawBuilder::<T, DrawColor<Color>> {
             content: self.content,
             position: self.position,
@@ -65,21 +70,32 @@ impl<T> DrawBuilder<T, ()> {
                 fg: color,
                 bg: None,
             },
+            font: self.font,
         }
     }
 }
 
-impl<T, Color> DrawBuilder<T, DrawColor<Color>> {
+impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>> {
     pub fn color(mut self, color: Color) -> Self {
         self.color.fg = color;
         self
     }
+}
 
-    pub fn background(mut self, color: Color) -> Self {
+impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>>
+where
+    T: SupportsBackgroundColor,
+{
+    pub fn background(mut self, color: Color) -> Result<Self, LookupError> {
         self.color.bg = Some(color);
-        self
+        Ok(self)
     }
+}
 
+impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>>
+where
+    T: Content,
+{
     pub fn draw<Display>(
         &self,
         display: &mut Display,
@@ -88,6 +104,6 @@ impl<T, Color> DrawBuilder<T, DrawColor<Color>> {
         Display: DrawTarget<Color = Color>,
         Display::Error: core::fmt::Debug,
     {
-        todo!()
+        draw::draw_unaligned(self, display)
     }
 }
