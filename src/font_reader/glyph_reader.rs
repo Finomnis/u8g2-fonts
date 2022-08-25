@@ -97,7 +97,7 @@ impl GlyphReader {
         self.read_unsigned(self.bitcount_1)
     }
 
-    pub fn create_renderer<'a>(&self, font: &'a FontReader) -> GlyphRenderer<'a> {
-        GlyphRenderer::new(self, font)
+    pub fn create_renderer(&self) -> GlyphRenderer {
+        GlyphRenderer::new(self)
     }
 }

@@ -1,8 +1,10 @@
 use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
-    font_reader::FontReader, types::RenderedDimensions, utils::combine_bounding_boxes, DrawBuilder,
-    Error,
+    font_reader::FontReader,
+    types::{HorizontalAlignment, RenderedDimensions},
+    utils::combine_bounding_boxes,
+    DrawBuilder, Error,
 };
 
 use super::{content::Content, DrawColor};
@@ -25,7 +27,7 @@ where
     let size = glyph.size();
 
     let bounding_box = if size.width > 0 && size.height > 0 {
-        let renderer = glyph.create_renderer(font);
+        let renderer = glyph.create_renderer();
         Some(match color_bg {
             None => renderer.render_transparent(position, display, color_fg)?,
             Some(color_bg) => renderer.render_as_box_fill(position, display, color_fg, color_bg)?,
@@ -41,7 +43,7 @@ where
 }
 
 pub fn draw_unaligned<T, Display>(
-    args: &DrawBuilder<'_, T, DrawColor<Display::Color>>,
+    args: &DrawBuilder<'_, T, DrawColor<Display::Color>, ()>,
     display: &mut Display,
 ) -> Result<RenderedDimensions, Error<Display::Error>>
 where
@@ -85,4 +87,16 @@ where
         advance,
         bounding_box,
     })
+}
+
+pub fn draw_aligned<T, Display>(
+    args: &DrawBuilder<'_, T, DrawColor<Display::Color>, HorizontalAlignment>,
+    display: &mut Display,
+) -> Result<RenderedDimensions, Error<Display::Error>>
+where
+    T: Content,
+    Display: DrawTarget,
+    Display::Error: core::fmt::Debug,
+{
+    todo!()
 }

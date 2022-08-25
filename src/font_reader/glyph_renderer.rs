@@ -4,21 +4,16 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{
-    font_reader::{glyph_reader::GlyphReader, FontReader},
-    Error,
-};
+use crate::{font_reader::glyph_reader::GlyphReader, Error};
 
-pub struct GlyphRenderer<'a> {
+pub struct GlyphRenderer {
     glyph: GlyphReader,
-    font: &'a FontReader,
 }
 
-impl<'a> GlyphRenderer<'a> {
-    pub fn new(glyph: &GlyphReader, font: &'a FontReader) -> Self {
+impl GlyphRenderer {
+    pub fn new(glyph: &GlyphReader) -> Self {
         Self {
             glyph: glyph.clone(),
-            font,
         }
     }
 

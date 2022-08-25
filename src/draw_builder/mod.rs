@@ -1,5 +1,3 @@
-use core::fmt::Arguments;
-
 use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
@@ -9,7 +7,7 @@ use crate::{
     Error, LookupError,
 };
 
-use self::content::{ArgsContent, Content};
+use self::content::Content;
 
 pub mod content;
 mod draw;
@@ -20,37 +18,35 @@ pub struct DrawColor<Color> {
 }
 
 /// A builder for rendering text.
-pub struct DrawBuilder<'a, T, Color> {
+pub struct DrawBuilder<'a, T, Color, Align> {
     content: T,
     position: Point,
     vertical_pos: VerticalPosition,
-    horizontal_align: Option<HorizontalAlignment>,
+    horizontal_align: Align,
     color: Color,
     font: &'a FontReader,
 }
 
-impl<'a> DrawBuilder<'a, ArgsContent<'a>, ()> {
-    pub(crate) fn from_args(font: &'a FontReader, args: Arguments<'a>) -> Self {
+impl<'a, T> DrawBuilder<'a, T, (), ()>
+where
+    T: Content,
+{
+    pub(crate) fn new(font: &'a FontReader, content: T) -> Self {
         Self {
-            content: ArgsContent(args),
+            content,
             position: Point::new(0, 0),
             vertical_pos: VerticalPosition::default(),
-            horizontal_align: None,
+            horizontal_align: (),
             color: (),
             font,
         }
     }
 }
 
-impl<'a, T, C> DrawBuilder<'a, T, C> {
+impl<T, C, A> DrawBuilder<'_, T, C, A> {
     pub fn position(mut self, position: Point, vertical_pos: VerticalPosition) -> Self {
         self.position = position;
         self.vertical_pos = vertical_pos;
-        self
-    }
-
-    pub fn alignment(mut self, horizontal_align: HorizontalAlignment) -> Self {
-        self.horizontal_align = Some(horizontal_align);
         self
     }
 
@@ -59,9 +55,25 @@ impl<'a, T, C> DrawBuilder<'a, T, C> {
     }
 }
 
-impl<'a, T> DrawBuilder<'a, T, ()> {
-    pub fn color<Color>(self, color: Color) -> DrawBuilder<'a, T, DrawColor<Color>> {
-        DrawBuilder::<T, DrawColor<Color>> {
+impl<'a, T, C, A> DrawBuilder<'a, T, C, A> {
+    pub fn alignment(
+        self,
+        horizontal_align: HorizontalAlignment,
+    ) -> DrawBuilder<'a, T, C, HorizontalAlignment> {
+        DrawBuilder {
+            content: self.content,
+            position: self.position,
+            vertical_pos: self.vertical_pos,
+            horizontal_align,
+            color: self.color,
+            font: self.font,
+        }
+    }
+}
+
+impl<'a, T, A> DrawBuilder<'a, T, (), A> {
+    pub fn color<Color>(self, color: Color) -> DrawBuilder<'a, T, DrawColor<Color>, A> {
+        DrawBuilder {
             content: self.content,
             position: self.position,
             vertical_pos: self.vertical_pos,
@@ -75,14 +87,14 @@ impl<'a, T> DrawBuilder<'a, T, ()> {
     }
 }
 
-impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>> {
+impl<T, Color, A> DrawBuilder<'_, T, DrawColor<Color>, A> {
     pub fn color(mut self, color: Color) -> Self {
         self.color.fg = color;
         self
     }
 }
 
-impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>>
+impl<T, Color, A> DrawBuilder<'_, T, DrawColor<Color>, A>
 where
     T: SupportsBackgroundColor,
 {
@@ -92,7 +104,7 @@ where
     }
 }
 
-impl<'a, T, Color> DrawBuilder<'a, T, DrawColor<Color>>
+impl<T, Color> DrawBuilder<'_, T, DrawColor<Color>, ()>
 where
     T: Content,
 {
@@ -105,5 +117,21 @@ where
         Display::Error: core::fmt::Debug,
     {
         draw::draw_unaligned(self, display)
+    }
+}
+
+impl<T, Color> DrawBuilder<'_, T, DrawColor<Color>, HorizontalAlignment>
+where
+    T: Content,
+{
+    pub fn draw<Display>(
+        &self,
+        display: &mut Display,
+    ) -> Result<RenderedDimensions, Error<Display::Error>>
+    where
+        Display: DrawTarget<Color = Color>,
+        Display::Error: core::fmt::Debug,
+    {
+        draw::draw_aligned(self, display)
     }
 }

@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 };
 use u8g2_fonts::{
     fonts,
-    types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
+    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
     Error, FontRenderer,
 };
 
@@ -17,13 +17,11 @@ use util::TestDrawTarget;
 fn letters_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>().render_glyph(
-        'a',
-        Point::new(2, 15),
-        FontColor::Transparent(Rgb888::new(237, 28, 36)),
-        VerticalPosition::default(),
-        &mut display,
-    );
+    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>()
+        .render_glyph('a')
+        .position(Point::new(2, 15), VerticalPosition::default())
+        .color(Rgb888::new(237, 28, 36))
+        .draw(&mut display);
 
     assert!(matches!(result, Err(Error::GlyphNotFound('a'))))
 }
@@ -32,13 +30,11 @@ fn letters_not_supported() {
 fn unicode_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_glyph(
-        '☃',
-        Point::new(2, 15),
-        FontColor::Transparent(Rgb888::new(237, 28, 36)),
-        VerticalPosition::default(),
-        &mut display,
-    );
+    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
+        .render_glyph('☃')
+        .position(Point::new(2, 15), VerticalPosition::default())
+        .color(Rgb888::new(237, 28, 36))
+        .draw(&mut display);
 
     assert!(matches!(result, Err(Error::GlyphNotFound('☃'))))
 }
@@ -66,13 +62,10 @@ fn render_glyph() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_glyph.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
-                .render_glyph(
-                    'j',
-                    Point::new(2, 15),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_glyph('j')
+                .position(Point::new(2, 15), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap()
         });
 
@@ -91,13 +84,10 @@ fn render_glyph_unicode() {
         std::include_bytes!("assets/render_glyph_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
-                .render_glyph(
-                    '☃',
-                    Point::new(4, 19),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_glyph('☃')
+                .position(Point::new(4, 19), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap()
         },
     );
@@ -117,16 +107,11 @@ fn render_glyph_with_background_color() {
         std::include_bytes!("assets/render_glyph_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
-                .render_glyph(
-                    'j',
-                    Point::new(2, 20),
-                    FontColor::WithBackground {
-                        fg: Rgb888::new(237, 28, 36),
-                        bg: Rgb888::new(1, 1, 1),
-                    },
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_glyph('j')
+                .position(Point::new(2, 20), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                //.background(Rgb888::new(1, 1, 1))
+                .draw(display)
                 .unwrap()
         },
     );
@@ -145,13 +130,10 @@ fn render_text() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                .render_text(
-                    "Hello World!",
-                    Point::new(2, 15),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_text("Hello World!")
+                .position(Point::new(2, 15), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap()
         });
 
@@ -170,13 +152,10 @@ fn render_text_unicode() {
         std::include_bytes!("assets/render_text_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
-                .render_text(
-                    "Snowman: ☃",
-                    Point::new(5, 20),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_text("Snowman: ☃")
+                .position(Point::new(5, 20), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap()
         },
     );
@@ -196,16 +175,11 @@ fn render_text_with_background_color() {
         std::include_bytes!("assets/render_text_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
-                .render_text(
-                    "Hello, W0rld!",
-                    Point::new(2, 20),
-                    FontColor::WithBackground {
-                        fg: Rgb888::new(237, 28, 36),
-                        bg: Rgb888::new(1, 1, 1),
-                    },
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_text("Hello, W0rld!")
+                .position(Point::new(2, 20), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                //.background(Rgb888::new(1, 1, 1))
+                .draw(display)
                 .unwrap()
         },
     );
@@ -221,6 +195,7 @@ fn render_text_with_background_color() {
 
 #[test]
 fn render_text_with_vertical_pos() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>();
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_with_vertical_pos.png"),
         |display| {
@@ -240,14 +215,11 @@ fn render_text_with_vertical_pos() {
             .into_iter()
             .enumerate()
             {
-                let bounding_box = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>()
-                    .render_text(
-                        "Agi",
-                        Point::new(5 + 50 * x_position as i32, 25),
-                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                        vertical_pos,
-                        display,
-                    )
+                let bounding_box = font
+                    .render_text("Agi")
+                    .position(Point::new(5 + 50 * x_position as i32, 25), vertical_pos)
+                    .color(Rgb888::new(237, 28, 36))
+                    .draw(display)
                     .unwrap()
                     .bounding_box;
 
@@ -276,13 +248,10 @@ fn render_text_with_newline() {
         std::include_bytes!("assets/render_text_newline.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                .render_text(
-                    "Hello,\nWorld!",
-                    Point::new(2, 15),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
+                .render_text("Hello,\nWorld!")
+                .position(Point::new(2, 15), VerticalPosition::default())
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap()
         },
     );
@@ -404,14 +373,11 @@ fn render_text_aligned() {
                     (VerticalPosition::Baseline, 186),
                 ] {
                     let bounding_box = font
-                        .render_text_aligned(
-                            text,
-                            get_pos(hpos, vpos),
-                            FontColor::Transparent(Rgb888::CSS_DARK_BLUE),
-                            vpos,
-                            hpos,
-                            display,
-                        )
+                        .render_text(text)
+                        .position(get_pos(hpos, vpos), vpos)
+                        .alignment(hpos)
+                        .color(Rgb888::CSS_DARK_BLUE)
+                        .draw(display)
                         .unwrap();
 
                     assert_eq!(
@@ -429,49 +395,14 @@ fn render_text_aligned() {
 
 #[test]
 fn render_args() {
-    let dimensions =
-        TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
-            FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                .render_args(
-                    format_args!("!{}?", 42.69),
-                    Point::new(2, 15),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    VerticalPosition::default(),
-                    display,
-                )
-                .unwrap()
-        });
-
-    assert_eq!(
-        dimensions,
-        RenderedDimensions {
-            advance: Point::new(65, 0),
-            bounding_box: Some(Rectangle::new(Point::new(3, 1), Size::new(63, 14)))
-        }
-    );
-}
-
-#[test]
-fn render_args_with_builder() {
-    // TODO remove and move into render_args
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
-            font.render_args_with_builder(format_args!("!{}?", 42.69))
+            font.render_args(format_args!("!{}?", 42.69))
                 .position(Point::new(2, 15), VerticalPosition::Baseline)
                 .color(Rgb888::new(237, 28, 36))
                 .draw(display)
                 .unwrap()
-
-            // FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-            //     .render_args(
-            //         format_args!("!{}?", 42.69),
-            //         Point::new(2, 15),
-            //         FontColor::Transparent(Rgb888::new(237, 28, 36)),
-            //         VerticalPosition::default(),
-            //         display,
-            //     )
-            //     .unwrap()
         });
 
     assert_eq!(
@@ -516,13 +447,10 @@ fn get_glyph_dimensions() {
                     .unwrap();
 
                 let rendered_dim = font
-                    .render_glyph(
-                        ch,
-                        position,
-                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                        vertical_pos,
-                        display,
-                    )
+                    .render_glyph(ch)
+                    .position(position, vertical_pos)
+                    .color(Rgb888::new(237, 28, 36))
+                    .draw(display)
                     .unwrap();
 
                 assert_eq!(dim, rendered_dim);
@@ -552,13 +480,10 @@ fn get_text_dimensions() {
                 .unwrap();
 
             let rendered_dim = font
-                .render_text(
-                    text,
-                    position,
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    vertical_pos,
-                    display,
-                )
+                .render_text(text)
+                .position(position, vertical_pos)
+                .color(Rgb888::new(237, 28, 36))
+                .draw(display)
                 .unwrap();
 
             assert_eq!(dim, rendered_dim);

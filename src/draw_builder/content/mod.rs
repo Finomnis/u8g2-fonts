@@ -1,6 +1,10 @@
 mod args;
+mod glyph;
+mod text;
 
 pub use args::ArgsContent;
+pub use glyph::GlyphContent;
+pub use text::TextContent;
 
 use crate::{font_reader::FontReader, types::VerticalPosition};
 
