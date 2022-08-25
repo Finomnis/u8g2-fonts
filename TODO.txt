@@ -34,6 +34,9 @@
             .render_glyph()/.render_text()/.render_args()
             Returns drawbuilder with generic holding the data
 
+- Make .background() a compile time error
+- Alignment image for glyph / glyph-dimensions
+- Alignment image for args / args-dimensions
 
 - Docs front page
 - Docs examples?

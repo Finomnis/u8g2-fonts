@@ -110,7 +110,8 @@ fn render_glyph_with_background_color() {
                 .render_glyph('j')
                 .position(Point::new(2, 20), VerticalPosition::default())
                 .color(Rgb888::new(237, 28, 36))
-                //.background(Rgb888::new(1, 1, 1))
+                .background(Rgb888::new(1, 1, 1))
+                .unwrap()
                 .draw(display)
                 .unwrap()
         },
@@ -178,7 +179,8 @@ fn render_text_with_background_color() {
                 .render_text("Hello, W0rld!")
                 .position(Point::new(2, 20), VerticalPosition::default())
                 .color(Rgb888::new(237, 28, 36))
-                //.background(Rgb888::new(1, 1, 1))
+                .background(Rgb888::new(1, 1, 1))
+                .unwrap()
                 .draw(display)
                 .unwrap()
         },

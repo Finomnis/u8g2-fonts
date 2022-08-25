@@ -3,6 +3,8 @@ use core::fmt::{Debug, Display};
 /// All possible errors a non-draw call can cause.
 #[derive(Debug)]
 pub enum LookupError {
+    /// Font does not support a background color.
+    BackgroundColorNotSupported,
     /// Font does not contain given character.
     GlyphNotFound(char),
     /// Internal error.
@@ -12,6 +14,8 @@ pub enum LookupError {
 /// All possible errors a draw call can cause.
 #[derive(Debug)]
 pub enum Error<DisplayError> {
+    /// Font does not support a background color.
+    BackgroundColorNotSupported,
     /// Font does not contain given character.
     GlyphNotFound(char),
     /// Internal error.
@@ -26,6 +30,9 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
+            Error::BackgroundColorNotSupported => {
+                write!(f, "This font does not support a background color.")
+            }
             Error::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }
@@ -40,6 +47,9 @@ where
 impl Display for LookupError {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
+            LookupError::BackgroundColorNotSupported => {
+                write!(f, "This font does not support a background color.")
+            }
             LookupError::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }
@@ -53,6 +63,7 @@ impl Display for LookupError {
 impl<T> From<LookupError> for Error<T> {
     fn from(e: LookupError) -> Self {
         match e {
+            LookupError::BackgroundColorNotSupported => Error::BackgroundColorNotSupported,
             LookupError::GlyphNotFound(g) => Error::GlyphNotFound(g),
             LookupError::InternalError => Error::InternalError,
         }

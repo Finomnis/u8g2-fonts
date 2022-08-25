@@ -13,6 +13,8 @@ use crate::{
 use self::content::Content;
 
 pub mod content;
+
+mod compute_dimensions;
 mod draw;
 
 pub struct DrawColor<Color> {
@@ -46,19 +48,13 @@ where
     }
 }
 
-impl<T, C, A> DrawBuilder<'_, T, C, A> {
+impl<'a, T, C, A> DrawBuilder<'a, T, C, A> {
     pub fn position(mut self, position: Point, vertical_pos: VerticalPosition) -> Self {
         self.position = position;
         self.vertical_pos = vertical_pos;
         self
     }
 
-    pub fn compute_dimensions(&self) -> Result<RenderedDimensions, LookupError> {
-        todo!()
-    }
-}
-
-impl<'a, T, C, A> DrawBuilder<'a, T, C, A> {
     pub fn alignment(
         self,
         horizontal_align: HorizontalAlignment,
@@ -95,15 +91,14 @@ impl<T, Color, A> DrawBuilder<'_, T, DrawColor<Color>, A> {
         self.color.fg = color;
         self
     }
-}
 
-impl<T, Color, A> DrawBuilder<'_, T, DrawColor<Color>, A>
-where
-    T: SupportsBackgroundColor,
-{
     pub fn background(mut self, color: Color) -> Result<Self, LookupError> {
-        self.color.bg = Some(color);
-        Ok(self)
+        if self.font.supports_background_color {
+            self.color.bg = Some(color);
+            Ok(self)
+        } else {
+            Err(LookupError::BackgroundColorNotSupported)
+        }
     }
 }
 
