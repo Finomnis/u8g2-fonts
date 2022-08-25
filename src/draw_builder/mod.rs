@@ -1,3 +1,9 @@
+pub mod content;
+
+mod compute_dimensions;
+mod draw;
+mod line_dimensions_iterator;
+
 use embedded_graphics_core::{
     prelude::{DrawTarget, Point},
     primitives::Rectangle,
@@ -9,12 +15,7 @@ use crate::{
     Error, LookupError,
 };
 
-use self::content::Content;
-
-pub mod content;
-
-mod compute_dimensions;
-mod draw;
+use self::{content::Content, line_dimensions_iterator::LineDimensionsIterator};
 
 pub struct DrawColor<Color> {
     fg: Color,
@@ -117,15 +118,13 @@ where
     }
 }
 
-impl<T, Color> DrawBuilder<'_, T, DrawColor<Color>, HorizontalAlignment>
-where
-    T: Content,
-{
+impl<'a, T, Color> DrawBuilder<'_, T, DrawColor<Color>, HorizontalAlignment> {
     pub fn draw<Display>(
         &self,
         display: &mut Display,
     ) -> Result<Option<Rectangle>, Error<Display::Error>>
     where
+        T: Content,
         Display: DrawTarget<Color = Color>,
         Display::Error: core::fmt::Debug,
     {

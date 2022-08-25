@@ -9,7 +9,7 @@ use crate::{
 
 use super::content::Content;
 
-fn compute_glyph_dimensions(
+pub fn compute_glyph_dimensions(
     ch: char,
     position: Point,
     font: &FontReader,
@@ -28,6 +28,26 @@ fn compute_glyph_dimensions(
 
     Ok(RenderedDimensions {
         advance: Point::new(advance as i32, 0),
+        bounding_box,
+    })
+}
+
+pub fn compute_line_dimensions(
+    line: &str,
+    position: Point,
+    font: &FontReader,
+) -> Result<RenderedDimensions, LookupError> {
+    let mut bounding_box: Option<Rectangle> = None;
+    let mut advance = 0;
+
+    for ch in line.chars() {
+        let dimensions = compute_glyph_dimensions(ch, position, font)?;
+        advance += dimensions.advance.x;
+        bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+    }
+
+    Ok(RenderedDimensions {
+        advance: Point::new(advance, 0),
         bounding_box,
     })
 }

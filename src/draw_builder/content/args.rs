@@ -1,8 +1,12 @@
 use core::fmt::Arguments;
 
-use crate::utils::{FormatArgsReader, FormatArgsReaderInfallible};
+use crate::{
+    types::RenderedDimensions,
+    utils::{FormatArgsReader, FormatArgsReaderInfallible},
+    LookupError,
+};
 
-use super::Content;
+use super::{Content, LineDimensionsIterator};
 
 pub struct ArgsContent<'a>(pub Arguments<'a>);
 
@@ -19,5 +23,21 @@ impl<'a> Content for ArgsContent<'a> {
         F: FnMut(char),
     {
         FormatArgsReaderInfallible::new(func).process_args(self.0)
+    }
+
+    type LineDimensionsIter = ArgsLineDimensionsIterator;
+
+    fn line_dimensions_iterator(&self) -> ArgsLineDimensionsIterator {
+        ArgsLineDimensionsIterator {}
+    }
+}
+
+pub struct ArgsLineDimensionsIterator {}
+impl LineDimensionsIterator for ArgsLineDimensionsIterator {
+    fn next(
+        &mut self,
+        _font: &crate::font_reader::FontReader,
+    ) -> Result<RenderedDimensions, LookupError> {
+        todo!()
     }
 }

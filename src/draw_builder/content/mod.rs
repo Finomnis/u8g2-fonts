@@ -8,7 +8,11 @@ pub use text::TextContent;
 
 use crate::{font_reader::FontReader, types::VerticalPosition};
 
+use super::LineDimensionsIterator;
+
 pub trait Content {
+    type LineDimensionsIter: LineDimensionsIterator;
+
     fn compute_vertical_offset(&self, font: &FontReader, vertical_pos: VerticalPosition) -> i32 {
         let newline_advance = font.font_bounding_box_height as i32 + 1;
         let ascent = font.ascent as i32;
@@ -42,4 +46,6 @@ pub trait Content {
     fn for_each_char_infallible<F>(&self, func: F)
     where
         F: FnMut(char);
+
+    fn line_dimensions_iterator<'a>(&self) -> Self::LineDimensionsIter;
 }
