@@ -3,7 +3,6 @@ use embedded_graphics_core::prelude::{Point, Size};
 use crate::{
     font_reader::{glyph_renderer::GlyphRenderer, FontReader},
     utils::DebugIgnore,
-    LookupError,
 };
 
 #[derive(Clone, Debug)]
@@ -21,7 +20,7 @@ pub struct GlyphReader {
 }
 
 impl GlyphReader {
-    pub fn new(data: &'static [u8], font: &FontReader) -> Result<Self, LookupError> {
+    pub fn new(data: &'static [u8], font: &FontReader) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
             // Start at 8 to mark current_byte as invalid
@@ -36,17 +35,17 @@ impl GlyphReader {
             bitcount_1: font.m1,
         };
 
-        this.glyph_width = this.read_unsigned(font.bitcnt_w)?;
-        this.glyph_height = this.read_unsigned(font.bitcnt_h)?;
+        this.glyph_width = this.read_unsigned(font.bitcnt_w);
+        this.glyph_height = this.read_unsigned(font.bitcnt_h);
 
-        this.offset_x = this.read_signed(font.bitcnt_x)?;
-        this.offset_y = this.read_signed(font.bitcnt_y)?;
-        this.advance = this.read_signed(font.bitcnt_d)?;
+        this.offset_x = this.read_signed(font.bitcnt_x);
+        this.offset_y = this.read_signed(font.bitcnt_y);
+        this.advance = this.read_signed(font.bitcnt_d);
 
-        Ok(this)
+        this
     }
 
-    pub fn read_unsigned(&mut self, bits: u8) -> Result<u8, LookupError> {
+    pub fn read_unsigned(&mut self, bits: u8) -> u8 {
         let bit_start = self.bit_pos;
         let mut bit_end = bit_start + bits;
 
@@ -55,8 +54,8 @@ impl GlyphReader {
 
         // If necessary, fetch next byte
         if bit_end >= 8 {
-            let value2 = *self.data.first().ok_or(LookupError::InternalError)?;
-            *self.data = self.data.get(1..).ok_or(LookupError::InternalError)?;
+            let value2 = *self.data.first().unwrap();
+            *self.data = self.data.get(1..).unwrap();
             bit_end -= 8;
             self.current_byte = value2;
 
@@ -65,13 +64,11 @@ impl GlyphReader {
 
         self.bit_pos = bit_end;
 
-        let out = value & (((1u16 << bits) - 1) as u8);
-        Ok(out)
+        value & (((1u16 << bits) - 1) as u8)
     }
 
-    pub fn read_signed(&mut self, bits: u8) -> Result<i8, LookupError> {
-        self.read_unsigned(bits)
-            .map(|v| (v as i8).wrapping_sub(1 << (bits - 1)))
+    pub fn read_signed(&mut self, bits: u8) -> i8 {
+        (self.read_unsigned(bits) as i8).wrapping_sub(1 << (bits - 1))
     }
 
     pub fn topleft(&self, pos: &Point) -> Point {
@@ -89,11 +86,11 @@ impl GlyphReader {
         self.advance
     }
 
-    pub fn read_runlength_0(&mut self) -> Result<u8, LookupError> {
+    pub fn read_runlength_0(&mut self) -> u8 {
         self.read_unsigned(self.bitcount_0)
     }
 
-    pub fn read_runlength_1(&mut self) -> Result<u8, LookupError> {
+    pub fn read_runlength_1(&mut self) -> u8 {
         self.read_unsigned(self.bitcount_1)
     }
 

@@ -126,15 +126,9 @@ impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
             }
 
             self.regenerate_buffer(next_line, font)?;
-
-            if !self.buffer_range.contains(&next_line) {
-                return Err(LookupError::InternalError);
-            }
+            assert!(self.buffer_range.contains(&next_line));
         }
 
-        self.dimensions_buffer
-            .get(next_line - self.buffer_range.start)
-            .cloned()
-            .ok_or(LookupError::InternalError)
+        Ok(self.dimensions_buffer[next_line - self.buffer_range.start].clone())
     }
 }

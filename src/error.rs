@@ -5,8 +5,6 @@ use core::fmt::{Debug, Display};
 pub enum LookupError {
     /// Font does not contain given character.
     GlyphNotFound(char),
-    /// Internal error.
-    InternalError,
 }
 
 /// All possible errors a draw call can cause.
@@ -16,8 +14,6 @@ pub enum Error<DisplayError> {
     BackgroundColorNotSupported,
     /// Font does not contain given character.
     GlyphNotFound(char),
-    /// Internal error.
-    InternalError,
     /// Writing to display failed.
     DisplayError(DisplayError),
 }
@@ -34,9 +30,6 @@ where
             Error::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }
-            Error::InternalError => {
-                write!(f, "Internal error.")
-            }
             Error::DisplayError(e) => write!(f, "Writing to display failed: {e}"),
         }
     }
@@ -48,9 +41,6 @@ impl Display for LookupError {
             LookupError::GlyphNotFound(c) => {
                 write!(f, "This font does not support the character '{}'.", c)
             }
-            LookupError::InternalError => {
-                write!(f, "Internal error.")
-            }
         }
     }
 }
@@ -59,7 +49,6 @@ impl<T> From<LookupError> for Error<T> {
     fn from(e: LookupError) -> Self {
         match e {
             LookupError::GlyphNotFound(g) => Error::GlyphNotFound(g),
-            LookupError::InternalError => Error::InternalError,
         }
     }
 }

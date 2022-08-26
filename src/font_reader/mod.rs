@@ -80,17 +80,16 @@ impl FontReader {
                     .ok_or(LookupError::GlyphNotFound(ch))?;
             }
 
-            while glyph.get_ch()? as u16 != encoding {
+            while glyph.get_ch() as u16 != encoding {
                 glyph
-                    .jump_to_next()?
+                    .jump_to_next()
                     .then_some(())
                     .ok_or(LookupError::GlyphNotFound(ch))?;
             }
 
-            glyph.into_glyph_reader()
+            Ok(glyph.into_glyph_reader())
         } else {
-            let (mut glyph, unicode_jump_table) =
-                glyph.into_unicode_mode(self.array_offset_0x0100)?;
+            let (mut glyph, unicode_jump_table) = glyph.into_unicode_mode(self.array_offset_0x0100);
 
             let jump_offset = unicode_jump_table
                 .calculate_jump_offset(encoding)
@@ -99,19 +98,19 @@ impl FontReader {
             glyph.jump_by(jump_offset);
 
             loop {
-                let glyph_ch = glyph.get_ch()?;
+                let glyph_ch = glyph.get_ch();
                 if glyph_ch == 0 {
                     return Err(LookupError::GlyphNotFound(ch));
                 }
                 if glyph_ch == encoding {
                     break;
                 }
-                if !glyph.jump_to_next()? {
+                if !glyph.jump_to_next() {
                     return Err(LookupError::GlyphNotFound(ch));
                 }
             }
 
-            glyph.into_glyph_reader()
+            Ok(glyph.into_glyph_reader())
         }
     }
 }

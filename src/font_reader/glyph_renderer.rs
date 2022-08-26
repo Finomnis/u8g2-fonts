@@ -34,16 +34,16 @@ impl GlyphRenderer {
         let glyph_bounding_box = self.get_glyph_bounding_box(position);
 
         let color_iter = {
-            let mut num_zeros = self.glyph.read_runlength_0()?;
-            let mut num_ones = self.glyph.read_runlength_1()?;
+            let mut num_zeros = self.glyph.read_runlength_0();
+            let mut num_ones = self.glyph.read_runlength_1();
             let mut num_zeros_leftover = num_zeros;
             let mut num_ones_leftover = num_ones;
             move || -> Option<Display::Color> {
                 if num_zeros_leftover == 0 && num_ones_leftover == 0 {
-                    let repeat = self.glyph.read_unsigned(1).unwrap() != 0;
+                    let repeat = self.glyph.read_unsigned(1) != 0;
                     if !repeat {
-                        num_zeros = self.glyph.read_runlength_0().unwrap();
-                        num_ones = self.glyph.read_runlength_1().unwrap();
+                        num_zeros = self.glyph.read_runlength_0();
+                        num_ones = self.glyph.read_runlength_1();
                     }
                     num_zeros_leftover = num_zeros;
                     num_ones_leftover = num_ones;
@@ -82,8 +82,8 @@ impl GlyphRenderer {
         let height = glyph_bounding_box.size.height as i32;
 
         let pixel_iter = {
-            let mut num_zeros = self.glyph.read_runlength_0()?;
-            let mut num_ones = self.glyph.read_runlength_1()?;
+            let mut num_zeros = self.glyph.read_runlength_0();
+            let mut num_ones = self.glyph.read_runlength_1();
             let mut num_ones_leftover = num_ones;
 
             let mut x = num_zeros as i32;
@@ -100,10 +100,10 @@ impl GlyphRenderer {
                 }
 
                 while num_ones_leftover == 0 {
-                    let repeat = self.glyph.read_unsigned(1).unwrap() != 0;
+                    let repeat = self.glyph.read_unsigned(1) != 0;
                     if !repeat {
-                        num_zeros = self.glyph.read_runlength_0().unwrap();
-                        num_ones = self.glyph.read_runlength_1().unwrap();
+                        num_zeros = self.glyph.read_runlength_0();
+                        num_ones = self.glyph.read_runlength_1();
                     }
                     x += num_zeros as i32;
                     while x >= width {
