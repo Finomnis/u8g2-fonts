@@ -5,12 +5,13 @@ use embedded_graphics_core::{
 
 use crate::{
     font_reader::FontReader,
+    renderable::LineDimensionsIterator,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
     Error, Font, LookupError, Renderable,
 };
 
-use self::render_actions::render_glyph;
+use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
 
 pub mod render_actions;
 
@@ -56,7 +57,7 @@ impl FontRenderer {
     pub fn render<Display>(
         &self,
         content: impl Renderable,
-        position: Point,
+        mut position: Point,
         vertical_pos: VerticalPosition,
         color: FontColor<Display::Color>,
         display: &mut Display,
@@ -65,8 +66,10 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        let mut position = position;
         let font = &self.font;
+        if color.has_background() && !font.supports_background_color {
+            return Err(Error::BackgroundColorNotSupported);
+        }
 
         let mut advance = Point::new(0, 0);
 
@@ -131,7 +134,42 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        todo!()
+        // This function is a little more complicated.
+        // To properly align horizontally, we need to iterate over every line twice.
+        // This is really hard with format_args.
+        // Therefore we introduce a line_dimensions_iterator that is almost no overhead for
+        // glyphs/lines, but makes it possible to implement the format_args case.
+
+        let font = &self.font;
+        if color.has_background() && !font.supports_background_color {
+            return Err(Error::BackgroundColorNotSupported);
+        }
+
+        position.y += content.compute_vertical_offset(font, vertical_pos);
+
+        let mut bounding_box = None;
+
+        let mut line_dimensions = content.line_dimensions_iterator();
+        let mut advance = Point::new(
+            compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?),
+            0,
+        );
+
+        content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
+            if ch == '\n' {
+                advance.x =
+                    compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?);
+                advance.y += font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions = render_glyph(ch, position + advance, color, font, display)?;
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+            }
+
+            Ok(())
+        })?;
+
+        Ok(bounding_box)
     }
 
     /// Calculates the dimensions that rendering text with [`render()`](crate::FontRenderer::render) would produce.
@@ -149,10 +187,34 @@ impl FontRenderer {
     pub fn get_rendered_dimensions(
         &self,
         content: impl Renderable,
-        position: Point,
+        mut position: Point,
         vertical_pos: VerticalPosition,
     ) -> Result<RenderedDimensions, LookupError> {
-        todo!()
+        let font = &self.font;
+
+        let mut advance = Point::new(0, 0);
+
+        let mut bounding_box = None;
+
+        position.y += content.compute_vertical_offset(font, vertical_pos);
+
+        content.for_each_char(|ch| -> Result<(), LookupError> {
+            if ch == '\n' {
+                advance.x = 0;
+                advance.y += font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions = compute_glyph_dimensions(ch, position + advance, font)?;
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+            }
+
+            Ok(())
+        })?;
+
+        Ok(RenderedDimensions {
+            advance,
+            bounding_box,
+        })
     }
 
     /// Calculates the dimensions that rendering text with
@@ -176,7 +238,60 @@ impl FontRenderer {
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
     ) -> Result<Option<Rectangle>, LookupError> {
-        todo!()
+        let font = &self.font;
+
+        position.y += content.compute_vertical_offset(font, vertical_pos);
+
+        let mut bounding_box = None;
+
+        let mut line_advance = 0;
+        let mut line_bounding_box = None;
+        content.for_each_char(|ch| -> Result<(), LookupError> {
+            if ch == '\n' {
+                let horizontal_offset = compute_horizontal_offset(
+                    horizontal_align,
+                    RenderedDimensions {
+                        advance: Point::new(line_advance, 0),
+                        bounding_box: line_bounding_box,
+                    },
+                );
+
+                // 'render' by moving the already known bounding box to the correct position
+                if let Some(mut line_bounding_box) = line_bounding_box {
+                    line_bounding_box.top_left.x += horizontal_offset;
+                    line_bounding_box.top_left += position;
+                    bounding_box = combine_bounding_boxes(bounding_box, Some(line_bounding_box));
+                }
+
+                line_advance = 0;
+                line_bounding_box = None;
+                position.y += font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
+                line_bounding_box =
+                    combine_bounding_boxes(line_bounding_box, dimensions.bounding_box);
+                line_advance += dimensions.advance.x;
+            }
+
+            Ok(())
+        })?;
+
+        // One last pass, if the string didn't end with a newline
+        let horizontal_offset = compute_horizontal_offset(
+            horizontal_align,
+            RenderedDimensions {
+                advance: Point::new(line_advance, 0),
+                bounding_box: line_bounding_box,
+            },
+        );
+
+        if let Some(mut line_bounding_box) = line_bounding_box {
+            line_bounding_box.top_left.x += horizontal_offset;
+            line_bounding_box.top_left += position;
+            bounding_box = combine_bounding_boxes(bounding_box, Some(line_bounding_box));
+        }
+
+        Ok(bounding_box)
     }
 
     /// The ascent of the font.
