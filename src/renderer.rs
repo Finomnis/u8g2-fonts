@@ -6,8 +6,13 @@ use embedded_graphics_core::{
 use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
+    utils::combine_bounding_boxes,
     Error, Font, LookupError, Renderable,
 };
+
+use self::render_actions::render_glyph;
+
+pub mod render_actions;
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug)]
@@ -60,7 +65,32 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
-        todo!()
+        let mut position = position;
+        let font = &self.font;
+
+        let mut advance = Point::new(0, 0);
+
+        let mut bounding_box = None;
+
+        position.y += content.compute_vertical_offset(font, vertical_pos);
+
+        content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
+            if ch == '\n' {
+                advance.x = 0;
+                advance.y += font.font_bounding_box_height as i32 + 1;
+            } else {
+                let dimensions = render_glyph(ch, position + advance, color, font, display)?;
+                advance += dimensions.advance;
+                bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+            }
+
+            Ok(())
+        })?;
+
+        Ok(RenderedDimensions {
+            advance,
+            bounding_box,
+        })
     }
 
     /// Renders text to a display with horizontal and vertical alignment.

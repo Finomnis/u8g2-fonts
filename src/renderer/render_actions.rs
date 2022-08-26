@@ -1,10 +1,13 @@
-use embedded_graphics_core::{prelude::Point, primitives::Rectangle};
+use embedded_graphics_core::{
+    prelude::{DrawTarget, Point},
+    primitives::Rectangle,
+};
 
 use crate::{
     font_reader::FontReader,
-    types::{HorizontalAlignment, RenderedDimensions},
+    types::{FontColor, HorizontalAlignment, RenderedDimensions},
     utils::combine_bounding_boxes,
-    LookupError,
+    Error, LookupError,
 };
 
 pub fn compute_horizontal_offset(
@@ -75,6 +78,42 @@ pub fn compute_line_dimensions(
 
     Ok(RenderedDimensions {
         advance: Point::new(position.x - x0, 0),
+        bounding_box,
+    })
+}
+
+pub fn render_glyph<Display>(
+    ch: char,
+    position: Point,
+    color: FontColor<Display::Color>,
+    font: &FontReader,
+    display: &mut Display,
+) -> Result<RenderedDimensions, Error<Display::Error>>
+where
+    Display: DrawTarget,
+    Display::Error: core::fmt::Debug,
+{
+    let glyph = font.retrieve_glyph_data(ch)?;
+
+    let advance = glyph.advance();
+    let size = glyph.size();
+
+    let bounding_box = if size.width > 0 && size.height > 0 {
+        let renderer = glyph.create_renderer();
+        Some(match color {
+            FontColor::Transparent(color) => {
+                renderer.render_transparent(position, display, color)?
+            }
+            FontColor::WithBackground { fg, bg } => {
+                renderer.render_as_box_fill(position, display, fg, bg)?
+            }
+        })
+    } else {
+        None
+    };
+
+    Ok(RenderedDimensions {
+        advance: Point::new(advance as i32, 0),
         bounding_box,
     })
 }
