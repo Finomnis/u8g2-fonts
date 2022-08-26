@@ -13,6 +13,107 @@ use u8g2_fonts::{
 
 use util::TestDrawTarget;
 
+use crate::alignment_grid::get_pos;
+
+mod alignment_grid {
+    use super::*;
+    use embedded_graphics_core::prelude::DrawTarget;
+
+    pub fn get_x(h: HorizontalAlignment) -> i32 {
+        match h {
+            HorizontalAlignment::Left => 5,
+            HorizontalAlignment::Center => 155,
+            HorizontalAlignment::Right => 305,
+        }
+    }
+
+    pub fn get_y(v: VerticalPosition) -> i32 {
+        match v {
+            VerticalPosition::Baseline => 200,
+            VerticalPosition::Top => 7,
+            VerticalPosition::Center => 87,
+            VerticalPosition::Bottom => 167,
+        }
+    }
+
+    pub fn get_pos(h: HorizontalAlignment, v: VerticalPosition) -> Point {
+        Point::new(get_x(h), get_y(v))
+    }
+
+    pub fn draw<Display>(display: &mut Display)
+    where
+        Display: DrawTarget<Color = Rgb888> + OriginDimensions,
+        Display::Error: core::fmt::Debug,
+    {
+        let vertical_rect = Size::new(
+            1,
+            (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top) + 1)
+                .try_into()
+                .unwrap(),
+        );
+        let horizontal_rect = Size::new(
+            (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left) + 1)
+                .try_into()
+                .unwrap(),
+            1,
+        );
+
+        for hpos in [
+            HorizontalAlignment::Left,
+            HorizontalAlignment::Center,
+            HorizontalAlignment::Right,
+        ] {
+            display
+                .fill_solid(
+                    &Rectangle::new(
+                        get_pos(hpos, VerticalPosition::Top),
+                        Size::new(1, display.size().height).try_into().unwrap(),
+                    ),
+                    Rgb888::CSS_ORANGE,
+                )
+                .unwrap();
+        }
+
+        display
+            .fill_solid(
+                &Rectangle::new(
+                    get_pos(HorizontalAlignment::Left, VerticalPosition::Center),
+                    horizontal_rect,
+                ),
+                Rgb888::CSS_ORANGE,
+            )
+            .unwrap();
+
+        for hpos in [HorizontalAlignment::Left, HorizontalAlignment::Right] {
+            display
+                .fill_solid(
+                    &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
+                    Rgb888::CSS_RED,
+                )
+                .unwrap();
+        }
+
+        for vpos in [VerticalPosition::Top, VerticalPosition::Bottom] {
+            display
+                .fill_solid(
+                    &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
+                    Rgb888::CSS_RED,
+                )
+                .unwrap();
+        }
+
+        display
+            .fill_solid(
+                &Rectangle::new(
+                    Point::new(0, get_y(VerticalPosition::Baseline)),
+                    Size::new(display.size().width, 1),
+                ),
+                Rgb888::CSS_ORANGE,
+            )
+            .unwrap();
+    }
+}
+
 #[test]
 fn letters_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
@@ -448,96 +549,10 @@ fn aligned_text() {
     let text = "Agi,\niagmA!";
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 
-    fn get_x(h: HorizontalAlignment) -> i32 {
-        match h {
-            HorizontalAlignment::Left => 5,
-            HorizontalAlignment::Center => 155,
-            HorizontalAlignment::Right => 305,
-        }
-    }
-
-    fn get_y(v: VerticalPosition) -> i32 {
-        match v {
-            VerticalPosition::Baseline => 200,
-            VerticalPosition::Top => 7,
-            VerticalPosition::Center => 87,
-            VerticalPosition::Bottom => 167,
-        }
-    }
-
-    fn get_pos(h: HorizontalAlignment, v: VerticalPosition) -> Point {
-        Point::new(get_x(h), get_y(v))
-    }
-
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_text_dimensions.png"),
         |display| {
-            let vertical_rect = Size::new(
-                1,
-                (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top) + 1)
-                    .try_into()
-                    .unwrap(),
-            );
-            let horizontal_rect = Size::new(
-                (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left) + 1)
-                    .try_into()
-                    .unwrap(),
-                1,
-            );
-
-            for hpos in [
-                HorizontalAlignment::Left,
-                HorizontalAlignment::Center,
-                HorizontalAlignment::Right,
-            ] {
-                display
-                    .fill_solid(
-                        &Rectangle::new(
-                            get_pos(hpos, VerticalPosition::Top),
-                            Size::new(1, display.size().height).try_into().unwrap(),
-                        ),
-                        Rgb888::CSS_ORANGE,
-                    )
-                    .unwrap();
-            }
-
-            display
-                .fill_solid(
-                    &Rectangle::new(
-                        get_pos(HorizontalAlignment::Left, VerticalPosition::Center),
-                        horizontal_rect,
-                    ),
-                    Rgb888::CSS_ORANGE,
-                )
-                .unwrap();
-
-            for hpos in [HorizontalAlignment::Left, HorizontalAlignment::Right] {
-                display
-                    .fill_solid(
-                        &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
-                        Rgb888::CSS_RED,
-                    )
-                    .unwrap();
-            }
-
-            for vpos in [VerticalPosition::Top, VerticalPosition::Bottom] {
-                display
-                    .fill_solid(
-                        &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
-                        Rgb888::CSS_RED,
-                    )
-                    .unwrap();
-            }
-
-            display
-                .fill_solid(
-                    &Rectangle::new(
-                        Point::new(0, get_y(VerticalPosition::Baseline)),
-                        Size::new(display.size().width, 1),
-                    ),
-                    Rgb888::CSS_ORANGE,
-                )
-                .unwrap();
+            alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
                 (HorizontalAlignment::Left, 5, 68),
@@ -562,6 +577,122 @@ fn aligned_text() {
                     let rendered_bounding_box = font
                         .render_aligned(
                             text,
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    assert_eq!(bounding_box, rendered_bounding_box);
+                    assert_eq!(
+                        bounding_box,
+                        Rectangle::new(
+                            Point::new(expected_x, expected_y),
+                            Size::new(expected_width, 39)
+                        )
+                    );
+                }
+            }
+        },
+    );
+}
+
+#[test]
+fn aligned_glyph() {
+    let ch = "A";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/aligned_glyph_dimensions.png"),
+        |display| {
+            alignment_grid::draw(display);
+
+            for (hpos, expected_x, expected_width) in [
+                (HorizontalAlignment::Left, 5, 14),
+                (HorizontalAlignment::Center, 148, 14),
+                (HorizontalAlignment::Right, 291, 14),
+            ] {
+                for (vpos, expected_y) in [
+                    (VerticalPosition::Top, 8),
+                    (VerticalPosition::Center, 78),
+                    (VerticalPosition::Bottom, 149),
+                    (VerticalPosition::Baseline, 186),
+                ] {
+                    let bounding_box = font
+                        .get_rendered_dimensions_aligned(ch, get_pos(hpos, vpos), vpos, hpos)
+                        .unwrap()
+                        .unwrap();
+
+                    display
+                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
+                        .unwrap();
+
+                    let rendered_bounding_box = font
+                        .render_aligned(
+                            ch,
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    assert_eq!(bounding_box, rendered_bounding_box);
+                    assert_eq!(
+                        bounding_box,
+                        Rectangle::new(
+                            Point::new(expected_x, expected_y),
+                            Size::new(expected_width, 14)
+                        )
+                    );
+                }
+            }
+        },
+    );
+}
+
+#[test]
+fn aligned_args() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/aligned_text_dimensions.png"),
+        |display| {
+            alignment_grid::draw(display);
+
+            for (hpos, expected_x, expected_width) in [
+                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Center, 122, 67),
+                (HorizontalAlignment::Right, 238, 67),
+            ] {
+                for (vpos, expected_y) in [
+                    (VerticalPosition::Top, 8),
+                    (VerticalPosition::Center, 68),
+                    (VerticalPosition::Bottom, 128),
+                    (VerticalPosition::Baseline, 186),
+                ] {
+                    let bounding_box = font
+                        .get_rendered_dimensions_aligned(
+                            format_args!("Agi, {}", "iagma!"),
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    display
+                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
+                        .unwrap();
+
+                    let rendered_bounding_box = font
+                        .render_aligned(
+                            format_args!("Agi, {}", "iagma!"),
                             get_pos(hpos, vpos),
                             vpos,
                             hpos,
