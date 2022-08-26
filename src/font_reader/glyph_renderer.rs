@@ -30,7 +30,6 @@ impl GlyphRenderer {
     ) -> Result<Rectangle, Error<Display::Error>>
     where
         Display: DrawTarget,
-        Display::Error: core::fmt::Debug,
     {
         let glyph_bounding_box = self.get_glyph_bounding_box(position);
 
@@ -77,7 +76,6 @@ impl GlyphRenderer {
     ) -> Result<Rectangle, Error<Display::Error>>
     where
         Display: DrawTarget,
-        Display::Error: core::fmt::Debug,
     {
         let glyph_bounding_box = self.get_glyph_bounding_box(position);
         let width = glyph_bounding_box.size.width as i32;

@@ -64,7 +64,6 @@ impl FontRenderer {
     ) -> Result<RenderedDimensions, Error<Display::Error>>
     where
         Display: DrawTarget,
-        Display::Error: core::fmt::Debug,
     {
         let font = &self.font;
         if color.has_background() && !font.supports_background_color {
@@ -129,7 +128,6 @@ impl FontRenderer {
     ) -> Result<Option<Rectangle>, Error<Display::Error>>
     where
         Display: DrawTarget,
-        Display::Error: core::fmt::Debug,
     {
         // If `horizontal_align` is `Left`, it is almost identical with
         // `render()`, just shifted by one. As `render()` is quite a bit faster,

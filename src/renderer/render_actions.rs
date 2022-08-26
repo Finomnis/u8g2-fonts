@@ -91,7 +91,6 @@ pub fn render_glyph<Display>(
 ) -> Result<RenderedDimensions, Error<Display::Error>>
 where
     Display: DrawTarget,
-    Display::Error: core::fmt::Debug,
 {
     let glyph = font.retrieve_glyph_data(ch)?;
 

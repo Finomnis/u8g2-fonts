@@ -43,7 +43,6 @@ mod alignment_grid {
     pub fn draw<Display>(display: &mut Display)
     where
         Display: DrawTarget<Color = Rgb888> + OriginDimensions,
-        Display::Error: core::fmt::Debug,
     {
         let vertical_rect = Size::new(
             1,
