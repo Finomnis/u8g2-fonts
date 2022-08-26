@@ -1,15 +1,5 @@
-- Render from format_args!()
-
-- Large image for centered:
-   a
-   bb
-   ccc
-   dddd
-  To test line length iterator overflow (20?)
-
 - Docs front page
 - Docs examples?
-
 
 Maybe later, if requested:
 - Rotation (like in u8g2)
