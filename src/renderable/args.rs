@@ -1,3 +1,7 @@
+use core::ops::Range;
+
+use embedded_graphics_core::prelude::Point;
+
 use crate::{
     types::RenderedDimensions,
     utils::{FormatArgsReader, FormatArgsReaderInfallible},
@@ -21,19 +25,45 @@ impl<'a> Renderable for core::fmt::Arguments<'a> {
         FormatArgsReaderInfallible::new(func).process_args(*self)
     }
 
-    type LineDimensionsIter = ArgsLineDimensionsIterator;
+    type LineDimensionsIter = ArgsLineDimensionsIterator<'a>;
 
-    fn line_dimensions_iterator(&self) -> ArgsLineDimensionsIterator {
-        ArgsLineDimensionsIterator {}
+    fn line_dimensions_iterator(&self) -> ArgsLineDimensionsIterator<'a> {
+        ArgsLineDimensionsIterator::new(*self)
     }
 }
 
-pub struct ArgsLineDimensionsIterator {}
-impl LineDimensionsIterator for ArgsLineDimensionsIterator {
+const NUM_BUFFERED_LINES: usize = 20;
+
+pub struct ArgsLineDimensionsIterator<'a> {
+    args: core::fmt::Arguments<'a>,
+    buffer_range: Range<usize>,
+    dimensions_buffer: [RenderedDimensions; NUM_BUFFERED_LINES],
+    next_line: usize,
+}
+
+impl<'a> ArgsLineDimensionsIterator<'a> {
+    pub fn new(args: core::fmt::Arguments<'a>) -> Self {
+        Self {
+            args,
+            buffer_range: 0..0,
+            dimensions_buffer: [(); NUM_BUFFERED_LINES].map(|()| RenderedDimensions {
+                advance: Point::new(0, 0),
+                bounding_box: None,
+            }),
+            next_line: 0,
+        }
+    }
+}
+
+impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
     fn next(
         &mut self,
         _font: &crate::font_reader::FontReader,
     ) -> Result<RenderedDimensions, LookupError> {
-        todo!()
+        // TODO: implement
+        Ok(RenderedDimensions {
+            advance: Point::new(0, 0),
+            bounding_box: None,
+        })
     }
 }
