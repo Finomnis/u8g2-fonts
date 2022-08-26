@@ -783,6 +783,96 @@ fn whitespace_str_does_not_crash() {
     }
 }
 
+const ALPHABET_PYRAMID: &'static str = "a\nbb\nccc\ndddd\neeeee\nffffff\nggggggg\nhhhhhhhh\niiiiiiiii\njjjjjjjjjj\nkkkkkkkkkkk\nllllllllllll\nmmmmmmmmmmmmm\nnnnnnnnnnnnnnn\nooooooooooooooo\npppppppppppppppp\nqqqqqqqqqqqqqqqqq\nrrrrrrrrrrrrrrrrrr\nsssssssssssssssssss\ntttttttttttttttttttt\nuuuuuuuuuuuuuuuuuuuuu\nvvvvvvvvvvvvvvvvvvvvvv\nwwwwwwwwwwwwwwwwwwwwwww\nxxxxxxxxxxxxxxxxxxxxxxxx\nyyyyyyyyyyyyyyyyyyyyyyyyy\nzzzzzzzzzzzzzzzzzzzzzzzzzz";
+
+#[test]
+fn large_content_text() {
+    let font = FontRenderer::new::<fonts::u8g2_font_profont11_mf>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/alphabet_pyramid.png"),
+        |display| {
+            let position = display.bounding_box().center();
+            let vertical_pos = VerticalPosition::Center;
+            let horizontal_align = HorizontalAlignment::Center;
+
+            let bounding_box = font
+                .get_rendered_dimensions_aligned(
+                    ALPHABET_PYRAMID,
+                    position,
+                    vertical_pos,
+                    horizontal_align,
+                )
+                .unwrap();
+
+            display
+                .fill_solid(&bounding_box.unwrap(), Rgb888::new(2, 2, 2))
+                .unwrap();
+
+            let rendered_bounding_box = font
+                .render_aligned(
+                    ALPHABET_PYRAMID,
+                    position,
+                    vertical_pos,
+                    horizontal_align,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
+
+            assert_eq!(bounding_box, rendered_bounding_box);
+            assert_eq!(
+                bounding_box,
+                Some(Rectangle::new(Point::new(22, 19), Size::new(156, 311)))
+            );
+        },
+    );
+}
+
+#[test]
+fn large_content_args() {
+    let font = FontRenderer::new::<fonts::u8g2_font_profont11_mf>();
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/alphabet_pyramid.png"),
+        |display| {
+            let position = display.bounding_box().center();
+            let vertical_pos = VerticalPosition::Center;
+            let horizontal_align = HorizontalAlignment::Center;
+
+            let bounding_box = font
+                .get_rendered_dimensions_aligned(
+                    format_args!("{}", ALPHABET_PYRAMID),
+                    position,
+                    vertical_pos,
+                    horizontal_align,
+                )
+                .unwrap();
+
+            display
+                .fill_solid(&bounding_box.unwrap(), Rgb888::new(2, 2, 2))
+                .unwrap();
+
+            let rendered_bounding_box = font
+                .render_aligned(
+                    format_args!("{}", ALPHABET_PYRAMID),
+                    position,
+                    vertical_pos,
+                    horizontal_align,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
+
+            assert_eq!(bounding_box, rendered_bounding_box);
+            assert_eq!(
+                bounding_box,
+                Some(Rectangle::new(Point::new(22, 19), Size::new(156, 311)))
+            );
+        },
+    );
+}
+
 #[test]
 fn whitespace_glyph_does_not_crash() {
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
