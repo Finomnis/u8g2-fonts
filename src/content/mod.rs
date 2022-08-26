@@ -56,5 +56,5 @@ pub trait Content {
         F: FnMut(char);
 
     #[doc(hidden)]
-    fn line_dimensions_iterator<'a>(&self) -> Self::LineDimensionsIter;
+    fn line_dimensions_iterator(&self) -> Self::LineDimensionsIter;
 }
