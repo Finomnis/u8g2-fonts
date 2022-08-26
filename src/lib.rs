@@ -33,21 +33,29 @@
 //! - Strings: `"Hello world!"`
 //! - Format Strings: `format_args!("Nice: {}", 69)`
 //!
-//! ## Vertical Positioning
+//! ## Positioning and Alignment
 //!
+//! The [`FontRenderer::render()`](FontRenderer::render) allows for basic vertical positioning. Horizontally, it renders exactly like specified in the font.
 //!
+//! For more advanced usecases, use the [`FontRenderer::render_aligned()`](FontRenderer::render_aligned) method.
+//! It further allows for horizontal alignment through an aditional parameter.
 //!
-//!
-//!
-//! ## Bounding box calculation
+//! ## Bounding Box Calculation
 //!
 //! Additional to the [`render()`](FontRenderer::render) and [`render_aligned()`](FontRenderer::render_aligned) methods,
 //! there is also [`get_rendered_dimensions()`](FontRenderer::get_rendered_dimensions) and
 //! [`get_rendered_dimensions_aligned()`](FontRenderer::get_rendered_dimensions_aligned).
 //!
 //! Those functions behave almost identical to their `render` counterparts, but don't actually perform any rendering. This
-//! is very useful if the dimensions of the rendered text
+//! can be very useful if the dimensions of the text are required for other drawing operations prior to the actual text rendering.
 //!
+//! ## Colors and Backgrounds
+//!
+//! While a foreground color must always be specified for rendering a font, there is also the option to set a background color.
+//! This is mainly for monospace fonts.
+//!
+//! Note that many fonts do not actually support rendering with a background color (due to occlusions).
+//! Supplying a background color to a font that doesn't support it causes a runtime error.
 //!
 
 #![no_std]
