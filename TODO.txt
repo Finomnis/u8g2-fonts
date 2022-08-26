@@ -1,2 +1,4 @@
+Test coverage
+
 Maybe later, if requested:
 - Rotation (like in u8g2)
