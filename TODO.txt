@@ -1,15 +1,11 @@
 - Render from format_args!()
-- Tests for render_args
-- Tests for render_args_aligned
 
-- Implement get_args_dimensions
-- Implement get_aligned_args_dimensions
-- Tests for get_args_dimensions
-- Tests for get_aligned_args_dimensions
-
-- Make .background() a compile time error
-- Alignment image for glyph / glyph-dimensions
-- Alignment image for args / args-dimensions
+- Large image for centered:
+   a
+   bb
+   ccc
+   dddd
+  To test line length iterator overflow (20?)
 
 - Docs front page
 - Docs examples?
