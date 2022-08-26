@@ -4,11 +4,11 @@ use embedded_graphics_core::{
 };
 
 use crate::{
+    content::LineDimensionsIterator,
     font_reader::FontReader,
-    renderable::LineDimensionsIterator,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
-    Error, Font, LookupError, Renderable,
+    Content, Error, Font, LookupError,
 };
 
 use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
@@ -56,7 +56,7 @@ impl FontRenderer {
     ///
     pub fn render<Display>(
         &self,
-        content: impl Renderable,
+        content: impl Content,
         mut position: Point,
         vertical_pos: VerticalPosition,
         color: FontColor<Display::Color>,
@@ -98,8 +98,8 @@ impl FontRenderer {
 
     /// Renders text to a display with horizontal alignment.
     ///
-    /// Note that this function is most likely a little bit slower than [`render_text()`](crate::FontRenderer::render_text), so prefer [`render_text()`](crate::FontRenderer::render_text)
-    /// for left-aligned single-line strings.
+    /// Note that `Left` alignment is not identical to [`render()`](crate::FontRenderer::render).
+    /// Fonts are by default not completely left-aligned and `render_aligned()` corrects for that.
     ///
     /// # Arguments
     ///
@@ -120,7 +120,7 @@ impl FontRenderer {
     ///
     pub fn render_aligned<Display>(
         &self,
-        content: impl Renderable,
+        content: impl Content,
         mut position: Point,
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
@@ -193,7 +193,7 @@ impl FontRenderer {
     ///
     pub fn get_rendered_dimensions(
         &self,
-        content: impl Renderable,
+        content: impl Content,
         mut position: Point,
         vertical_pos: VerticalPosition,
     ) -> Result<RenderedDimensions, LookupError> {
@@ -236,11 +236,11 @@ impl FontRenderer {
     ///
     /// # Return
     ///
-    /// The bounding box of the rendered text
+    /// The bounding box of the rendered text.
     ///
     pub fn get_rendered_dimensions_aligned(
         &self,
-        content: impl Renderable,
+        content: impl Content,
         mut position: Point,
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
@@ -315,13 +315,16 @@ impl FontRenderer {
         self.font.descent
     }
 
-    /// The maximum possible bounding box of a glyph if it was rendered with its baseline at (0,0).
-    pub fn get_glyph_bounding_box(&self) -> Rectangle {
+    /// The maximum possible bounding box of a glyph if it was rendered with
+    /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
+    pub fn get_glyph_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
+        let y_offset = 'a'.compute_vertical_offset(&self.font, vertical_pos);
         Rectangle {
             top_left: Point::new(
                 self.font.font_bounding_box_x_offset as i32,
-                -(self.font.font_bounding_box_height as i32
-                    + self.font.font_bounding_box_y_offset as i32),
+                y_offset
+                    - (self.font.font_bounding_box_height as i32
+                        + self.font.font_bounding_box_y_offset as i32),
             ),
             size: Size::new(
                 self.font.font_bounding_box_width as u32,

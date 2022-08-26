@@ -7,12 +7,12 @@ use crate::{
     renderer::render_actions::compute_glyph_dimensions,
     types::RenderedDimensions,
     utils::{combine_bounding_boxes, FormatArgsReader, FormatArgsReaderInfallible},
-    LookupError, Renderable,
+    Content, LookupError,
 };
 
 use super::LineDimensionsIterator;
 
-impl<'a> Renderable for core::fmt::Arguments<'a> {
+impl<'a> Content for core::fmt::Arguments<'a> {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
     where
         F: FnMut(char) -> Result<(), E>,

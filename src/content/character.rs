@@ -1,10 +1,13 @@
 use embedded_graphics_core::prelude::Point;
 
-use crate::{Renderable, font_reader::FontReader, types::RenderedDimensions, LookupError, renderer::render_actions::compute_glyph_dimensions};
+use crate::{
+    font_reader::FontReader, renderer::render_actions::compute_glyph_dimensions,
+    types::RenderedDimensions, Content, LookupError,
+};
 
 use super::LineDimensionsIterator;
 
-impl Renderable for char {
+impl Content for char {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
     where
         F: FnMut(char) -> Result<(), E>,

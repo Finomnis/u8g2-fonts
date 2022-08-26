@@ -2,12 +2,12 @@ use embedded_graphics_core::prelude::Point;
 
 use crate::{
     font_reader::FontReader, renderer::render_actions::compute_line_dimensions,
-    types::RenderedDimensions, LookupError, Renderable,
+    types::RenderedDimensions, Content, LookupError,
 };
 
 use super::LineDimensionsIterator;
 
-impl<'a> Renderable for &'a str {
+impl<'a> Content for &'a str {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
     where
         F: FnMut(char) -> Result<(), E>,

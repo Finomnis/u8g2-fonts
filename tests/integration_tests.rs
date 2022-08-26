@@ -157,8 +157,20 @@ fn get_glyph_bounding_box() {
     let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
     assert_eq!(
-        font.get_glyph_bounding_box(),
+        font.get_glyph_bounding_box(VerticalPosition::Baseline),
         Rectangle::new(Point::new(-1, -28), Size::new(31, 36))
+    );
+    assert_eq!(
+        font.get_glyph_bounding_box(VerticalPosition::Top),
+        Rectangle::new(Point::new(-1, -6), Size::new(31, 36))
+    );
+    assert_eq!(
+        font.get_glyph_bounding_box(VerticalPosition::Center),
+        Rectangle::new(Point::new(-1, -21), Size::new(31, 36))
+    );
+    assert_eq!(
+        font.get_glyph_bounding_box(VerticalPosition::Bottom),
+        Rectangle::new(Point::new(-1, -35), Size::new(31, 36))
     );
 }
 
