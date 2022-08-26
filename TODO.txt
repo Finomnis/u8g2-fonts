@@ -1,5 +1,2 @@
-- Docs front page
-- Docs examples?
-
 Maybe later, if requested:
 - Rotation (like in u8g2)
