@@ -9,12 +9,8 @@ pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize> {
 }
 
 impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
-    pub fn jump_by(&mut self, offset: usize) -> bool {
-        self.data = match self.data.get(offset..) {
-            Some(data) => data,
-            None => return false,
-        };
-        true
+    pub fn jump_by(&mut self, offset: usize) {
+        self.data = &self.data[offset..];
     }
 
     fn get_offset(&self) -> u8 {
@@ -25,10 +21,9 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
         let offset = self.get_offset();
         if offset == 0 {
             false
-        } else if self.jump_by(offset as usize) {
-            true
         } else {
-            panic!("There is an internal error in the current font data!");
+            self.jump_by(offset as usize);
+            true
         }
     }
 
@@ -55,9 +50,7 @@ impl<'a> GlyphSearcher<'a, 1> {
         mut self,
         offset: u16,
     ) -> (GlyphSearcher<'a, 2>, UnicodeJumptableReader) {
-        if !self.jump_by(offset as usize) {
-            panic!("Internal error in glyph data!");
-        }
+        self.jump_by(offset as usize);
 
         (
             GlyphSearcher {

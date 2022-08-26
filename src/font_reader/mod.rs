@@ -69,15 +69,9 @@ impl FontReader {
 
         if encoding <= 255 {
             if encoding >= b'a' as u16 {
-                glyph
-                    .jump_by(self.array_offset_lower_a as usize)
-                    .then_some(())
-                    .ok_or(LookupError::GlyphNotFound(ch))?;
+                glyph.jump_by(self.array_offset_lower_a as usize);
             } else if encoding >= b'A' as u16 {
-                glyph
-                    .jump_by(self.array_offset_upper_a as usize)
-                    .then_some(())
-                    .ok_or(LookupError::GlyphNotFound(ch))?;
+                glyph.jump_by(self.array_offset_upper_a as usize);
             }
 
             while glyph.get_ch() as u16 != encoding {
