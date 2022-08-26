@@ -57,6 +57,32 @@
 //! Note that many fonts do not actually support rendering with a background color (due to occlusions).
 //! Supplying a background color to a font that doesn't support it causes a runtime error.
 //!
+//! # Example
+//!
+//! ```rust
+//! # use u8g2_fonts::types::*;
+//! # use u8g2_fonts::FontRenderer;
+//! # use u8g2_fonts::fonts;
+//! # use embedded_graphics_core::prelude::*;
+//! # use embedded_graphics_core::pixelcolor::BinaryColor;
+//! # pub fn render<Display>(mut display: Display)
+//! # where
+//! #    Display: DrawTarget<Color = BinaryColor>,
+//! #    Display::Error: core::fmt::Debug
+//! # {
+//! let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+//!
+//! font.render_aligned(
+//!     format_args!("Answer: {}", 42),
+//!     display.bounding_box().center() + Point::new(0, 16),
+//!     VerticalPosition::Baseline,
+//!     HorizontalAlignment::Center,
+//!     FontColor::Transparent(BinaryColor::On),
+//!     &mut display,
+//! )
+//! .unwrap();
+//! # }
+//! ```
 
 #![no_std]
 #![deny(missing_docs)]

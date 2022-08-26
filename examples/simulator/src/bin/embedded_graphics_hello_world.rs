@@ -14,7 +14,7 @@ use embedded_graphics_simulator::{
 };
 use u8g2_fonts::{
     fonts,
-    types::{HorizontalAlignment, VerticalPosition},
+    types::{FontColor, HorizontalAlignment, VerticalPosition},
     FontRenderer,
 };
 
@@ -68,7 +68,7 @@ fn main() -> Result<(), std::convert::Infallible> {
         display.bounding_box().center() + Point::new(0, 16),
         VerticalPosition::Baseline,
         HorizontalAlignment::Center,
-        u8g2_fonts::types::FontColor::Transparent(BinaryColor::On),
+        FontColor::Transparent(BinaryColor::On),
         &mut display,
     )
     .unwrap();
