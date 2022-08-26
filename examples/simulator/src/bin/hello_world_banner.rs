@@ -45,7 +45,7 @@ fn main() -> anyhow::Result<()> {
     let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
 
     let font_bounding_box = font
-        .get_aligned_text_dimensions(
+        .get_rendered_dimensions_aligned(
             text,
             center,
             VerticalPosition::Center,
@@ -58,12 +58,12 @@ fn main() -> anyhow::Result<()> {
         .into_styled(line_style)
         .draw(&mut display)?;
 
-    font.render_text_aligned(
+    font.render_aligned(
         text,
         center,
-        FontColor::Transparent(Rgb888::CSS_ORANGE),
         VerticalPosition::Center,
         HorizontalAlignment::Center,
+        FontColor::Transparent(Rgb888::CSS_ORANGE),
         &mut display,
     )?;
 

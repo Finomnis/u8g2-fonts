@@ -63,12 +63,12 @@ fn main() -> Result<(), std::convert::Infallible> {
     let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
     let text = "embedded-graphics";
 
-    font.render_text_aligned(
+    font.render_aligned(
         text,
         display.bounding_box().center() + Point::new(0, 16),
-        u8g2_fonts::types::FontColor::Transparent(BinaryColor::On),
         VerticalPosition::Baseline,
         HorizontalAlignment::Center,
+        u8g2_fonts::types::FontColor::Transparent(BinaryColor::On),
         &mut display,
     )
     .unwrap();

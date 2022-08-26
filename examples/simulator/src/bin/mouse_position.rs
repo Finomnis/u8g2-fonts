@@ -23,43 +23,43 @@ const TEXT_POS_Y: Point = Point::new(124, 62);
 
 fn update_mouse_text(pos: Point, prev: Point, display: &mut SimulatorDisplay<BinaryColor>) {
     MOUSE_FONT
-        .render_args(
+        .render(
             format_args!("x: {}", prev.x),
             TEXT_POS_X,
-            FontColor::Transparent(BinaryColor::Off),
             VerticalPosition::Baseline,
+            FontColor::Transparent(BinaryColor::Off),
             display,
         )
         .unwrap();
 
     MOUSE_FONT
-        .render_args(
+        .render(
             format_args!("x: {}", pos.x),
             TEXT_POS_X,
-            FontColor::Transparent(BinaryColor::On),
             VerticalPosition::Baseline,
+            FontColor::Transparent(BinaryColor::On),
             display,
         )
         .unwrap();
 
     MOUSE_FONT
-        .render_text_aligned(
+        .render_aligned(
             "y: 42",
             TEXT_POS_Y,
+            VerticalPosition::Baseline,
+            HorizontalAlignment::Right,
             FontColor::Transparent(BinaryColor::Off),
-            VerticalPosition::Baseline,
-            HorizontalAlignment::Right,
             display,
         )
         .unwrap();
 
     MOUSE_FONT
-        .render_text_aligned(
+        .render_aligned(
             "y: 42",
             TEXT_POS_Y,
-            FontColor::Transparent(BinaryColor::On),
             VerticalPosition::Baseline,
             HorizontalAlignment::Right,
+            FontColor::Transparent(BinaryColor::On),
             display,
         )
         .unwrap();
