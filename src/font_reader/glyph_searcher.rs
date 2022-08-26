@@ -33,7 +33,7 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
     }
 
     pub fn into_glyph_reader(self) -> GlyphReader {
-        GlyphReader::new(self.data.get(CHAR_WIDTH + 1..).unwrap(), self.font)
+        GlyphReader::new(self.data.get((CHAR_WIDTH + 1)..).unwrap(), self.font)
     }
 }
 
