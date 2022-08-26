@@ -7,7 +7,7 @@ use embedded_graphics_core::{
 };
 use u8g2_fonts::{
     fonts,
-    types::{HorizontalAlignment, RenderedDimensions, VerticalPosition},
+    types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     Error, FontRenderer,
 };
 
@@ -17,11 +17,13 @@ use util::TestDrawTarget;
 fn letters_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>()
-        .render_glyph('a')
-        .position(Point::new(2, 15), VerticalPosition::default())
-        .color(Rgb888::new(237, 28, 36))
-        .draw(&mut display);
+    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>().render(
+        'a',
+        Point::new(2, 15),
+        VerticalPosition::default(),
+        FontColor::Transparent(Rgb888::new(237, 28, 36)),
+        &mut display,
+    );
 
     assert!(matches!(result, Err(Error::GlyphNotFound('a'))))
 }
@@ -30,11 +32,13 @@ fn letters_not_supported() {
 fn unicode_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
-        .render_glyph('☃')
-        .position(Point::new(2, 15), VerticalPosition::default())
-        .color(Rgb888::new(237, 28, 36))
-        .draw(&mut display);
+    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render(
+        '☃',
+        Point::new(2, 15),
+        VerticalPosition::default(),
+        FontColor::Transparent(Rgb888::new(237, 28, 36)),
+        &mut display,
+    );
 
     assert!(matches!(result, Err(Error::GlyphNotFound('☃'))))
 }
@@ -62,10 +66,13 @@ fn render_glyph() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_glyph.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
-                .render_glyph('j')
-                .position(Point::new(2, 15), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
+                .render(
+                    'j',
+                    Point::new(2, 15),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
                 .unwrap()
         });
 
@@ -84,10 +91,13 @@ fn render_glyph_unicode() {
         std::include_bytes!("assets/render_glyph_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
-                .render_glyph('☃')
-                .position(Point::new(4, 19), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
+                .render(
+                    '☃',
+                    Point::new(4, 19),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
                 .unwrap()
         },
     );
@@ -107,12 +117,16 @@ fn render_glyph_with_background_color() {
         std::include_bytes!("assets/render_glyph_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
-                .render_glyph('j')
-                .position(Point::new(2, 20), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .background(Rgb888::new(1, 1, 1))
-                .unwrap()
-                .draw(display)
+                .render(
+                    'j',
+                    Point::new(2, 20),
+                    VerticalPosition::default(),
+                    FontColor::WithBackground {
+                        fg: Rgb888::new(237, 28, 36),
+                        bg: Rgb888::new(1, 1, 1),
+                    },
+                    display,
+                )
                 .unwrap()
         },
     );
@@ -131,10 +145,13 @@ fn render_text() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                .render_text("Hello World!")
-                .position(Point::new(2, 15), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
+                .render(
+                    "Hello World!",
+                    Point::new(2, 15),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
                 .unwrap()
         });
 
@@ -153,10 +170,13 @@ fn render_text_unicode() {
         std::include_bytes!("assets/render_text_unicode.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
-                .render_text("Snowman: ☃")
-                .position(Point::new(5, 20), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
+                .render(
+                    "Snowman: ☃",
+                    Point::new(5, 20),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
                 .unwrap()
         },
     );
@@ -176,12 +196,16 @@ fn render_text_with_background_color() {
         std::include_bytes!("assets/render_text_background.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
-                .render_text("Hello, W0rld!")
-                .position(Point::new(2, 20), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .background(Rgb888::new(1, 1, 1))
-                .unwrap()
-                .draw(display)
+                .render(
+                    "Hello, W0rld!",
+                    Point::new(2, 20),
+                    VerticalPosition::default(),
+                    FontColor::WithBackground {
+                        fg: Rgb888::new(237, 28, 36),
+                        bg: Rgb888::new(1, 1, 1),
+                    },
+                    display,
+                )
                 .unwrap()
         },
     );
@@ -218,10 +242,13 @@ fn render_text_with_vertical_pos() {
             .enumerate()
             {
                 let bounding_box = font
-                    .render_text("Agi")
-                    .position(Point::new(5 + 50 * x_position as i32, 25), vertical_pos)
-                    .color(Rgb888::new(237, 28, 36))
-                    .draw(display)
+                    .render(
+                        "Agi",
+                        Point::new(5 + 50 * x_position as i32, 25),
+                        vertical_pos,
+                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                        display,
+                    )
                     .unwrap()
                     .bounding_box;
 
@@ -258,9 +285,11 @@ fn get_text_dimensions_with_vertical_pos() {
     .enumerate()
     {
         let bounding_box = font
-            .render_text("Agi")
-            .position(Point::new(5 + 50 * x_position as i32, 25), vertical_pos)
-            .compute_dimensions()
+            .get_rendered_dimensions(
+                "Agi",
+                Point::new(5 + 50 * x_position as i32, 25),
+                vertical_pos,
+            )
             .unwrap()
             .bounding_box;
 
@@ -287,10 +316,13 @@ fn render_text_with_newline() {
         std::include_bytes!("assets/render_text_newline.png"),
         |display| {
             FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
-                .render_text("Hello,\nWorld!")
-                .position(Point::new(2, 15), VerticalPosition::default())
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
+                .render(
+                    "Hello,\nWorld!",
+                    Point::new(2, 15),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
                 .unwrap()
         },
     );
@@ -309,11 +341,14 @@ fn render_args() {
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
-            font.render_args(format_args!("!{}?", 42.69))
-                .position(Point::new(2, 15), VerticalPosition::Baseline)
-                .color(Rgb888::new(237, 28, 36))
-                .draw(display)
-                .unwrap()
+            font.render(
+                format_args!("!{}?", 42.69),
+                Point::new(2, 15),
+                VerticalPosition::Baseline,
+                FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                display,
+            )
+            .unwrap()
         });
 
     assert_eq!(
@@ -349,18 +384,23 @@ fn get_glyph_dimensions() {
             .enumerate()
             {
                 let position = Point::new(2 + 10 * pos as i32, 15);
-                let glyph_drawer = font
-                    .render_glyph(ch)
-                    .position(position, vertical_pos)
-                    .color(Rgb888::new(237, 28, 36));
-
-                let dim = glyph_drawer.compute_dimensions().unwrap();
+                let dim = font
+                    .get_rendered_dimensions(ch, position, vertical_pos)
+                    .unwrap();
 
                 display
                     .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(2, 2, 2))
                     .unwrap();
 
-                let rendered_dim = glyph_drawer.draw(display).unwrap();
+                let rendered_dim = font
+                    .render(
+                        ch,
+                        position,
+                        vertical_pos,
+                        FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                        display,
+                    )
+                    .unwrap();
 
                 assert_eq!(dim, rendered_dim);
             }
@@ -379,19 +419,24 @@ fn get_text_dimensions() {
             let position = Point::new(2, 15);
             let vertical_pos = VerticalPosition::default();
 
-            let text_drawer = font
-                .render_text(text)
-                .position(position, vertical_pos)
-                .color(Rgb888::new(237, 28, 36));
-
-            let dim = text_drawer.compute_dimensions().unwrap();
+            let dim = font
+                .get_rendered_dimensions(text, position, vertical_pos)
+                .unwrap();
             assert_eq!(dim.advance, Point::new(65, 21));
 
             display
                 .fill_solid(&dim.bounding_box.unwrap(), Rgb888::new(3, 3, 3))
                 .unwrap();
 
-            let rendered_dim = text_drawer.draw(display).unwrap();
+            let rendered_dim = font
+                .render(
+                    text,
+                    position,
+                    vertical_pos,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
             assert_eq!(dim, rendered_dim);
         },
@@ -505,19 +550,26 @@ fn aligned_text() {
                     (VerticalPosition::Bottom, 128),
                     (VerticalPosition::Baseline, 186),
                 ] {
-                    let text_drawer = font
-                        .render_text(text)
-                        .position(get_pos(hpos, vpos), vpos)
-                        .alignment(hpos)
-                        .color(Rgb888::CSS_BLUE);
-
-                    let bounding_box = text_drawer.compute_dimensions().unwrap().unwrap();
+                    let bounding_box = font
+                        .get_rendered_dimensions_aligned(text, get_pos(hpos, vpos), vpos, hpos)
+                        .unwrap()
+                        .unwrap();
 
                     display
                         .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
                         .unwrap();
 
-                    let rendered_bounding_box = text_drawer.draw(display).unwrap().unwrap();
+                    let rendered_bounding_box = font
+                        .render_aligned(
+                            text,
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
 
                     assert_eq!(bounding_box, rendered_bounding_box);
                     assert_eq!(
@@ -539,30 +591,49 @@ fn whitespace_str_does_not_crash() {
 
     for text in ["", " ", "\n", " \n "] {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-            let text_drawer = font
-                .render_text(text)
-                .position(display.bounding_box().center(), VerticalPosition::Center)
-                .color(Rgb888::new(237, 28, 36));
-
-            let dim = text_drawer.compute_dimensions().unwrap();
+            let dim = font
+                .get_rendered_dimensions(
+                    text,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                )
+                .unwrap();
             assert!(dim.bounding_box.is_none());
 
-            let rendered_dim = text_drawer.draw(display).unwrap();
+            let rendered_dim = font
+                .render(
+                    text,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
             assert_eq!(dim, rendered_dim);
         });
 
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-            let text_drawer = font
-                .render_text(text)
-                .position(display.bounding_box().center(), VerticalPosition::Center)
-                .alignment(HorizontalAlignment::Center)
-                .color(Rgb888::new(237, 28, 36));
-
-            let dim = text_drawer.compute_dimensions().unwrap();
+            let dim = font
+                .get_rendered_dimensions_aligned(
+                    text,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                )
+                .unwrap();
             assert!(dim.is_none());
 
-            let rendered_dim = text_drawer.draw(display).unwrap();
+            let rendered_dim = font
+                .render_aligned(
+                    text,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
             assert_eq!(dim, rendered_dim);
         });
@@ -575,69 +646,106 @@ fn whitespace_glyph_does_not_crash() {
 
     for glyph in [' '] {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-            let text_drawer = font
-                .render_glyph(glyph)
-                .position(display.bounding_box().center(), VerticalPosition::Center)
-                .color(Rgb888::new(237, 28, 36));
-
-            let dim = text_drawer.compute_dimensions().unwrap();
+            let dim = font
+                .get_rendered_dimensions(
+                    glyph,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                )
+                .unwrap();
             assert!(dim.bounding_box.is_none());
 
-            let rendered_dim = text_drawer.draw(display).unwrap();
+            let rendered_dim = font
+                .render(
+                    glyph,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
             assert_eq!(dim, rendered_dim);
         });
 
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-            let text_drawer = font
-                .render_glyph(glyph)
-                .position(display.bounding_box().center(), VerticalPosition::Center)
-                .alignment(HorizontalAlignment::Center)
-                .color(Rgb888::new(237, 28, 36));
-
-            let dim = text_drawer.compute_dimensions().unwrap();
+            let dim = font
+                .get_rendered_dimensions_aligned(
+                    glyph,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                )
+                .unwrap();
             assert!(dim.is_none());
 
-            let rendered_dim = text_drawer.draw(display).unwrap();
+            let rendered_dim = font
+                .render_aligned(
+                    glyph,
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
             assert_eq!(dim, rendered_dim);
         });
     }
 }
 
-// #[test]
-// fn whitespace_args_does_not_crash() {
-//     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+#[test]
+fn whitespace_args_does_not_crash() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 
-//     for text in ["", " ", "\n", " \n "] {
-//         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-//             let args = format_args!("{}", text);
-//             let text_drawer = font
-//                 .render_args(args)
-//                 .position(display.bounding_box().center(), VerticalPosition::Center)
-//                 .color(Rgb888::new(237, 28, 36));
+    for text in ["", " ", "\n", " \n "] {
+        TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
+            let dim = font
+                .get_rendered_dimensions(
+                    format_args!("{}", text),
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                )
+                .unwrap();
+            assert!(dim.bounding_box.is_none());
 
-//             let dim = text_drawer.compute_dimensions().unwrap();
-//             assert!(dim.bounding_box.is_none());
+            let rendered_dim = font
+                .render(
+                    format_args!("{}", text),
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
-//             let rendered_dim = text_drawer.draw(display).unwrap();
+            assert_eq!(dim, rendered_dim);
+        });
 
-//             assert_eq!(dim, rendered_dim);
-//         });
+        TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
+            let dim = font
+                .get_rendered_dimensions_aligned(
+                    format_args!("{}", text),
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                )
+                .unwrap();
+            assert!(dim.is_none());
 
-//         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
-//             let text_drawer = font
-//                 .render_text(text)
-//                 .position(display.bounding_box().center(), VerticalPosition::Center)
-//                 .alignment(HorizontalAlignment::Center)
-//                 .color(Rgb888::new(237, 28, 36));
+            let rendered_dim = font
+                .render_aligned(
+                    format_args!("{}", text),
+                    display.bounding_box().center(),
+                    VerticalPosition::Center,
+                    HorizontalAlignment::Center,
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap();
 
-//             let dim = text_drawer.compute_dimensions().unwrap();
-//             assert!(dim.is_none());
-
-//             let rendered_dim = text_drawer.draw(display).unwrap();
-
-//             assert_eq!(dim, rendered_dim);
-//         });
-//     }
-// }
+            assert_eq!(dim, rendered_dim);
+        });
+    }
+}

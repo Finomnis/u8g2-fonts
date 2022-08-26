@@ -26,10 +26,10 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-mod draw_builder;
 mod error;
 mod font;
 mod font_reader;
+mod renderable;
 mod renderer;
 mod utils;
 
@@ -43,8 +43,8 @@ pub mod fonts;
 /// Data types used in common API functions.
 pub mod types;
 
-pub use draw_builder::DrawBuilder;
 pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
+pub use renderable::Renderable;
 pub use renderer::FontRenderer;
