@@ -678,7 +678,7 @@ fn aligned_args() {
                 ] {
                     let bounding_box = font
                         .get_rendered_dimensions_aligned(
-                            format_args!("Agi, {}", "iagma!"),
+                            format_args!("Agi,\n{}", "iagmA!"),
                             get_pos(hpos, vpos),
                             vpos,
                             hpos,
@@ -692,7 +692,7 @@ fn aligned_args() {
 
                     let rendered_bounding_box = font
                         .render_aligned(
-                            format_args!("Agi, {}", "iagma!"),
+                            format_args!("Agi,\n{}", "iagmA!"),
                             get_pos(hpos, vpos),
                             vpos,
                             hpos,

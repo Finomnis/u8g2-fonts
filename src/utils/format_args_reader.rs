@@ -7,7 +7,7 @@ pub struct FormatArgsReader<F, E> {
 
 impl<F, E> FormatArgsReader<F, E>
 where
-    F: FnMut(char) -> Result<(), E>,
+    F: FnMut(char) -> Result<bool, E>,
 {
     pub fn new(action: F) -> Self {
         Self {
@@ -28,16 +28,20 @@ where
 
 impl<F, E> Write for FormatArgsReader<F, E>
 where
-    F: FnMut(char) -> Result<(), E>,
+    F: FnMut(char) -> Result<bool, E>,
 {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
         if self.error.is_some() {
             return Err(core::fmt::Error);
         }
         for char in s.chars() {
-            if let Err(e) = (self.action)(char) {
-                self.error = Some(e);
-                return Err(core::fmt::Error);
+            match (self.action)(char) {
+                Ok(true) => (),
+                Ok(false) => break,
+                Err(e) => {
+                    self.error = Some(e);
+                    return Err(core::fmt::Error);
+                }
             }
         }
         Ok(())
