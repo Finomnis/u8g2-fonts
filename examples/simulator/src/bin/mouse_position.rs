@@ -44,7 +44,7 @@ fn update_mouse_text(pos: Point, prev: Point, display: &mut SimulatorDisplay<Bin
 
     MOUSE_FONT
         .render_aligned(
-            "y: 42",
+            format_args!("y: {}", prev.y),
             TEXT_POS_Y,
             VerticalPosition::Baseline,
             HorizontalAlignment::Right,
@@ -55,7 +55,7 @@ fn update_mouse_text(pos: Point, prev: Point, display: &mut SimulatorDisplay<Bin
 
     MOUSE_FONT
         .render_aligned(
-            "y: 42",
+            format_args!("y: {}", pos.y),
             TEXT_POS_Y,
             VerticalPosition::Baseline,
             HorizontalAlignment::Right,
