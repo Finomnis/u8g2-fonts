@@ -42,6 +42,16 @@ pub struct RenderedDimensions {
     pub bounding_box: Option<Rectangle>,
 }
 
+impl RenderedDimensions {
+    /// Creates an empty [`RenderedDimensions`] object with zero advance and no bounding box.
+    pub const fn empty() -> Self {
+        Self {
+            advance: Point::new(0, 0),
+            bounding_box: None,
+        }
+    }
+}
+
 /// The horizontal rendering position of the font.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HorizontalAlignment {

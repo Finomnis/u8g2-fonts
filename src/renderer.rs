@@ -96,10 +96,7 @@ impl FontRenderer {
         })
     }
 
-    /// Renders text to a display with horizontal and vertical alignment.
-    ///
-    /// Vertical alignment here means that multi-line strings will anchor properly, compared to [`render_text()`](crate::FontRenderer::render_text),
-    /// which always anchors on the first line.
+    /// Renders text to a display with horizontal alignment.
     ///
     /// Note that this function is most likely a little bit slower than [`render_text()`](crate::FontRenderer::render_text), so prefer [`render_text()`](crate::FontRenderer::render_text)
     /// for left-aligned single-line strings.
@@ -134,6 +131,16 @@ impl FontRenderer {
         Display: DrawTarget,
         Display::Error: core::fmt::Debug,
     {
+        // If `horizontal_align` is `Left`, it is almost identical with
+        // `render()`, just shifted by one. As `render()` is quite a bit faster,
+        // forward this call.
+        if let HorizontalAlignment::Left = horizontal_align {
+            position.x += compute_horizontal_offset(horizontal_align, RenderedDimensions::empty());
+            return self
+                .render(content, position, vertical_pos, color, display)
+                .map(|dims| dims.bounding_box);
+        }
+
         // This function is a little more complicated.
         // To properly align horizontally, we need to iterate over every line twice.
         // This is really hard with format_args.

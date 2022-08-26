@@ -49,10 +49,7 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         Self {
             args,
             buffer_range: 0..0,
-            dimensions_buffer: [(); NUM_BUFFERED_LINES].map(|()| RenderedDimensions {
-                advance: Point::new(0, 0),
-                bounding_box: None,
-            }),
+            dimensions_buffer: [(); NUM_BUFFERED_LINES].map(|()| RenderedDimensions::empty()),
             next_line: 0,
             finished: false,
         }
@@ -125,10 +122,7 @@ impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
 
         if !self.buffer_range.contains(&next_line) {
             if self.finished {
-                return Ok(RenderedDimensions {
-                    advance: Point::new(0, 0),
-                    bounding_box: None,
-                });
+                return Ok(RenderedDimensions::empty());
             }
 
             self.regenerate_buffer(next_line, font)?;
