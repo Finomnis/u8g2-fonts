@@ -132,3 +132,113 @@ impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
         Ok(self.dimensions_buffer[next_line - self.buffer_range.start].clone())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use core::fmt::Arguments;
+    use std::vec::Vec;
+
+    use embedded_graphics_core::{prelude::Size, primitives::Rectangle};
+
+    use crate::fonts;
+
+    use super::*;
+
+    #[test]
+    fn for_each_char_produces_correct_values() {
+        let mut content = Vec::new();
+
+        format_args!("{}", "abc")
+            .for_each_char(|e| {
+                content.push(e);
+                Result::<(), &'static str>::Ok(())
+            })
+            .unwrap();
+
+        assert_eq!(content, ['a', 'b', 'c']);
+    }
+
+    #[test]
+    fn for_each_char_infallible_produces_correct_values() {
+        let mut content = Vec::new();
+
+        format_args!("{}", "abc").for_each_char_infallible(|e| {
+            content.push(e);
+        });
+
+        assert_eq!(content, ['a', 'b', 'c']);
+    }
+
+    #[test]
+    fn for_each_char_propagates_error() {
+        let result = format_args!("{}", "abc").for_each_char(|_| Err("Failed!"));
+
+        assert_eq!(result, Err("Failed!"));
+    }
+
+    #[test]
+    fn get_newline_count_provides_correct_value() {
+        assert_eq!(format_args!("{}", "a\nbc\n").get_newline_count(), 2);
+        assert_eq!(format_args!("{}", "a\nbc").get_newline_count(), 1);
+        assert_eq!(format_args!("{}", "").get_newline_count(), 0);
+    }
+
+    #[test]
+    fn line_dimensions_iter_provides_correct_values() {
+        // Nested function to deal with format_args!()'s weird lifetimes
+        fn run_test(args: Arguments<'_>) {
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let mut dims = args.line_dimensions_iterator();
+
+            assert_eq!(
+                dims.next(&font).unwrap(),
+                RenderedDimensions {
+                    advance: Point::new(4, 0),
+                    bounding_box: Some(Rectangle::new(Point::new(0, -3), Size::new(3, 3)))
+                }
+            );
+            assert_eq!(
+                dims.next(&font).unwrap(),
+                RenderedDimensions {
+                    advance: Point::new(7, 0),
+                    bounding_box: Some(Rectangle::new(Point::new(0, -4), Size::new(6, 4)))
+                }
+            );
+            assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
+            assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
+        }
+
+        run_test(format_args!("{}", "a\nbc\n"));
+    }
+
+    #[test]
+    fn line_dimensions_iter_errors_on_glyph_not_found() {
+        // Nested function to deal with format_args!()'s weird lifetimes
+        fn run_test(args: Arguments<'_>) {
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let mut dims = args.line_dimensions_iterator();
+
+            assert!(matches!(
+                dims.next(&font),
+                Err(LookupError::GlyphNotFound('☃'))
+            ));
+        }
+
+        run_test(format_args!("{}", "☃"));
+    }
+
+    #[test]
+    fn line_dimensions_iter_creates_empty_array_when_out_of_range() {
+        // Nested function to deal with format_args!()'s weird lifetimes
+        fn run_test(args: Arguments<'_>) {
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let mut dims = args.line_dimensions_iterator();
+
+            dims.regenerate_buffer(1000, &font).unwrap();
+            assert!(dims.buffer_range.is_empty());
+        }
+
+        run_test(format_args!("{}", "a"));
+    }
+}

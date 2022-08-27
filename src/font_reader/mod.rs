@@ -108,3 +108,66 @@ impl FontReader {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::format;
+
+    use super::*;
+
+    struct TestFont;
+    impl crate::Font for TestFont {
+        const DATA: &'static [u8] = &[
+            0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
+            b'\n', 0, // First glyph
+            0, 4, 255, 255, // Unicode Table
+            0, b'\n', 0, // Unicode entry
+        ];
+    }
+
+    #[test]
+    fn can_read_font_properties() {
+        let font = FontReader::new::<TestFont>();
+
+        let expected = FontReader {
+            data: DebugIgnore(&[]),
+            supports_background_color: false,
+            glyph_count: 0,
+            m0: 4,
+            m1: 4,
+            bitcnt_w: 8,
+            bitcnt_h: 8,
+            bitcnt_x: 8,
+            bitcnt_y: 8,
+            bitcnt_d: 8,
+            font_bounding_box_width: 1,
+            font_bounding_box_height: 2,
+            font_bounding_box_x_offset: 3,
+            font_bounding_box_y_offset: 4,
+            ascent: 5,
+            descent: 6,
+            ascent_of_parantheses: 7,
+            descent_of_parantheses: 8,
+            array_offset_upper_a: 0,
+            array_offset_lower_a: 0,
+            array_offset_0x0100: 2,
+        };
+
+        assert_eq!(format!("{:?}", font), format!("{:?}", expected));
+    }
+
+    #[test]
+    fn can_handle_unicode_next_is_zero() {
+        // This test is specifically engineered to test an error path that doesn't happen
+        // in normal, correct fonts.
+        // This means that this should be an assert intead, but it just doesn't feel right.
+        // There is no formal specification that this error path is impossible, and resilient
+        // programming tells me it should be a normal error path.
+        // Sadly, that reduces our test coverage :D so let's trigger that error manually.
+        let font = FontReader::new::<TestFont>();
+        let glyph = font.retrieve_glyph_data('☃');
+
+        assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
+    }
+}
