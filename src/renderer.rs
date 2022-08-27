@@ -341,6 +341,9 @@ mod tests {
 
     #[test]
     fn implements_debug() {
-        println!("{:?}", FontReader::new::<crate::fonts::u8g2_font_u8glib_4_tf>());
+        println!(
+            "{:?}",
+            FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>()
+        );
     }
 }
