@@ -3,7 +3,6 @@ use core::fmt::{Arguments, Write};
 pub struct FormatArgsReader<F, E> {
     action: F,
     error: Option<E>,
-    stopped: bool,
 }
 
 impl<F, E> FormatArgsReader<F, E>
@@ -14,7 +13,6 @@ where
         Self {
             action,
             error: None,
-            stopped: false,
         }
     }
 
@@ -33,14 +31,10 @@ where
     F: FnMut(char) -> Result<bool, E>,
 {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
-        if self.error.is_some() || self.stopped {
-            return Err(core::fmt::Error);
-        }
         for char in s.chars() {
             match (self.action)(char) {
                 Ok(true) => (),
                 Ok(false) => {
-                    self.stopped = true;
                     // Returning an error here doesn't
                     // actually cause `process_args` to error,
                     // it just stops the `write` call.
