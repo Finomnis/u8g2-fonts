@@ -107,6 +107,7 @@ mod tests {
             }
         );
         assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
+        assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
     }
 
     #[test]
