@@ -61,3 +61,36 @@ impl<DisplayError> std::error::Error for Error<DisplayError> where
     DisplayError: core::fmt::Debug + core::fmt::Display
 {
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::{format, println};
+
+    use super::*;
+
+    fn examine_error<T: core::fmt::Display + core::fmt::Debug>(error: T, msg: &str) {
+        assert_eq!(format!("{}", error), msg);
+        println!("{:?}", error);
+    }
+
+    #[test]
+    fn errors_are_display_and_debug() {
+        examine_error(
+            LookupError::GlyphNotFound('a'),
+            "This font does not support the character 'a'.",
+        );
+        examine_error(
+            Error::<&'static str>::GlyphNotFound('b'),
+            "This font does not support the character 'b'.",
+        );
+        examine_error(
+            Error::<&'static str>::BackgroundColorNotSupported,
+            "This font does not support a background color.",
+        );
+        examine_error(
+            Error::<&'static str>::DisplayError("This is a display error!"),
+            "Writing to display failed: This is a display error!",
+        );
+    }
+}
