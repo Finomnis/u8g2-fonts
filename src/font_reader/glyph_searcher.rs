@@ -2,7 +2,6 @@ use crate::font_reader::{
     glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader, FontReader,
 };
 
-#[derive(Debug)]
 pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize> {
     data: &'static [u8],
     font: &'a FontReader,
