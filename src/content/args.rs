@@ -227,4 +227,18 @@ mod tests {
 
         run_test(format_args!("{}", "☃"));
     }
+
+    #[test]
+    fn line_dimensions_iter_creates_empty_array_when_out_of_range() {
+        // Nested function to deal with format_args!()'s weird lifetimes
+        fn run_test(args: Arguments<'_>) {
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let mut dims = args.line_dimensions_iterator();
+
+            dims.regenerate_buffer(1000, &font).unwrap();
+            assert!(dims.buffer_range.is_empty());
+        }
+
+        run_test(format_args!("{}", "a"));
+    }
 }
