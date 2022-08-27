@@ -94,3 +94,37 @@ where
         matches!(self, Self::WithBackground { .. })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::println;
+
+    use embedded_graphics_core::{pixelcolor::Rgb888, prelude::RgbColor};
+
+    use super::*;
+
+    fn implements_traits<T: core::fmt::Debug + Clone + PartialEq>(obj: T) {
+        println!("{:?}", obj);
+    }
+
+    #[test]
+    fn verticalposition_implements_traits() {
+        implements_traits(VerticalPosition::Baseline);
+    }
+
+    #[test]
+    fn rendereddimensions_implements_traits() {
+        implements_traits(RenderedDimensions::empty());
+    }
+
+    #[test]
+    fn horizontalalignment_implements_traits() {
+        implements_traits(HorizontalAlignment::Center);
+    }
+
+    #[test]
+    fn fontcolor_implements_traits() {
+        implements_traits(FontColor::Transparent(Rgb888::BLACK));
+    }
+}
