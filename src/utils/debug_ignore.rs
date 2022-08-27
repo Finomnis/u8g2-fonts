@@ -22,3 +22,16 @@ impl<T> DerefMut for DebugIgnore<T> {
         &mut self.0
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::format;
+
+    use super::*;
+
+    #[test]
+    fn ignores_content_on_debug() {
+        assert_eq!(format!("{:?}", DebugIgnore(42)), "...");
+    }
+}
