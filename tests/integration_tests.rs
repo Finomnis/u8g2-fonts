@@ -145,6 +145,37 @@ fn unicode_not_supported() {
 }
 
 #[test]
+fn background_color_not_supported() {
+    let mut display = TestDrawTarget::new(Size::new(1, 1));
+
+    let result1 = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render(
+        'a',
+        Point::default(),
+        VerticalPosition::default(),
+        FontColor::WithBackground {
+            fg: Rgb888::new(237, 28, 36),
+            bg: Rgb888::new(2, 2, 2),
+        },
+        &mut display,
+    );
+
+    let result2 = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_aligned(
+        'a',
+        Point::default(),
+        VerticalPosition::default(),
+        HorizontalAlignment::Center,
+        FontColor::WithBackground {
+            fg: Rgb888::new(237, 28, 36),
+            bg: Rgb888::new(2, 2, 2),
+        },
+        &mut display,
+    );
+
+    assert!(matches!(result1, Err(Error::BackgroundColorNotSupported)));
+    assert!(matches!(result2, Err(Error::BackgroundColorNotSupported)));
+}
+
+#[test]
 fn get_ascent_and_descent() {
     let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
