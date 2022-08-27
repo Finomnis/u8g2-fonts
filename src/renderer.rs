@@ -331,3 +331,16 @@ impl FontRenderer {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::println;
+
+    use super::*;
+
+    #[test]
+    fn implements_debug() {
+        println!("{:?}", FontReader::new::<crate::fonts::u8g2_font_u8glib_4_tf>());
+    }
+}
