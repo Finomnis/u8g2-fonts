@@ -113,7 +113,7 @@ impl FontRenderer {
     ///
     /// The bounding box of the rendered text.
     ///
-    /// Does not return an advance value like the other methods,
+    /// Does not return an advance value like [`render()`](crate::FontRenderer::render),
     /// as due to the alignment it would be meaningless.
     ///
     ///
@@ -223,7 +223,7 @@ impl FontRenderer {
     }
 
     /// Calculates the dimensions that rendering text with
-    /// [`render_ligned()`](crate::FontRenderer::render_aligned) would produce.
+    /// [`render_aligned()`](crate::FontRenderer::render_aligned) would produce.
     ///
     /// # Arguments
     ///
