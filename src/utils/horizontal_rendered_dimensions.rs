@@ -1,7 +1,5 @@
 use core::cmp;
 
-use crate::types::RenderedDimensions;
-
 /// Similar to [`RenderedDimensions`], but only in the horizontal axis.
 /// Saves a lot of memory in [`args::ArgsLineDimensionsIterator`].
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,16 +36,6 @@ impl HorizontalRenderedDimensions {
             let left = cmp::min(self.bounding_box_offset, other.bounding_box_offset);
             self.bounding_box_offset = left;
             self.bounding_box_width = (right - left) as u32;
-        }
-    }
-}
-
-impl From<RenderedDimensions> for HorizontalRenderedDimensions {
-    fn from(d: RenderedDimensions) -> Self {
-        Self {
-            advance: d.advance.x,
-            bounding_box_width: d.bounding_box.map_or(0, |b| b.size.width),
-            bounding_box_offset: d.bounding_box.map_or(0, |b| b.top_left.x),
         }
     }
 }
