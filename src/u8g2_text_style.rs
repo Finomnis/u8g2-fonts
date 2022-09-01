@@ -7,7 +7,7 @@ use embedded_graphics_core::prelude::{DrawTarget, PixelColor, Point};
 
 use crate::{
     types::{FontColor, VerticalPosition},
-    Font, FontRenderer,
+    Error, Font, FontRenderer,
 };
 
 impl From<Baseline> for VerticalPosition {
@@ -39,7 +39,7 @@ impl<C> U8g2TextStyle<C> {
         Self {
             text_color: Some(text_color),
             background_color: None,
-            font: FontRenderer::new::<F>(),
+            font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
         }
     }
 }
@@ -60,6 +60,9 @@ where
     where
         D: DrawTarget<Color = Self::Color>,
     {
+        // For some reason, font positioning in embedded-graphics seems to be shifted by one
+        let adjusted_position = position + Point::new(0, 1);
+
         let result = if let Some(text_color) = self.text_color {
             let color = if let Some(background_color) = self.background_color {
                 FontColor::WithBackground {
@@ -70,30 +73,48 @@ where
                 FontColor::Transparent(text_color)
             };
             self.font
-                .render(text, position, baseline.into(), color, target)
+                .render(text, adjusted_position, baseline.into(), color, target)
         } else {
             self.font
-                .get_rendered_dimensions(text, position, baseline.into())
+                .get_rendered_dimensions(text, adjusted_position, baseline.into())
                 .map_err(Into::into)
         };
-        todo!()
+
+        match result {
+            Ok(dims) => Ok(position + dims.advance),
+            Err(Error::DisplayError(e)) => Err(e),
+            Err(Error::BackgroundColorNotSupported) => {
+                panic!("Background color not supported for this font!")
+            }
+            Err(Error::GlyphNotFound(_)) => unreachable!(),
+        }
     }
 
     fn draw_whitespace<D>(
         &self,
         width: u32,
         position: Point,
-        baseline: Baseline,
-        target: &mut D,
+        _baseline: Baseline,
+        _target: &mut D,
     ) -> Result<Point, D::Error>
     where
         D: DrawTarget<Color = Self::Color>,
     {
-        todo!()
+        Ok(position + Point::new(width as i32, 0))
     }
 
     fn measure_string(&self, text: &str, position: Point, baseline: Baseline) -> TextMetrics {
-        todo!()
+        // For some reason, font positioning in embedded-graphics seems to be shifted by one
+        let adjusted_position = position + Point::new(0, 1);
+
+        let dims = self
+            .font
+            .get_rendered_dimensions(text, adjusted_position, baseline.into())
+            .unwrap();
+        TextMetrics {
+            bounding_box: dims.bounding_box.unwrap_or_default(),
+            next_position: position + dims.advance,
+        }
     }
 
     fn line_height(&self) -> u32 {
