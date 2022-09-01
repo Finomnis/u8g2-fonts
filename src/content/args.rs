@@ -1,12 +1,9 @@
-use core::ops::Range;
-
-use embedded_graphics_core::prelude::Point;
+use core::{mem, ops::Range};
 
 use crate::{
     font_reader::FontReader,
-    renderer::render_actions::compute_glyph_dimensions,
-    types::RenderedDimensions,
-    utils::{combine_bounding_boxes, FormatArgsReader, FormatArgsReaderInfallible},
+    renderer::render_actions::compute_horizontal_glyph_dimensions,
+    utils::{FormatArgsReader, FormatArgsReaderInfallible, HorizontalRenderedDimensions},
     Content, LookupError,
 };
 
@@ -34,12 +31,16 @@ impl<'a> Content for core::fmt::Arguments<'a> {
     }
 }
 
-const NUM_BUFFERED_LINES: usize = 20;
+// Most strings will print only a single line.
+// Having a buffer of 5 should be fine for most embedded systems.
+// (5* sizeof(HorizontalRenderedDimensions)) should be in the range
+// of ~60 bytes.
+const NUM_BUFFERED_LINES: usize = 5;
 
 pub struct ArgsLineDimensionsIterator<'a> {
     args: core::fmt::Arguments<'a>,
     buffer_range: Range<usize>,
-    dimensions_buffer: [RenderedDimensions; NUM_BUFFERED_LINES],
+    dimensions_buffer: [HorizontalRenderedDimensions; NUM_BUFFERED_LINES],
     next_line: usize,
     finished: bool,
 }
@@ -49,7 +50,8 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         Self {
             args,
             buffer_range: 0..0,
-            dimensions_buffer: [(); NUM_BUFFERED_LINES].map(|()| RenderedDimensions::empty()),
+            dimensions_buffer: [(); NUM_BUFFERED_LINES]
+                .map(|()| HorizontalRenderedDimensions::empty()),
             next_line: 0,
             finished: false,
         }
@@ -60,32 +62,32 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         range_start: usize,
         font: &FontReader,
     ) -> Result<(), LookupError> {
-        let mut line_advance = 0;
-        let mut line_bounding_box = None;
+        let mut line_dimensions = HorizontalRenderedDimensions::empty();
         let mut line_num: usize = 0;
 
         FormatArgsReader::new(|ch| -> Result<bool, LookupError> {
             if ch == '\n' {
+                let previous_line_dimensions =
+                    mem::replace(&mut line_dimensions, HorizontalRenderedDimensions::empty());
+
                 if let Some(array_pos) = line_num.checked_sub(range_start) {
                     if let Some(cell) = self.dimensions_buffer.get_mut(array_pos) {
                         // If we are in the correct range, set the value in the array
-                        cell.advance.x = line_advance;
-                        cell.bounding_box = line_bounding_box;
+                        *cell = previous_line_dimensions;
                     }
                 }
+
                 line_num += 1;
-                line_advance = 0;
-                line_bounding_box = None;
 
                 if line_num >= range_start + self.dimensions_buffer.len() {
                     // break if we are past the desired range
                     return Ok(false);
                 }
-            } else {
-                let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
-                line_bounding_box =
-                    combine_bounding_boxes(line_bounding_box, dimensions.bounding_box);
-                line_advance += dimensions.advance.x;
+            } else if line_num >= range_start {
+                // Only compute dimensions if we are in a line that will be buffered
+                let dimensions =
+                    compute_horizontal_glyph_dimensions(ch, line_dimensions.advance, font)?;
+                line_dimensions.add(dimensions);
             }
 
             Ok(true)
@@ -96,8 +98,7 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         if let Some(array_pos) = line_num.checked_sub(range_start) {
             if let Some(cell) = self.dimensions_buffer.get_mut(array_pos) {
                 // If we are in the correct range, set the value in the array
-                cell.advance.x = line_advance;
-                cell.bounding_box = line_bounding_box;
+                *cell = line_dimensions;
 
                 // We hit the end, store that so we don't continue in future
                 self.finished = true;
@@ -116,13 +117,13 @@ impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
     fn next(
         &mut self,
         font: &crate::font_reader::FontReader,
-    ) -> Result<RenderedDimensions, LookupError> {
+    ) -> Result<HorizontalRenderedDimensions, LookupError> {
         let next_line = self.next_line;
         self.next_line += 1;
 
         if !self.buffer_range.contains(&next_line) {
             if self.finished {
-                return Ok(RenderedDimensions::empty());
+                return Ok(HorizontalRenderedDimensions::empty());
             }
 
             self.regenerate_buffer(next_line, font)?;
@@ -138,8 +139,6 @@ mod tests {
     extern crate std;
     use core::fmt::Arguments;
     use std::vec::Vec;
-
-    use embedded_graphics_core::{prelude::Size, primitives::Rectangle};
 
     use crate::fonts;
 
@@ -193,20 +192,28 @@ mod tests {
 
             assert_eq!(
                 dims.next(&font).unwrap(),
-                RenderedDimensions {
-                    advance: Point::new(4, 0),
-                    bounding_box: Some(Rectangle::new(Point::new(0, -3), Size::new(3, 3)))
+                HorizontalRenderedDimensions {
+                    advance: 4,
+                    bounding_box_width: 3,
+                    bounding_box_offset: 0,
                 }
             );
             assert_eq!(
                 dims.next(&font).unwrap(),
-                RenderedDimensions {
-                    advance: Point::new(7, 0),
-                    bounding_box: Some(Rectangle::new(Point::new(0, -4), Size::new(6, 4)))
+                HorizontalRenderedDimensions {
+                    advance: 7,
+                    bounding_box_width: 6,
+                    bounding_box_offset: 0,
                 }
             );
-            assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
-            assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
+            assert_eq!(
+                dims.next(&font).unwrap(),
+                HorizontalRenderedDimensions::empty()
+            );
+            assert_eq!(
+                dims.next(&font).unwrap(),
+                HorizontalRenderedDimensions::empty()
+            );
         }
 
         run_test(format_args!("{}", "a\nbc\n"));

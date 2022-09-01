@@ -78,8 +78,16 @@ impl GlyphReader {
         )
     }
 
+    pub fn left(&self, pos_x: i32) -> i32 {
+        pos_x + self.offset_x as i32
+    }
+
     pub fn size(&self) -> Size {
         Size::new(self.glyph_width as u32, self.glyph_height as u32)
+    }
+
+    pub fn width(&self) -> u8 {
+        self.glyph_width
     }
 
     pub fn advance(&self) -> i8 {

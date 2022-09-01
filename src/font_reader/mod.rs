@@ -30,7 +30,7 @@ pub struct FontReader {
     pub array_offset_upper_a: u16,
     pub array_offset_lower_a: u16,
     pub array_offset_0x0100: u16,
-    pub ignore_unknown_chars: bool,
+    pub ignore_unknown_glyphs: bool,
 }
 
 impl FontReader {
@@ -59,16 +59,24 @@ impl FontReader {
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
-            ignore_unknown_chars: false,
+            ignore_unknown_glyphs: false,
         }
     }
 
-    pub const fn into_ignore_unknown_chars(mut self, ignore: bool) -> Self {
-        self.ignore_unknown_chars = ignore;
+    pub const fn into_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+        self.ignore_unknown_glyphs = ignore;
         self
     }
 
-    pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
+    pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader>, LookupError> {
+        match self.retrieve_glyph_data(ch) {
+            Err(LookupError::GlyphNotFound(_)) if self.ignore_unknown_glyphs => Ok(None),
+            Ok(g) => Ok(Some(g)),
+            Err(e) => Err(e),
+        }
+    }
+
+    fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
         // Retrieve u16 glyph value
         let encoding = u16::try_from(ch as u32).map_err(|_| LookupError::GlyphNotFound(ch))?;
 
@@ -159,7 +167,7 @@ mod tests {
             array_offset_upper_a: 0,
             array_offset_lower_a: 0,
             array_offset_0x0100: 2,
-            ignore_unknown_chars: false,
+            ignore_unknown_glyphs: false,
         };
 
         assert_eq!(format!("{:?}", font), format!("{:?}", expected));

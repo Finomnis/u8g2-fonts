@@ -1,6 +1,5 @@
 use crate::{
-    font_reader::FontReader,
-    types::{RenderedDimensions, VerticalPosition},
+    font_reader::FontReader, types::VerticalPosition, utils::HorizontalRenderedDimensions,
     LookupError,
 };
 
@@ -9,7 +8,7 @@ mod character;
 mod text;
 
 pub trait LineDimensionsIterator {
-    fn next(&mut self, font: &FontReader) -> Result<RenderedDimensions, LookupError>;
+    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError>;
 }
 
 /// The datatypes that can be rendered by [`FontRenderer`](crate::FontRenderer).
