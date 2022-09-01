@@ -33,7 +33,23 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --no-default-features --target=${{ matrix.target }}
+          args: --release --all-features --target=${{ matrix.target }}
+
+  build_no_features:
+    name: Build with 'std' feature
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --no-default-features
 
   build_feature_std:
     name: Build with 'std' feature
@@ -221,6 +237,7 @@ jobs:
     if: github.event_name == 'release'
     needs: [
         build,
+        build_no_features,
         build_feature_std,
         build_feature_embedded_graphics_textstyle,
         build_examples,
