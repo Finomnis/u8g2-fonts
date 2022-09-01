@@ -1,11 +1,11 @@
 use embedded_graphics_core::prelude::Point;
 
 use crate::{
-    font_reader::FontReader, renderer::render_actions::compute_line_dimensions,
-    types::RenderedDimensions, Content, LookupError,
+    font_reader::FontReader, renderer::render_actions::compute_line_dimensions, Content,
+    LookupError,
 };
 
-use super::LineDimensionsIterator;
+use super::{HorizontalRenderedDimensions, LineDimensionsIterator};
 
 impl<'a> Content for &'a str {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
@@ -38,9 +38,9 @@ pub struct TextLineDimensionsIterator<'a> {
 }
 
 impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
-    fn next(&mut self, font: &FontReader) -> Result<RenderedDimensions, LookupError> {
+    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
         let line = self.data.next().unwrap_or("");
-        compute_line_dimensions(line, Point::new(0, 0), font)
+        compute_line_dimensions(line, Point::new(0, 0), font).map(Into::into)
     }
 }
 
@@ -48,8 +48,6 @@ impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
 mod tests {
     extern crate std;
     use std::vec::Vec;
-
-    use embedded_graphics_core::{prelude::Size, primitives::Rectangle};
 
     use crate::fonts;
 
@@ -102,20 +100,28 @@ mod tests {
 
         assert_eq!(
             dims.next(&font).unwrap(),
-            RenderedDimensions {
-                advance: Point::new(4, 0),
-                bounding_box: Some(Rectangle::new(Point::new(0, -3), Size::new(3, 3)))
+            HorizontalRenderedDimensions {
+                advance: 4,
+                bounding_box_width: 3,
+                bounding_box_offset: 0,
             }
         );
         assert_eq!(
             dims.next(&font).unwrap(),
-            RenderedDimensions {
-                advance: Point::new(7, 0),
-                bounding_box: Some(Rectangle::new(Point::new(0, -4), Size::new(6, 4)))
+            HorizontalRenderedDimensions {
+                advance: 7,
+                bounding_box_width: 6,
+                bounding_box_offset: 0,
             }
         );
-        assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
-        assert_eq!(dims.next(&font).unwrap(), RenderedDimensions::empty());
+        assert_eq!(
+            dims.next(&font).unwrap(),
+            HorizontalRenderedDimensions::empty()
+        );
+        assert_eq!(
+            dims.next(&font).unwrap(),
+            HorizontalRenderedDimensions::empty()
+        );
     }
 
     #[test]
@@ -126,9 +132,10 @@ mod tests {
 
         assert_eq!(
             dims.next(&font).unwrap(),
-            RenderedDimensions {
-                advance: Point::new(4, 0),
-                bounding_box: Some(Rectangle::new(Point::new(0, -3), Size::new(3, 3)))
+            HorizontalRenderedDimensions {
+                advance: 4,
+                bounding_box_width: 3,
+                bounding_box_offset: 0,
             }
         );
         assert!(matches!(

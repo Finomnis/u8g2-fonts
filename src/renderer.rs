@@ -4,7 +4,7 @@ use embedded_graphics_core::{
 };
 
 use crate::{
-    content::LineDimensionsIterator,
+    content::{HorizontalRenderedDimensions, LineDimensionsIterator},
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::combine_bounding_boxes,
@@ -133,7 +133,8 @@ impl FontRenderer {
         // `render()`, just shifted by one. As `render()` is quite a bit faster,
         // forward this call.
         if let HorizontalAlignment::Left = horizontal_align {
-            position.x += compute_horizontal_offset(horizontal_align, RenderedDimensions::empty());
+            position.x +=
+                compute_horizontal_offset(horizontal_align, HorizontalRenderedDimensions::empty());
             return self
                 .render(content, position, vertical_pos, color, display)
                 .map(|dims| dims.bounding_box);
@@ -250,14 +251,15 @@ impl FontRenderer {
         let mut bounding_box = None;
 
         let mut line_advance = 0;
-        let mut line_bounding_box = None;
+        let mut line_bounding_box: Option<Rectangle> = None;
         content.for_each_char(|ch| -> Result<(), LookupError> {
             if ch == '\n' {
                 let horizontal_offset = compute_horizontal_offset(
                     horizontal_align,
-                    RenderedDimensions {
-                        advance: Point::new(line_advance, 0),
-                        bounding_box: line_bounding_box,
+                    HorizontalRenderedDimensions {
+                        advance: line_advance,
+                        bounding_box_width: line_bounding_box.map_or(0, |b| b.size.width),
+                        bounding_box_offset: line_bounding_box.map_or(0, |b| b.top_left.x),
                     },
                 );
 
@@ -284,9 +286,10 @@ impl FontRenderer {
         // One last pass, if the string didn't end with a newline
         let horizontal_offset = compute_horizontal_offset(
             horizontal_align,
-            RenderedDimensions {
-                advance: Point::new(line_advance, 0),
-                bounding_box: line_bounding_box,
+            HorizontalRenderedDimensions {
+                advance: line_advance,
+                bounding_box_width: line_bounding_box.map_or(0, |b| b.size.width),
+                bounding_box_offset: line_bounding_box.map_or(0, |b| b.top_left.x),
             },
         );
 

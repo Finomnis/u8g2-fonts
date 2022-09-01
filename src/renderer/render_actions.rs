@@ -4,6 +4,7 @@ use embedded_graphics_core::{
 };
 
 use crate::{
+    content::HorizontalRenderedDimensions,
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions},
     utils::combine_bounding_boxes,
@@ -12,7 +13,7 @@ use crate::{
 
 pub fn compute_horizontal_offset(
     horizontal_align: HorizontalAlignment,
-    line_dimensions: RenderedDimensions,
+    line_dimensions: HorizontalRenderedDimensions,
 ) -> i32 {
     match horizontal_align {
         HorizontalAlignment::Left => {
@@ -21,19 +22,19 @@ pub fn compute_horizontal_offset(
             1
         }
         HorizontalAlignment::Center => {
-            if let Some(bounding_box) = line_dimensions.bounding_box {
-                let width = bounding_box.size.width;
-                let left = bounding_box.top_left.x;
+            if line_dimensions.bounding_box_width == 0 {
+                0
+            } else {
+                let width = line_dimensions.bounding_box_width;
+                let left = line_dimensions.bounding_box_offset;
 
                 -(width as i32 / 2 + left)
-            } else {
-                0
             }
         }
         HorizontalAlignment::Right => {
             // From experiments, it seems that alignment looks more symmetrical
             // if everything is shifted by one in respect to the anchor point
-            1 - line_dimensions.advance.x
+            1 - line_dimensions.advance
         }
     }
 }

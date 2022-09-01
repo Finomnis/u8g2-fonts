@@ -9,7 +9,41 @@ mod character;
 mod text;
 
 pub trait LineDimensionsIterator {
-    fn next(&mut self, font: &FontReader) -> Result<RenderedDimensions, LookupError>;
+    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError>;
+}
+
+/// Similar to [`RenderedDimensions`], but only in the horizontal axis.
+/// Saves a lot of memory in [`args::ArgsLineDimensionsIterator`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HorizontalRenderedDimensions {
+    /// The advance in x direction
+    pub advance: i32,
+    /// The width of the bounding box.
+    /// 0 in the case of no bounding box.
+    pub bounding_box_width: u32,
+    /// The horizontal offset of the bounding box.
+    /// 0 in the case of no bounding box.
+    pub bounding_box_offset: i32,
+}
+
+impl HorizontalRenderedDimensions {
+    pub fn empty() -> Self {
+        Self {
+            advance: 0,
+            bounding_box_width: 0,
+            bounding_box_offset: 0,
+        }
+    }
+}
+
+impl From<RenderedDimensions> for HorizontalRenderedDimensions {
+    fn from(d: RenderedDimensions) -> Self {
+        Self {
+            advance: d.advance.x,
+            bounding_box_width: d.bounding_box.map_or(0, |b| b.size.width),
+            bounding_box_offset: d.bounding_box.map_or(0, |b| b.top_left.x),
+        }
+    }
 }
 
 /// The datatypes that can be rendered by [`FontRenderer`](crate::FontRenderer).
