@@ -91,7 +91,8 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
                     // break if we are past the desired range
                     return Ok(false);
                 }
-            } else {
+            } else if line_num >= range_start {
+                // Only compute dimensions if we are in a line that will be buffered
                 let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
                 line_bounding_box =
                     combine_bounding_boxes(line_bounding_box, dimensions.bounding_box);
