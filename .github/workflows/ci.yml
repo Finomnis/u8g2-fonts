@@ -36,7 +36,7 @@ jobs:
           args: --release --all-features --target=${{ matrix.target }}
 
   build_no_features:
-    name: Build with 'std' feature
+    name: Build with no features
     runs-on: ubuntu-latest
 
     steps:
