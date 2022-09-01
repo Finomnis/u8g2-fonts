@@ -33,8 +33,8 @@ impl<'a> Content for core::fmt::Arguments<'a> {
 
 // Most strings will print only a single line.
 // Having a buffer of 5 should be fine for most embedded systems.
-// (5* sizeof(HorizontalRenderedDimensions)), which should be in the range of
-// ~60 bytes
+// (5* sizeof(HorizontalRenderedDimensions)) should be in the range
+// of ~60 bytes.
 const NUM_BUFFERED_LINES: usize = 5;
 
 pub struct ArgsLineDimensionsIterator<'a> {
