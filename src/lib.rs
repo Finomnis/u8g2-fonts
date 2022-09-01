@@ -8,7 +8,13 @@
 //! While this crate is MIT / Apache-2.0 licensed, note that the fonts themselves *are not*.
 //!
 //! For more information about the font licenses, read the [license agreement](https://github.com/olikraus/u8g2/blob/master/LICENSE) of U8g2.
+//! # Crate features
+//! Additional features can be enabled by adding the following features to your Cargo.toml.
 //!
+//! - `std`:
+//!    - derive [`std::error::Error`] for the crate's error types.
+//! - `embedded_graphics_textstyle`:
+//!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
 //!
 //! # Usage
 //!
@@ -91,6 +97,7 @@
     test(no_crate_inject, attr(deny(warnings))),
     test(attr(allow(dead_code)))
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -118,8 +125,8 @@ pub use error::LookupError;
 pub use font::Font;
 pub use renderer::FontRenderer;
 
-#[cfg(feature = "embedded_graphics_font_integration")]
+#[cfg(feature = "embedded_graphics_textstyle")]
 mod u8g2_text_style;
 
-#[cfg(feature = "embedded_graphics_font_integration")]
+#[cfg(feature = "embedded_graphics_textstyle")]
 pub use u8g2_text_style::U8g2TextStyle;

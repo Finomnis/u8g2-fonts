@@ -22,11 +22,10 @@ exclude = [
 ]
 
 [features]
-default = ["embedded_graphics_font_integration"]
 # Enables std::error::Error impls
 std = []
 # Enables U8g2TextStyle for the embedded_graphics font interface
-embedded_graphics_font_integration = ["dep:embedded-graphics"]
+embedded_graphics_textstyle = ["dep:embedded-graphics"]
 
 [dependencies]
 embedded-graphics-core = "0.3.3"
@@ -36,3 +35,7 @@ embedded-graphics = { version = "0.7.1", optional = true }
 boxed-array = "0.1.0"
 image = "0.24.3"
 base64 = "0.13.0"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
