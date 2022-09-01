@@ -1,18 +1,15 @@
-use embedded_graphics_core::{
-    prelude::{DrawTarget, Point},
-    primitives::Rectangle,
-};
+use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions},
-    utils::combine_bounding_boxes,
+    utils::HorizontalRenderedDimensions,
     Error, LookupError,
 };
 
 pub fn compute_horizontal_offset(
     horizontal_align: HorizontalAlignment,
-    line_dimensions: RenderedDimensions,
+    line_dimensions: HorizontalRenderedDimensions,
 ) -> i32 {
     match horizontal_align {
         HorizontalAlignment::Left => {
@@ -21,19 +18,19 @@ pub fn compute_horizontal_offset(
             1
         }
         HorizontalAlignment::Center => {
-            if let Some(bounding_box) = line_dimensions.bounding_box {
-                let width = bounding_box.size.width;
-                let left = bounding_box.top_left.x;
+            if line_dimensions.bounding_box_width == 0 {
+                0
+            } else {
+                let width = line_dimensions.bounding_box_width;
+                let left = line_dimensions.bounding_box_offset;
 
                 -(width as i32 / 2 + left)
-            } else {
-                0
             }
         }
         HorizontalAlignment::Right => {
             // From experiments, it seems that alignment looks more symmetrical
             // if everything is shifted by one in respect to the anchor point
-            1 - line_dimensions.advance.x
+            1 - line_dimensions.advance
         }
     }
 }
@@ -66,25 +63,48 @@ pub fn compute_glyph_dimensions(
     })
 }
 
-pub fn compute_line_dimensions(
-    line: &str,
-    mut position: Point,
+pub fn compute_horizontal_glyph_dimensions(
+    ch: char,
+    position_x: i32,
     font: &FontReader,
-) -> Result<RenderedDimensions, LookupError> {
-    let mut bounding_box: Option<Rectangle> = None;
+) -> Result<HorizontalRenderedDimensions, LookupError> {
+    let glyph = match font.try_retrieve_glyph_data(ch)? {
+        Some(g) => g,
+        None => {
+            return Ok(HorizontalRenderedDimensions::empty());
+        }
+    };
 
-    let x0 = position.x;
+    let advance = glyph.advance() as i32;
+    let width = glyph.width() as u32;
+    let left = glyph.left(position_x);
+
+    Ok(HorizontalRenderedDimensions {
+        advance,
+        bounding_box_offset: left,
+        bounding_box_width: width,
+    })
+}
+
+pub fn compute_horizontal_line_dimensions(
+    line: &str,
+    position_x: i32,
+    font: &FontReader,
+) -> Result<HorizontalRenderedDimensions, LookupError> {
+    let mut line_dimensions = HorizontalRenderedDimensions {
+        advance: position_x,
+        bounding_box_width: 0,
+        bounding_box_offset: 0,
+    };
 
     for ch in line.chars() {
-        let dimensions = compute_glyph_dimensions(ch, position, font)?;
-        position.x += dimensions.advance.x;
-        bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+        let dimensions =
+            compute_horizontal_glyph_dimensions(ch, position_x + line_dimensions.advance, font)?;
+        line_dimensions.add(dimensions);
     }
 
-    Ok(RenderedDimensions {
-        advance: Point::new(position.x - x0, 0),
-        bounding_box,
-    })
+    line_dimensions.advance -= position_x;
+    Ok(line_dimensions)
 }
 
 pub fn render_glyph<Display>(
