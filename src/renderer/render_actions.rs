@@ -1,13 +1,9 @@
-use embedded_graphics_core::{
-    prelude::{DrawTarget, Point},
-    primitives::Rectangle,
-};
+use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
-    content::HorizontalRenderedDimensions,
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions},
-    utils::combine_bounding_boxes,
+    utils::HorizontalRenderedDimensions,
     Error, LookupError,
 };
 
@@ -62,25 +58,28 @@ pub fn compute_glyph_dimensions(
     })
 }
 
-pub fn compute_line_dimensions(
+pub fn compute_horizontal_line_dimensions(
     line: &str,
-    mut position: Point,
+    position_x: i32,
     font: &FontReader,
-) -> Result<RenderedDimensions, LookupError> {
-    let mut bounding_box: Option<Rectangle> = None;
-
-    let x0 = position.x;
+) -> Result<HorizontalRenderedDimensions, LookupError> {
+    let mut line_dimensions = HorizontalRenderedDimensions {
+        advance: position_x,
+        bounding_box_width: 0,
+        bounding_box_offset: 0,
+    };
 
     for ch in line.chars() {
-        let dimensions = compute_glyph_dimensions(ch, position, font)?;
-        position.x += dimensions.advance.x;
-        bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
+        let dimensions = compute_glyph_dimensions(
+            ch,
+            Point::new(position_x + line_dimensions.advance, 0),
+            font,
+        )?;
+        line_dimensions.add(dimensions.into());
     }
 
-    Ok(RenderedDimensions {
-        advance: Point::new(position.x - x0, 0),
-        bounding_box,
-    })
+    line_dimensions.advance -= position_x;
+    Ok(line_dimensions)
 }
 
 pub fn render_glyph<Display>(

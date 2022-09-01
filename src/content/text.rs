@@ -1,11 +1,9 @@
-use embedded_graphics_core::prelude::Point;
-
 use crate::{
-    font_reader::FontReader, renderer::render_actions::compute_line_dimensions, Content,
-    LookupError,
+    font_reader::FontReader, renderer::render_actions::compute_horizontal_line_dimensions,
+    utils::HorizontalRenderedDimensions, Content, LookupError,
 };
 
-use super::{HorizontalRenderedDimensions, LineDimensionsIterator};
+use super::LineDimensionsIterator;
 
 impl<'a> Content for &'a str {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
@@ -40,7 +38,7 @@ pub struct TextLineDimensionsIterator<'a> {
 impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
     fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
         let line = self.data.next().unwrap_or("");
-        compute_line_dimensions(line, Point::new(0, 0), font).map(Into::into)
+        compute_horizontal_line_dimensions(line, 0, font)
     }
 }
 

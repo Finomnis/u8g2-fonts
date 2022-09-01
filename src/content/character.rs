@@ -1,11 +1,11 @@
 use embedded_graphics_core::prelude::Point;
 
 use crate::{
-    font_reader::FontReader, renderer::render_actions::compute_glyph_dimensions, Content,
-    LookupError,
+    font_reader::FontReader, renderer::render_actions::compute_glyph_dimensions,
+    utils::HorizontalRenderedDimensions, Content, LookupError,
 };
 
-use super::{HorizontalRenderedDimensions, LineDimensionsIterator};
+use super::LineDimensionsIterator;
 
 impl Content for char {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>

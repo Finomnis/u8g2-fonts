@@ -4,10 +4,10 @@ use embedded_graphics_core::{
 };
 
 use crate::{
-    content::{HorizontalRenderedDimensions, LineDimensionsIterator},
+    content::LineDimensionsIterator,
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    utils::combine_bounding_boxes,
+    utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
     Content, Error, Font, LookupError,
 };
 

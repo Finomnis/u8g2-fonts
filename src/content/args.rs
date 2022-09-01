@@ -1,15 +1,15 @@
-use core::ops::Range;
+use core::{mem, ops::Range};
 
-use embedded_graphics_core::{prelude::Point, primitives::Rectangle};
+use embedded_graphics_core::prelude::Point;
 
 use crate::{
     font_reader::FontReader,
     renderer::render_actions::compute_glyph_dimensions,
-    utils::{combine_bounding_boxes, FormatArgsReader, FormatArgsReaderInfallible},
+    utils::{FormatArgsReader, FormatArgsReaderInfallible, HorizontalRenderedDimensions},
     Content, LookupError,
 };
 
-use super::{HorizontalRenderedDimensions, LineDimensionsIterator};
+use super::LineDimensionsIterator;
 
 impl<'a> Content for core::fmt::Arguments<'a> {
     fn for_each_char<F, E>(&self, mut func: F) -> Result<(), E>
@@ -64,28 +64,22 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         range_start: usize,
         font: &FontReader,
     ) -> Result<(), LookupError> {
-        let mut line_advance = 0;
-        let mut line_bounding_box: Option<Rectangle> = None;
+        let mut line_dimensions = HorizontalRenderedDimensions::empty();
         let mut line_num: usize = 0;
 
         FormatArgsReader::new(|ch| -> Result<bool, LookupError> {
             if ch == '\n' {
+                let previous_line_dimensions =
+                    mem::replace(&mut line_dimensions, HorizontalRenderedDimensions::empty());
+
                 if let Some(array_pos) = line_num.checked_sub(range_start) {
                     if let Some(cell) = self.dimensions_buffer.get_mut(array_pos) {
                         // If we are in the correct range, set the value in the array
-                        cell.advance = line_advance;
-                        if let Some(bb) = line_bounding_box {
-                            cell.bounding_box_width = bb.size.width;
-                            cell.bounding_box_offset = bb.top_left.x;
-                        } else {
-                            cell.bounding_box_width = 0;
-                            cell.bounding_box_offset = 0;
-                        }
+                        *cell = previous_line_dimensions;
                     }
                 }
+
                 line_num += 1;
-                line_advance = 0;
-                line_bounding_box = None;
 
                 if line_num >= range_start + self.dimensions_buffer.len() {
                     // break if we are past the desired range
@@ -93,10 +87,9 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
                 }
             } else if line_num >= range_start {
                 // Only compute dimensions if we are in a line that will be buffered
-                let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
-                line_bounding_box =
-                    combine_bounding_boxes(line_bounding_box, dimensions.bounding_box);
-                line_advance += dimensions.advance.x;
+                let dimensions =
+                    compute_glyph_dimensions(ch, Point::new(line_dimensions.advance, 0), font)?;
+                line_dimensions.add(dimensions.into());
             }
 
             Ok(true)
@@ -107,14 +100,7 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         if let Some(array_pos) = line_num.checked_sub(range_start) {
             if let Some(cell) = self.dimensions_buffer.get_mut(array_pos) {
                 // If we are in the correct range, set the value in the array
-                cell.advance = line_advance;
-                if let Some(bb) = line_bounding_box {
-                    cell.bounding_box_width = bb.size.width;
-                    cell.bounding_box_offset = bb.top_left.x;
-                } else {
-                    cell.bounding_box_width = 0;
-                    cell.bounding_box_offset = 0;
-                }
+                *cell = line_dimensions;
 
                 // We hit the end, store that so we don't continue in future
                 self.finished = true;
