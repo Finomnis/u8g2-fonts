@@ -40,7 +40,12 @@ pub fn compute_glyph_dimensions(
     position: Point,
     font: &FontReader,
 ) -> Result<RenderedDimensions, LookupError> {
-    let glyph = font.retrieve_glyph_data(ch)?;
+    let glyph = match font.try_retrieve_glyph_data(ch)? {
+        Some(g) => g,
+        None => {
+            return Ok(RenderedDimensions::empty());
+        }
+    };
 
     let advance = glyph.advance();
     let size = glyph.size();
@@ -107,7 +112,12 @@ pub fn render_glyph<Display>(
 where
     Display: DrawTarget,
 {
-    let glyph = font.retrieve_glyph_data(ch)?;
+    let glyph = match font.try_retrieve_glyph_data(ch)? {
+        Some(g) => g,
+        None => {
+            return Ok(RenderedDimensions::empty());
+        }
+    };
 
     let advance = glyph.advance();
     let size = glyph.size();
