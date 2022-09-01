@@ -16,7 +16,7 @@ use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, 
 pub mod render_actions;
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FontRenderer {
     font: FontReader,
 }
@@ -32,6 +32,19 @@ impl FontRenderer {
         Self {
             font: FontReader::new::<FONT>(),
         }
+    }
+
+    /// Switches the font rendering mode to ignore all unrenderable characters
+    /// instead of raising an error.
+    ///
+    /// By default, unkown chars will return an error.
+    ///
+    /// # Arguments
+    ///
+    /// * `ignore` - Whether unknown characters should be ignored
+    pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
+        self.font = self.font.into_ignore_unknown_chars(ignore);
+        self
     }
 
     /// Renders text to a display.
@@ -329,6 +342,14 @@ impl FontRenderer {
                 self.font.font_bounding_box_height as u32,
             ),
         }
+    }
+
+    /// The default line height.
+    ///
+    /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
+    pub fn get_line_height(&self) -> u32 {
+        let bb_height: u32 = self.font.font_bounding_box_height.try_into().unwrap();
+        bb_height + 1
     }
 }
 

@@ -7,7 +7,7 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FontReader {
     pub data: DebugIgnore<&'static [u8]>,
     pub supports_background_color: bool,
@@ -30,6 +30,7 @@ pub struct FontReader {
     pub array_offset_upper_a: u16,
     pub array_offset_lower_a: u16,
     pub array_offset_0x0100: u16,
+    pub ignore_unknown_chars: bool,
 }
 
 impl FontReader {
@@ -58,7 +59,13 @@ impl FontReader {
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
+            ignore_unknown_chars: false,
         }
+    }
+
+    pub const fn into_ignore_unknown_chars(mut self, ignore: bool) -> Self {
+        self.ignore_unknown_chars = ignore;
+        self
     }
 
     pub fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
@@ -152,6 +159,7 @@ mod tests {
             array_offset_upper_a: 0,
             array_offset_lower_a: 0,
             array_offset_0x0100: 2,
+            ignore_unknown_chars: false,
         };
 
         assert_eq!(format!("{:?}", font), format!("{:?}", expected));

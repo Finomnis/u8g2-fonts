@@ -117,3 +117,9 @@ pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
 pub use renderer::FontRenderer;
+
+#[cfg(feature = "embedded_graphics_font_integration")]
+mod u8g2_text_style;
+
+#[cfg(feature = "embedded_graphics_font_integration")]
+pub use u8g2_text_style::U8g2TextStyle;
