@@ -58,6 +58,24 @@ pub fn compute_glyph_dimensions(
     })
 }
 
+pub fn compute_horizontal_glyph_dimensions(
+    ch: char,
+    position_x: i32,
+    font: &FontReader,
+) -> Result<HorizontalRenderedDimensions, LookupError> {
+    let glyph = font.retrieve_glyph_data(ch)?;
+
+    let advance = glyph.advance() as i32;
+    let width = glyph.width() as u32;
+    let left = glyph.left(position_x);
+
+    Ok(HorizontalRenderedDimensions {
+        advance,
+        bounding_box_offset: left,
+        bounding_box_width: width,
+    })
+}
+
 pub fn compute_horizontal_line_dimensions(
     line: &str,
     position_x: i32,

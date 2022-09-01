@@ -1,10 +1,8 @@
 use core::{mem, ops::Range};
 
-use embedded_graphics_core::prelude::Point;
-
 use crate::{
     font_reader::FontReader,
-    renderer::render_actions::compute_glyph_dimensions,
+    renderer::render_actions::compute_horizontal_glyph_dimensions,
     utils::{FormatArgsReader, FormatArgsReaderInfallible, HorizontalRenderedDimensions},
     Content, LookupError,
 };
@@ -88,8 +86,8 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
             } else if line_num >= range_start {
                 // Only compute dimensions if we are in a line that will be buffered
                 let dimensions =
-                    compute_glyph_dimensions(ch, Point::new(line_dimensions.advance, 0), font)?;
-                line_dimensions.add(dimensions.into());
+                    compute_horizontal_glyph_dimensions(ch, line_dimensions.advance, font)?;
+                line_dimensions.add(dimensions);
             }
 
             Ok(true)
