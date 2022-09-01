@@ -230,6 +230,33 @@ fn render_glyph() {
 }
 
 #[test]
+fn render_glyph_with_ignore_unknown() {
+    let dimensions = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_glyph_empty.png"),
+        |display| {
+            FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
+                .with_ignore_unknown_chars(true)
+                .render(
+                    '☃',
+                    Point::new(2, 15),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap()
+        },
+    );
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(0, 0),
+            bounding_box: None
+        }
+    );
+}
+
+#[test]
 fn render_glyph_unicode() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_unicode.png"),
@@ -644,8 +671,64 @@ fn aligned_text() {
 }
 
 #[test]
+fn aligned_text_with_ignore_unknown() {
+    let text = "☃A☃g☃i☃,☃\n☃i☃a☃g☃m☃A☃!☃";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/aligned_text_dimensions.png"),
+        |display| {
+            alignment_grid::draw(display);
+
+            for (hpos, expected_x, expected_width) in [
+                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Center, 122, 67),
+                (HorizontalAlignment::Right, 238, 67),
+            ] {
+                for (vpos, expected_y) in [
+                    (VerticalPosition::Top, 8),
+                    (VerticalPosition::Center, 68),
+                    (VerticalPosition::Bottom, 128),
+                    (VerticalPosition::Baseline, 186),
+                ] {
+                    let bounding_box = font
+                        .get_rendered_dimensions_aligned(text, get_pos(hpos, vpos), vpos, hpos)
+                        .unwrap()
+                        .unwrap();
+
+                    display
+                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
+                        .unwrap();
+
+                    let rendered_bounding_box = font
+                        .render_aligned(
+                            text,
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    assert_eq!(bounding_box, rendered_bounding_box);
+                    assert_eq!(
+                        bounding_box,
+                        Rectangle::new(
+                            Point::new(expected_x, expected_y),
+                            Size::new(expected_width, 39)
+                        )
+                    );
+                }
+            }
+        },
+    );
+}
+
+#[test]
 fn aligned_glyph() {
-    let ch = "A";
+    let ch = 'A';
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 
     TestDrawTarget::expect_image(
@@ -736,6 +819,66 @@ fn aligned_args() {
                     let rendered_bounding_box = font
                         .render_aligned(
                             format_args!("Agi,\n{}", "iagmA!"),
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                            FontColor::Transparent(Rgb888::CSS_BLUE),
+                            display,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    assert_eq!(bounding_box, rendered_bounding_box);
+                    assert_eq!(
+                        bounding_box,
+                        Rectangle::new(
+                            Point::new(expected_x, expected_y),
+                            Size::new(expected_width, 39)
+                        )
+                    );
+                }
+            }
+        },
+    );
+}
+
+#[test]
+fn aligned_args_with_ignore_unknown() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+
+    TestDrawTarget::expect_image(
+        std::include_bytes!("assets/aligned_text_dimensions.png"),
+        |display| {
+            alignment_grid::draw(display);
+
+            for (hpos, expected_x, expected_width) in [
+                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Center, 122, 67),
+                (HorizontalAlignment::Right, 238, 67),
+            ] {
+                for (vpos, expected_y) in [
+                    (VerticalPosition::Top, 8),
+                    (VerticalPosition::Center, 68),
+                    (VerticalPosition::Bottom, 128),
+                    (VerticalPosition::Baseline, 186),
+                ] {
+                    let bounding_box = font
+                        .get_rendered_dimensions_aligned(
+                            format_args!("☃A☃g☃i☃,☃\n☃{}☃", "☃i☃a☃g☃m☃A☃!☃"),
+                            get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                        )
+                        .unwrap()
+                        .unwrap();
+
+                    display
+                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
+                        .unwrap();
+
+                    let rendered_bounding_box = font
+                        .render_aligned(
+                            format_args!("☃A☃g☃i☃,☃\n☃{}☃", "☃i☃a☃g☃m☃A☃!☃"),
                             get_pos(hpos, vpos),
                             vpos,
                             hpos,

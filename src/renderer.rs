@@ -34,6 +34,19 @@ impl FontRenderer {
         }
     }
 
+    /// Switches the font rendering mode to ignore all unrenderable characters
+    /// instead of raising an error.
+    ///
+    /// By default, unkown chars will return an error.
+    ///
+    /// # Arguments
+    ///
+    /// * `ignore` - Whether unknown characters should be ignored
+    pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
+        self.font = self.font.into_ignore_unknown_glyphs(ignore);
+        self
+    }
+
     /// Renders text to a display.
     ///
     /// Note that the background color is optional. Omitting it will render
