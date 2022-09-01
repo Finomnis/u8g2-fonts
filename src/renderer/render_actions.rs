@@ -88,12 +88,9 @@ pub fn compute_horizontal_line_dimensions(
     };
 
     for ch in line.chars() {
-        let dimensions = compute_glyph_dimensions(
-            ch,
-            Point::new(position_x + line_dimensions.advance, 0),
-            font,
-        )?;
-        line_dimensions.add(dimensions.into());
+        let dimensions =
+            compute_horizontal_glyph_dimensions(ch, position_x + line_dimensions.advance, font)?;
+        line_dimensions.add(dimensions);
     }
 
     line_dimensions.advance -= position_x;

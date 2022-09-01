@@ -1,7 +1,5 @@
-use embedded_graphics_core::prelude::Point;
-
 use crate::{
-    font_reader::FontReader, renderer::render_actions::compute_glyph_dimensions,
+    font_reader::FontReader, renderer::render_actions::compute_horizontal_glyph_dimensions,
     utils::HorizontalRenderedDimensions, Content, LookupError,
 };
 
@@ -41,7 +39,7 @@ impl LineDimensionsIterator for CharLineDimensionsIterator {
     fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
         self.ch.take().map_or_else(
             || Ok(HorizontalRenderedDimensions::empty()),
-            |ch| compute_glyph_dimensions(ch, Point::new(0, 0), font).map(Into::into),
+            |ch| compute_horizontal_glyph_dimensions(ch, 0, font),
         )
     }
 }
