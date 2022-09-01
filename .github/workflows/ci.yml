@@ -51,8 +51,8 @@ jobs:
           command: build
           args: --release --features std
 
-  build_feature_embedded_graphics_font_integration:
-    name: Build with 'embedded_graphics_font_integration' feature
+  build_feature_embedded_graphics_textstyle:
+    name: Build with 'embedded_graphics_textstyle' feature
     runs-on: ubuntu-latest
 
     steps:
@@ -65,7 +65,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --features embedded_graphics_font_integration
+          args: --release --features embedded_graphics_textstyle
 
   build_examples:
     name: Build examples
@@ -222,7 +222,7 @@ jobs:
     needs: [
         build,
         build_feature_std,
-        build_feature_embedded_graphics_font_integration,
+        build_feature_embedded_graphics_textstyle,
         build_examples,
         test,
         lints,
