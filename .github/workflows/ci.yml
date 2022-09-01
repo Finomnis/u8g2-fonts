@@ -219,7 +219,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     if: github.event_name == 'release'
-    needs: [build, build_std, build_examples, test, lints, docs, leaks, check_fonts]
+    needs: [
+        build,
+        build_feature_std,
+        build_feature_embedded_graphics_font_integration,
+        build_examples,
+        test,
+        lints,
+        docs,
+        leaks,
+        check_fonts
+      ]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
