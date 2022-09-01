@@ -65,8 +65,11 @@ where
     where
         D: DrawTarget<Color = Self::Color>,
     {
-        // For some reason, font positioning in embedded-graphics seems to be shifted by one
-        let adjusted_position = position + Point::new(0, 1);
+        // For some reason, font baseline in embedded-graphics seems to be shifted by one
+        let mut adjusted_position = position;
+        if let Baseline::Alphabetic = baseline {
+            adjusted_position.y += 1;
+        }
 
         let result = if let Some(text_color) = self.text_color {
             let color = if let Some(background_color) = self.background_color {
@@ -109,8 +112,11 @@ where
     }
 
     fn measure_string(&self, text: &str, position: Point, baseline: Baseline) -> TextMetrics {
-        // For some reason, font positioning in embedded-graphics seems to be shifted by one
-        let adjusted_position = position + Point::new(0, 1);
+        // For some reason, font baseline in embedded-graphics seems to be shifted by one
+        let mut adjusted_position = position;
+        if let Baseline::Alphabetic = baseline {
+            adjusted_position.y += 1;
+        }
 
         let dims = self
             .font
