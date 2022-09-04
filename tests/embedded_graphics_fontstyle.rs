@@ -16,7 +16,7 @@ mod textstyle_tests {
 
     use embedded_graphics_core::{
         pixelcolor::Rgb888,
-        prelude::{Dimensions, Point, Size, WebColors},
+        prelude::{Dimensions, DrawTarget, Point, Size, WebColors},
         primitives::Rectangle,
     };
 
@@ -152,6 +152,21 @@ mod textstyle_tests {
 
         let pos_start = Point::new(3, 5);
 
+        // Wrapper function to do the whitespace drawing, to force the &U8g2TextStyle impl.
+        // A direct call would automatically dereference.
+        fn draw_whitespace<T: TextRenderer, D>(
+            text_renderer: T,
+            width: u32,
+            position: Point,
+            baseline: Baseline,
+            target: &mut D,
+        ) -> Result<Point, D::Error>
+        where
+            D: DrawTarget<Color = T::Color>,
+        {
+            text_renderer.draw_whitespace(width, position, baseline, target)
+        }
+
         let pos = TestDrawTarget::expect_image(
             std::include_bytes!("assets/render_whitespace_embedded_graphics.png"),
             |display| {
@@ -165,9 +180,7 @@ mod textstyle_tests {
 
                 character_style.set_background_color(Some(whitespace_background_color));
 
-                pos = character_style
-                    .draw_whitespace(5, pos, baseline, display)
-                    .unwrap();
+                pos = draw_whitespace(&character_style, 5, pos, baseline, display).unwrap();
 
                 character_style.set_background_color(Some(background_color));
 
