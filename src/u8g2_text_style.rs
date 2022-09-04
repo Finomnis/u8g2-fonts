@@ -147,3 +147,44 @@ where
         self.background_color = background_color;
     }
 }
+
+impl<C> TextRenderer for &U8g2TextStyle<C>
+where
+    C: PixelColor,
+{
+    type Color = C;
+
+    fn draw_string<D>(
+        &self,
+        text: &str,
+        position: Point,
+        baseline: Baseline,
+        target: &mut D,
+    ) -> Result<Point, D::Error>
+    where
+        D: DrawTarget<Color = Self::Color>,
+    {
+        (*self).draw_string(text, position, baseline, target)
+    }
+
+    fn draw_whitespace<D>(
+        &self,
+        width: u32,
+        position: Point,
+        baseline: Baseline,
+        target: &mut D,
+    ) -> Result<Point, D::Error>
+    where
+        D: DrawTarget<Color = Self::Color>,
+    {
+        (*self).draw_whitespace(width, position, baseline, target)
+    }
+
+    fn measure_string(&self, text: &str, position: Point, baseline: Baseline) -> TextMetrics {
+        (*self).measure_string(text, position, baseline)
+    }
+
+    fn line_height(&self) -> u32 {
+        (*self).line_height()
+    }
+}
