@@ -113,19 +113,16 @@ where
     {
         if width != 0 {
             if let Some(color) = self.background_color {
-                if let Ok(whitespace_dimensions) =
-                    self.font
-                        .get_rendered_dimensions(' ', position, baseline.into())
-                {
-                    if let Some(bounding_box) = whitespace_dimensions.bounding_box {
-                        let top_left = bounding_box.top_left;
-                        let height = bounding_box.size.height;
+                let whitespace_dimensions = self.font
+                    .get_rendered_dimensions(' ', position, baseline.into())
+                    .expect("Internal error: Should never happen because the font reader is configured to ignore unknown characters.");
 
-                        target.fill_solid(
-                            &Rectangle::new(top_left, Size::new(width, height)),
-                            color,
-                        )?;
-                    }
+                if let Some(bounding_box) = whitespace_dimensions.bounding_box {
+                    let top_left = bounding_box.top_left;
+                    let height = bounding_box.size.height;
+
+                    target
+                        .fill_solid(&Rectangle::new(top_left, Size::new(width, height)), color)?;
                 }
             }
         }
