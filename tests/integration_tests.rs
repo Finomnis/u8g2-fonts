@@ -184,6 +184,13 @@ fn get_ascent_and_descent() {
 }
 
 #[test]
+fn get_line_height() {
+    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+
+    assert_eq!(font.get_line_height(), 37);
+}
+
+#[test]
 fn get_glyph_bounding_box() {
     let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
