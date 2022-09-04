@@ -164,7 +164,7 @@ mod textstyle_tests {
         where
             D: DrawTarget<Color = T::Color>,
         {
-            text_renderer.draw_whitespace(width, position, baseline, target)
+            T::draw_whitespace(&text_renderer, width, position, baseline, target)
         }
 
         let pos = TestDrawTarget::expect_image(
