@@ -141,7 +141,7 @@ impl FontRenderer {
     where
         Display: DrawTarget,
     {
-        // If `horizontal_align` is `Left`, it is identical with
+        // If `horizontal_align` is `Left`, it is identical to
         // `render()`. As `render()` is quite a bit faster,
         // forward this call.
         if let HorizontalAlignment::Left = horizontal_align {
