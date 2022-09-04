@@ -533,7 +533,7 @@ fn aligned_text() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -592,7 +592,7 @@ fn aligned_text_with_ignore_unknown() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -651,7 +651,7 @@ fn aligned_glyph() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 14),
+                (HorizontalAlignment::Left, 4, 14),
                 (HorizontalAlignment::Center, 148, 14),
                 (HorizontalAlignment::Right, 291, 14),
             ] {
@@ -709,7 +709,7 @@ fn aligned_args() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -767,7 +767,7 @@ fn aligned_args_with_ignore_unknown() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {

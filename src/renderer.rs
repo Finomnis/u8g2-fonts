@@ -110,8 +110,7 @@ impl FontRenderer {
 
     /// Renders text to a display with horizontal alignment.
     ///
-    /// Note that `Left` alignment is not identical to [`render()`](crate::FontRenderer::render).
-    /// Fonts are by default not completely left-aligned and `render_aligned()` corrects for that.
+    /// The `Left` alignment is identical to [`render()`](crate::FontRenderer::render).
     ///
     /// # Arguments
     ///
@@ -142,12 +141,14 @@ impl FontRenderer {
     where
         Display: DrawTarget,
     {
-        // If `horizontal_align` is `Left`, it is almost identical with
-        // `render()`, just shifted by one. As `render()` is quite a bit faster,
+        // If `horizontal_align` is `Left`, it is identical with
+        // `render()`. As `render()` is quite a bit faster,
         // forward this call.
         if let HorizontalAlignment::Left = horizontal_align {
-            position.x +=
-                compute_horizontal_offset(horizontal_align, HorizontalRenderedDimensions::empty());
+            position.x += compute_horizontal_offset(
+                HorizontalAlignment::Left,
+                HorizontalRenderedDimensions::empty(),
+            );
             return self
                 .render(content, position, vertical_pos, color, display)
                 .map(|dims| dims.bounding_box);
