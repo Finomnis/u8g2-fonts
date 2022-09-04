@@ -3,7 +3,10 @@ use embedded_graphics::text::{
     Baseline,
 };
 
-use embedded_graphics_core::prelude::{DrawTarget, PixelColor, Point};
+use embedded_graphics_core::{
+    prelude::{DrawTarget, PixelColor, Point, Size},
+    primitives::Rectangle,
+};
 
 use crate::{
     types::{FontColor, VerticalPosition},
@@ -102,12 +105,31 @@ where
         &self,
         width: u32,
         position: Point,
-        _baseline: Baseline,
-        _target: &mut D,
+        baseline: Baseline,
+        target: &mut D,
     ) -> Result<Point, D::Error>
     where
         D: DrawTarget<Color = Self::Color>,
     {
+        if width != 0 {
+            if let Some(color) = self.background_color {
+                if let Ok(whitespace_dimensions) =
+                    self.font
+                        .get_rendered_dimensions(' ', position, baseline.into())
+                {
+                    if let Some(bounding_box) = whitespace_dimensions.bounding_box {
+                        let top_left = bounding_box.top_left;
+                        let height = bounding_box.size.height;
+
+                        target.fill_solid(
+                            &Rectangle::new(top_left, Size::new(width, height)),
+                            color,
+                        )?;
+                    }
+                }
+            }
+        }
+
         Ok(position + Point::new(width as i32, 0))
     }
 

@@ -7,7 +7,10 @@ mod util;
 mod textstyle_tests {
     use super::*;
     use embedded_graphics::{
-        text::{renderer::CharacterStyle, Alignment, Baseline, Text, TextStyleBuilder},
+        text::{
+            renderer::{CharacterStyle, TextRenderer},
+            Alignment, Baseline, Text, TextStyleBuilder,
+        },
         Drawable,
     };
 
@@ -135,5 +138,45 @@ mod textstyle_tests {
             dimensions,
             Rectangle::new(Point::new(2, 4), Size::new(130, 20))
         );
+    }
+
+    #[test]
+    fn render_whitespace_with_background() {
+        let foreground_color = Rgb888::new(237, 28, 36);
+        let background_color = Rgb888::new(4, 4, 4);
+        let whitespace_background_color = Rgb888::new(100, 150, 50);
+
+        let baseline = Baseline::Top;
+
+        let mut character_style = U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, foreground_color);
+
+        let pos_start = Point::new(3, 5);
+
+        let pos = TestDrawTarget::expect_image(
+            std::include_bytes!("assets/render_whitespace_embedded_graphics.png"),
+            |display| {
+                let mut pos = pos_start;
+
+                character_style.set_background_color(Some(background_color));
+
+                pos = character_style
+                    .draw_string("Ab", pos, baseline, display)
+                    .unwrap();
+
+                character_style.set_background_color(Some(whitespace_background_color));
+
+                pos = character_style
+                    .draw_whitespace(5, pos, baseline, display)
+                    .unwrap();
+
+                character_style.set_background_color(Some(background_color));
+
+                character_style
+                    .draw_string("cd", pos, baseline, display)
+                    .unwrap()
+            },
+        );
+
+        assert_eq!(pos, pos_start + Point::new(45, 0));
     }
 }
