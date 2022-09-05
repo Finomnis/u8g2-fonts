@@ -23,10 +23,10 @@ mod textstyle_tests {
     use u8g2_fonts::{
         fonts,
         types::{HorizontalAlignment, VerticalPosition},
-        U8g2TextStyle,
+        Error, U8g2TextStyle,
     };
 
-    use util::TestDrawTarget;
+    use util::{FailingDrawTarget, TestDrawTarget};
 
     #[test]
     fn aligned_text() {
@@ -259,5 +259,20 @@ mod textstyle_tests {
             });
 
         assert_eq!(pos, pos_start + Point::new(5, 0));
+    }
+
+    #[test]
+    fn passes_on_error() {
+        FailingDrawTarget::assert_passes_on_error(|display| {
+            let mut character_style =
+                U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, Rgb888::new(255, 255, 254));
+
+            character_style.set_text_color(Some(Rgb888::new(237, 28, 36)));
+            character_style.set_background_color(Some(Rgb888::new(1, 1, 1)));
+
+            let text = Text::new("Hello, W0rld!", Point::new(2, 19), character_style);
+
+            text.draw(display).map_err(Error::DisplayError)
+        });
     }
 }

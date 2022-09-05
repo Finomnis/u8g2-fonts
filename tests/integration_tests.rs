@@ -11,7 +11,7 @@ use u8g2_fonts::{
     Error, FontRenderer,
 };
 
-use util::TestDrawTarget;
+use util::{FailingDrawTarget, TestDrawTarget};
 
 mod alignment_grid;
 
@@ -1216,4 +1216,32 @@ fn whitespace_args_does_not_crash() {
             assert_eq!(dim, rendered_dim);
         });
     }
+}
+
+#[test]
+fn passes_on_error() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let position = Point::new(1, 1);
+    let hpos = HorizontalAlignment::Center;
+    let vpos = VerticalPosition::Center;
+    let color = FontColor::Transparent(Rgb888::CSS_ALICE_BLUE);
+
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render('a', position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned('a', position, vpos, hpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render("a", position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned("a", position, vpos, hpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render(format_args!("{}", 1), position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned(format_args!("{}", 1), position, vpos, hpos, color, display)
+    });
 }
