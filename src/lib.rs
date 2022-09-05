@@ -16,6 +16,25 @@
 //! - `embedded_graphics_textstyle`:
 //!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
 //!
+//! # Renderers
+//!
+//! This crate supports two text renderers:
+//!
+//! - [`FontRenderer`] — our own renderer
+//!    - optimized for the U8g2 fonts
+//!    - supports rendering [`format_args()`](format_args)
+//!        - can render everything that can be passed
+//!          to [`format!()`](std::format), [`write!()`](write) or [`println!()`](std::println)
+//!        - does not allocate an intermediate string buffer
+//!    - supports multi-line vertical alignment
+//! - [`U8g2TextStyle`] — a compatibility layer for [`embedded_graphics::text`]
+//!    - exposes all fonts of this crate to [`embedded_graphics::text::Text`] rendering functions
+//!    - supports [`draw_whitespace`](embedded_graphics::text::renderer::TextRenderer::draw_whitespace) for monospace whitespace drawing with a background color
+//!
+//! Everything below this will be about [`FontRenderer`]. For more information about text rendering through [`embedded_graphics`], read the
+//! [embedded-graphics font rendering documentation](embedded_graphics::text).
+//! The intention of [`U8g2TextStyle`] is to replace `MonoTextStyle`.
+//!
 //! # Usage
 //!
 //! The central struct in this crate is the [`FontRenderer`]. It can render one specific font.
@@ -61,7 +80,7 @@
 //! This is mainly for monospace fonts.
 //!
 //! Note that many fonts do not actually support rendering with a background color (due to occlusions).
-//! Supplying a background color to a font that doesn't support it causes a runtime error.
+//! Supplying a background color to a font that doesn't support it causes a [runtime error](crate::Error::BackgroundColorNotSupported).
 //!
 //! # Example
 //!

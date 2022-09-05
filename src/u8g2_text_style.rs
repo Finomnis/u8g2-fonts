@@ -145,6 +145,9 @@ where
     }
 }
 
+/// Note that `U8g2TextStyle` does not support underline or strikethrough,
+/// so [`set_underline_color()`](CharacterStyle::set_underline_color) and
+/// [`set_strikethrough_color`](CharacterStyle::set_strikethrough_color()) does nothing.
 impl<C> CharacterStyle for U8g2TextStyle<C>
 where
     C: PixelColor,
