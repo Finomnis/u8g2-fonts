@@ -192,4 +192,72 @@ mod textstyle_tests {
 
         assert_eq!(pos, pos_start + Point::new(45, 0));
     }
+
+    #[test]
+    fn render_whitespace_with_zero_width() {
+        let foreground_color = Rgb888::new(237, 28, 36);
+        let whitespace_background_color = Rgb888::new(100, 150, 50);
+
+        let baseline = Baseline::Top;
+
+        let mut character_style = U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, foreground_color);
+
+        let pos_start = Point::new(3, 5);
+
+        let pos =
+            TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
+                character_style.set_background_color(Some(whitespace_background_color));
+
+                character_style
+                    .draw_whitespace(0, pos_start, baseline, display)
+                    .unwrap()
+            });
+
+        assert_eq!(pos, pos_start);
+    }
+
+    #[test]
+    fn render_whitespace_with_non_monospace_font() {
+        let foreground_color = Rgb888::new(237, 28, 36);
+        let whitespace_background_color = Rgb888::new(100, 150, 50);
+
+        let baseline = Baseline::Top;
+
+        let mut character_style = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, foreground_color);
+
+        let pos_start = Point::new(3, 5);
+
+        let pos =
+            TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
+                character_style.set_background_color(Some(whitespace_background_color));
+
+                character_style
+                    .draw_whitespace(5, pos_start, baseline, display)
+                    .unwrap()
+            });
+
+        assert_eq!(pos, pos_start + Point::new(5, 0));
+    }
+
+    #[test]
+    fn render_whitespace_without_background_color() {
+        let foreground_color = Rgb888::new(237, 28, 36);
+
+        let baseline = Baseline::Top;
+
+        let mut character_style = U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, foreground_color);
+
+        let pos_start = Point::new(3, 5);
+
+        let pos =
+            TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
+                character_style.set_background_color(None);
+
+                character_style
+                    .draw_whitespace(5, pos_start, baseline, display)
+                    .unwrap()
+            });
+
+        assert_eq!(pos, pos_start + Point::new(5, 0));
+    }
 }
