@@ -233,4 +233,12 @@ mod tests {
     fn is_debug_and_clone() {
         examine(U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, Rgb888::RED));
     }
+
+    // Dummy test for coverage; coverage requires unreachable!() branches to be covered,
+    // which doesn't make much sense, so we trick it here.
+    #[test]
+    #[should_panic(expected = "internal error: entered unreachable code")]
+    fn dummy_test_unreachable() {
+        unwrap_error(Error::<&str>::GlyphNotFound('a'));
+    }
 }
