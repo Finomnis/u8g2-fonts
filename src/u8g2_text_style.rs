@@ -91,14 +91,9 @@ where
                 .map_err(Into::into)
         };
 
-        match result {
-            Ok(dims) => Ok(position + dims.advance),
-            Err(Error::DisplayError(e)) => Err(e),
-            Err(Error::BackgroundColorNotSupported) => {
-                panic!("Background color not supported for this font!")
-            }
-            Err(Error::GlyphNotFound(_)) => unreachable!(),
-        }
+        result
+            .map_err(unwrap_error)
+            .map(|dims| position + dims.advance)
     }
 
     fn draw_whitespace<D>(
@@ -205,5 +200,37 @@ where
 
     fn line_height(&self) -> u32 {
         (*self).line_height()
+    }
+}
+
+// Extracted to separate function for easier testability
+fn unwrap_error<E>(err: Error<E>) -> E {
+    match err {
+        Error::DisplayError(e) => e,
+        Error::BackgroundColorNotSupported => {
+            panic!("Background color not supported for this font!")
+        }
+        Error::GlyphNotFound(_) => unreachable!(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::println;
+
+    use embedded_graphics::{pixelcolor::Rgb888, prelude::RgbColor};
+
+    use crate::fonts;
+
+    use super::*;
+
+    fn examine<T: Clone + core::fmt::Debug>(val: T) {
+        println!("{:?}", val.clone());
+    }
+
+    #[test]
+    fn is_debug_and_clone() {
+        examine(U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, Rgb888::RED));
     }
 }
