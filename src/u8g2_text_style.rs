@@ -27,8 +27,6 @@ impl From<Baseline> for VerticalPosition {
 
 /// Provides a character style object for drawing text with [`embedded_graphics::text::Text`].
 ///
-/// Note that this exists for compatibility only. It is recommended to use the native text
-/// rendering functionality via the [TextRenderer] instead.
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
 #[derive(Debug, Clone)]
 pub struct U8g2TextStyle<C> {
