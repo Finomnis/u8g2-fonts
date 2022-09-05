@@ -275,4 +275,23 @@ mod textstyle_tests {
             text.draw(display).map_err(Error::DisplayError)
         });
     }
+
+    #[test]
+    #[should_panic(expected = "Background color not supported for this font!")]
+    fn panics_when_background_color_not_supported() {
+        TestDrawTarget::expect_image(
+            std::include_bytes!("assets/render_text_background.png"),
+            |display| {
+                let mut character_style =
+                    U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Rgb888::new(255, 255, 254));
+
+                character_style.set_text_color(Some(Rgb888::new(237, 28, 36)));
+                character_style.set_background_color(Some(Rgb888::new(1, 1, 1)));
+
+                let text = Text::new("Hello, W0rld!", Point::new(2, 19), character_style);
+
+                text.draw(display).ok();
+            },
+        );
+    }
 }
