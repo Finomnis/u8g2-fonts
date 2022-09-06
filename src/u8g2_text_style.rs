@@ -84,12 +84,12 @@ where
             };
             result = self
                 .font
-                .render(text, adjusted_position, baseline.into(), color, target)
+                .render(text, adjusted_position, baseline.into(), color, target);
         } else {
             result = self
                 .font
                 .get_rendered_dimensions(text, adjusted_position, baseline.into())
-                .map_err(Into::into)
+                .map_err(Into::into);
         };
 
         result
