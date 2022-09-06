@@ -43,7 +43,7 @@ impl FontRenderer {
     ///
     /// # Arguments
     ///
-    /// * `ignore` - Whether unknown characters should be ignored
+    /// * `ignore` - Whether unknown characters should be ignored.
     pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
         self.font = self.font.into_ignore_unknown_glyphs(ignore);
         self
@@ -53,7 +53,7 @@ impl FontRenderer {
     ///
     /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
     ///
-    /// If the line height is not set manually, it will default to the value returned by [`get_default_line_height()`](FontRenderer::get_default_line_height).
+    /// If the line height is not set explicitly, it will default to the value returned by [`get_default_line_height()`](FontRenderer::get_default_line_height).
     ///
     /// # Arguments
     ///
