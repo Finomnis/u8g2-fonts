@@ -65,7 +65,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --features std
+          args: --release --no-default-features --features std
 
   build_feature_embedded_graphics_textstyle:
     name: Build with 'embedded_graphics_textstyle' feature
@@ -81,7 +81,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --features embedded_graphics_textstyle
+          args: --release --no-default-features --features embedded_graphics_textstyle
 
   build_examples:
     name: Build examples
