@@ -11,108 +11,9 @@ use u8g2_fonts::{
     Error, FontRenderer,
 };
 
-use util::TestDrawTarget;
+use util::{FailingDrawTarget, TestDrawTarget};
 
-use crate::alignment_grid::get_pos;
-
-mod alignment_grid {
-    use super::*;
-    use embedded_graphics_core::prelude::DrawTarget;
-
-    pub fn get_x(h: HorizontalAlignment) -> i32 {
-        match h {
-            HorizontalAlignment::Left => 5,
-            HorizontalAlignment::Center => 155,
-            HorizontalAlignment::Right => 305,
-        }
-    }
-
-    pub fn get_y(v: VerticalPosition) -> i32 {
-        match v {
-            VerticalPosition::Baseline => 200,
-            VerticalPosition::Top => 7,
-            VerticalPosition::Center => 87,
-            VerticalPosition::Bottom => 167,
-        }
-    }
-
-    pub fn get_pos(h: HorizontalAlignment, v: VerticalPosition) -> Point {
-        Point::new(get_x(h), get_y(v))
-    }
-
-    pub fn draw<Display>(display: &mut Display)
-    where
-        Display: DrawTarget<Color = Rgb888> + OriginDimensions,
-        Display::Error: core::fmt::Debug,
-    {
-        let vertical_rect = Size::new(
-            1,
-            (get_y(VerticalPosition::Bottom) - get_y(VerticalPosition::Top) + 1)
-                .try_into()
-                .unwrap(),
-        );
-        let horizontal_rect = Size::new(
-            (get_x(HorizontalAlignment::Right) - get_x(HorizontalAlignment::Left) + 1)
-                .try_into()
-                .unwrap(),
-            1,
-        );
-
-        for hpos in [
-            HorizontalAlignment::Left,
-            HorizontalAlignment::Center,
-            HorizontalAlignment::Right,
-        ] {
-            display
-                .fill_solid(
-                    &Rectangle::new(
-                        get_pos(hpos, VerticalPosition::Top),
-                        Size::new(1, display.size().height).try_into().unwrap(),
-                    ),
-                    Rgb888::CSS_ORANGE,
-                )
-                .unwrap();
-        }
-
-        display
-            .fill_solid(
-                &Rectangle::new(
-                    get_pos(HorizontalAlignment::Left, VerticalPosition::Center),
-                    horizontal_rect,
-                ),
-                Rgb888::CSS_ORANGE,
-            )
-            .unwrap();
-
-        for hpos in [HorizontalAlignment::Left, HorizontalAlignment::Right] {
-            display
-                .fill_solid(
-                    &Rectangle::new(get_pos(hpos, VerticalPosition::Top), vertical_rect),
-                    Rgb888::CSS_RED,
-                )
-                .unwrap();
-        }
-
-        for vpos in [VerticalPosition::Top, VerticalPosition::Bottom] {
-            display
-                .fill_solid(
-                    &Rectangle::new(get_pos(HorizontalAlignment::Left, vpos), horizontal_rect),
-                    Rgb888::CSS_RED,
-                )
-                .unwrap();
-        }
-
-        display
-            .fill_solid(
-                &Rectangle::new(
-                    Point::new(0, get_y(VerticalPosition::Baseline)),
-                    Size::new(display.size().width, 1),
-                ),
-                Rgb888::CSS_ORANGE,
-            )
-            .unwrap();
-    }
-}
+mod alignment_grid;
 
 #[test]
 fn letters_not_supported() {
@@ -181,6 +82,13 @@ fn get_ascent_and_descent() {
 
     assert_eq!(font.get_ascent(), 21);
     assert_eq!(font.get_descent(), -7);
+}
+
+#[test]
+fn get_line_height() {
+    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+
+    assert_eq!(font.get_line_height(), 37);
 }
 
 #[test]
@@ -625,7 +533,7 @@ fn aligned_text() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -636,18 +544,21 @@ fn aligned_text() {
                     (VerticalPosition::Baseline, 186),
                 ] {
                     let bounding_box = font
-                        .get_rendered_dimensions_aligned(text, get_pos(hpos, vpos), vpos, hpos)
+                        .get_rendered_dimensions_aligned(
+                            text,
+                            alignment_grid::get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                        )
                         .unwrap()
                         .unwrap();
 
-                    display
-                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
-                        .unwrap();
+                    alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
 
                     let rendered_bounding_box = font
                         .render_aligned(
                             text,
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                             FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -681,7 +592,7 @@ fn aligned_text_with_ignore_unknown() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -692,18 +603,21 @@ fn aligned_text_with_ignore_unknown() {
                     (VerticalPosition::Baseline, 186),
                 ] {
                     let bounding_box = font
-                        .get_rendered_dimensions_aligned(text, get_pos(hpos, vpos), vpos, hpos)
+                        .get_rendered_dimensions_aligned(
+                            text,
+                            alignment_grid::get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                        )
                         .unwrap()
                         .unwrap();
 
-                    display
-                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
-                        .unwrap();
+                    alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
 
                     let rendered_bounding_box = font
                         .render_aligned(
                             text,
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                             FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -727,6 +641,154 @@ fn aligned_text_with_ignore_unknown() {
 }
 
 #[test]
+fn text_empty_lines() {
+    let text = "\na\n\nb\n";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let vpos = VerticalPosition::Top;
+    let position = Point::new(5, 3);
+
+    TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
+        let dimensions = font.get_rendered_dimensions(text, position, vpos).unwrap();
+
+        alignment_grid::draw_bounding_box(
+            &dimensions.bounding_box.unwrap(),
+            Rgb888::new(3, 3, 3),
+            display,
+        );
+
+        let rendered_dimensions = font
+            .render(
+                text,
+                position,
+                vpos,
+                FontColor::Transparent(Rgb888::CSS_BLUE),
+                display,
+            )
+            .unwrap();
+
+        assert_eq!(dimensions, rendered_dimensions);
+        assert_eq!(
+            dimensions,
+            RenderedDimensions {
+                advance: Point::new(0, 84),
+                bounding_box: Some(Rectangle::new(Point::new(4, 30), Size::new(12, 51)))
+            }
+        );
+    });
+}
+
+#[test]
+fn args_empty_lines() {
+    let text = "\na\n\nb\n";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let vpos = VerticalPosition::Top;
+    let position = Point::new(5, 3);
+
+    TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
+        let dimensions = font
+            .get_rendered_dimensions(format_args!("{}", text), position, vpos)
+            .unwrap();
+
+        alignment_grid::draw_bounding_box(
+            &dimensions.bounding_box.unwrap(),
+            Rgb888::new(3, 3, 3),
+            display,
+        );
+
+        let rendered_dimensions = font
+            .render(
+                format_args!("{}", text),
+                position,
+                vpos,
+                FontColor::Transparent(Rgb888::CSS_BLUE),
+                display,
+            )
+            .unwrap();
+
+        assert_eq!(dimensions, rendered_dimensions);
+        assert_eq!(
+            dimensions,
+            RenderedDimensions {
+                advance: Point::new(0, 84),
+                bounding_box: Some(Rectangle::new(Point::new(4, 30), Size::new(12, 51)))
+            }
+        );
+    });
+}
+
+#[test]
+fn aligned_text_empty_lines() {
+    let text = "\na\n\nb\n";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let vpos = VerticalPosition::Top;
+    let hpos = HorizontalAlignment::Center;
+    let position = Point::new(10, 3);
+
+    TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
+        let bounding_box = font
+            .get_rendered_dimensions_aligned(text, position, vpos, hpos)
+            .unwrap()
+            .unwrap();
+
+        alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
+
+        let rendered_bounding_box = font
+            .render_aligned(
+                text,
+                position,
+                vpos,
+                hpos,
+                FontColor::Transparent(Rgb888::CSS_BLUE),
+                display,
+            )
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(bounding_box, rendered_bounding_box);
+        assert_eq!(
+            bounding_box,
+            Rectangle::new(Point::new(4, 30), Size::new(12, 51))
+        );
+    });
+}
+
+#[test]
+fn aligned_args_empty_lines() {
+    let text = "\na\n\nb\n";
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let vpos = VerticalPosition::Top;
+    let hpos = HorizontalAlignment::Center;
+    let position = Point::new(10, 3);
+
+    TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
+        let bounding_box = font
+            .get_rendered_dimensions_aligned(format_args!("{}", text), position, vpos, hpos)
+            .unwrap()
+            .unwrap();
+
+        alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
+
+        let rendered_bounding_box = font
+            .render_aligned(
+                format_args!("{}", text),
+                position,
+                vpos,
+                hpos,
+                FontColor::Transparent(Rgb888::CSS_BLUE),
+                display,
+            )
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(bounding_box, rendered_bounding_box);
+        assert_eq!(
+            bounding_box,
+            Rectangle::new(Point::new(4, 30), Size::new(12, 51))
+        );
+    });
+}
+
+#[test]
 fn aligned_glyph() {
     let ch = 'A';
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
@@ -737,7 +799,7 @@ fn aligned_glyph() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 14),
+                (HorizontalAlignment::Left, 4, 14),
                 (HorizontalAlignment::Center, 148, 14),
                 (HorizontalAlignment::Right, 291, 14),
             ] {
@@ -748,18 +810,21 @@ fn aligned_glyph() {
                     (VerticalPosition::Baseline, 186),
                 ] {
                     let bounding_box = font
-                        .get_rendered_dimensions_aligned(ch, get_pos(hpos, vpos), vpos, hpos)
+                        .get_rendered_dimensions_aligned(
+                            ch,
+                            alignment_grid::get_pos(hpos, vpos),
+                            vpos,
+                            hpos,
+                        )
                         .unwrap()
                         .unwrap();
 
-                    display
-                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
-                        .unwrap();
+                    alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
 
                     let rendered_bounding_box = font
                         .render_aligned(
                             ch,
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                             FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -792,7 +857,7 @@ fn aligned_args() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -805,21 +870,19 @@ fn aligned_args() {
                     let bounding_box = font
                         .get_rendered_dimensions_aligned(
                             format_args!("Agi,\n{}", "iagmA!"),
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                         )
                         .unwrap()
                         .unwrap();
 
-                    display
-                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
-                        .unwrap();
+                    alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
 
                     let rendered_bounding_box = font
                         .render_aligned(
                             format_args!("Agi,\n{}", "iagmA!"),
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                             FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -852,7 +915,7 @@ fn aligned_args_with_ignore_unknown() {
             alignment_grid::draw(display);
 
             for (hpos, expected_x, expected_width) in [
-                (HorizontalAlignment::Left, 5, 68),
+                (HorizontalAlignment::Left, 4, 68),
                 (HorizontalAlignment::Center, 122, 67),
                 (HorizontalAlignment::Right, 238, 67),
             ] {
@@ -865,21 +928,19 @@ fn aligned_args_with_ignore_unknown() {
                     let bounding_box = font
                         .get_rendered_dimensions_aligned(
                             format_args!("☃A☃g☃i☃,☃\n☃{}☃", "☃i☃a☃g☃m☃A☃!☃"),
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                         )
                         .unwrap()
                         .unwrap();
 
-                    display
-                        .fill_solid(&bounding_box, Rgb888::new(3, 3, 3))
-                        .unwrap();
+                    alignment_grid::draw_bounding_box(&bounding_box, Rgb888::new(3, 3, 3), display);
 
                     let rendered_bounding_box = font
                         .render_aligned(
                             format_args!("☃A☃g☃i☃,☃\n☃{}☃", "☃i☃a☃g☃m☃A☃!☃"),
-                            get_pos(hpos, vpos),
+                            alignment_grid::get_pos(hpos, vpos),
                             vpos,
                             hpos,
                             FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -1155,4 +1216,32 @@ fn whitespace_args_does_not_crash() {
             assert_eq!(dim, rendered_dim);
         });
     }
+}
+
+#[test]
+fn passes_on_error() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let position = Point::new(1, 1);
+    let hpos = HorizontalAlignment::Center;
+    let vpos = VerticalPosition::Center;
+    let color = FontColor::Transparent(Rgb888::CSS_ALICE_BLUE);
+
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render('a', position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned('a', position, vpos, hpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render("a", position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned("a", position, vpos, hpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render(format_args!("{}", 1), position, vpos, color, display)
+    });
+    FailingDrawTarget::assert_passes_on_error(|display| {
+        font.render_aligned(format_args!("{}", 1), position, vpos, hpos, color, display)
+    });
 }

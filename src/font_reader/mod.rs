@@ -7,7 +7,7 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FontReader {
     pub data: DebugIgnore<&'static [u8]>,
     pub supports_background_color: bool,

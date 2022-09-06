@@ -8,7 +8,32 @@
 //! While this crate is MIT / Apache-2.0 licensed, note that the fonts themselves *are not*.
 //!
 //! For more information about the font licenses, read the [license agreement](https://github.com/olikraus/u8g2/blob/master/LICENSE) of U8g2.
+//! # Crate features
+//! Additional features can be enabled by adding the following features to your Cargo.toml.
 //!
+//! - `std`:
+//!    - derive [`std::error::Error`] for the crate's error types.
+//! - `embedded_graphics_textstyle`:
+//!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
+//!
+//! # Renderers
+//!
+//! This crate supports two text renderers:
+//!
+//! - [`FontRenderer`] — our own renderer
+//!    - optimized for the U8g2 fonts
+//!    - supports rendering [`format_args()`](format_args)
+//!        - can render everything that can be passed
+//!          to [`format!()`](std::format), [`write!()`](write) or [`println!()`](std::println)
+//!        - does not allocate an intermediate string buffer
+//!    - supports multi-line vertical alignment
+//! - [`U8g2TextStyle`] — a compatibility layer for [`embedded_graphics::text`]
+//!    - exposes all fonts of this crate to [`embedded_graphics::text::Text`] rendering functions
+//!    - supports [`draw_whitespace`](embedded_graphics::text::renderer::TextRenderer::draw_whitespace) for monospace whitespace drawing with a background color
+//!
+//! Everything below this will be about [`FontRenderer`]. For more information about text rendering through [`embedded_graphics`], read the
+//! [embedded-graphics font rendering documentation](embedded_graphics::text).
+//! The intention of [`U8g2TextStyle`] is to replace `MonoTextStyle`.
 //!
 //! # Usage
 //!
@@ -55,7 +80,7 @@
 //! This is mainly for monospace fonts.
 //!
 //! Note that many fonts do not actually support rendering with a background color (due to occlusions).
-//! Supplying a background color to a font that doesn't support it causes a runtime error.
+//! Supplying a background color to a font that doesn't support it causes a [runtime error](crate::Error::BackgroundColorNotSupported).
 //!
 //! # Example
 //!
@@ -91,6 +116,7 @@
     test(no_crate_inject, attr(deny(warnings))),
     test(attr(allow(dead_code)))
 )]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -117,3 +143,9 @@ pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
 pub use renderer::FontRenderer;
+
+#[cfg(feature = "embedded_graphics_textstyle")]
+mod u8g2_text_style;
+
+#[cfg(feature = "embedded_graphics_textstyle")]
+pub use u8g2_text_style::U8g2TextStyle;

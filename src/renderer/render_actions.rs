@@ -13,9 +13,8 @@ pub fn compute_horizontal_offset(
 ) -> i32 {
     match horizontal_align {
         HorizontalAlignment::Left => {
-            // From experiments, it seems that alignment looks more symmetrical
-            // if everything is shifted by one in respect to the anchor point
-            1
+            // No shift, left alignment is identical to `render()`
+            0
         }
         HorizontalAlignment::Center => {
             if line_dimensions.bounding_box_width == 0 {
@@ -28,9 +27,8 @@ pub fn compute_horizontal_offset(
             }
         }
         HorizontalAlignment::Right => {
-            // From experiments, it seems that alignment looks more symmetrical
-            // if everything is shifted by one in respect to the anchor point
-            1 - line_dimensions.advance
+            // `- 1` because otherwise we would shift it one too far
+            -(line_dimensions.advance - 1)
         }
     }
 }
@@ -145,4 +143,62 @@ where
         advance: Point::new(advance as i32, 0),
         bounding_box,
     })
+}
+
+#[cfg(test)]
+#[allow(non_snake_case)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn HorizontalOffset_Left() {
+        let mut a = HorizontalRenderedDimensions::empty();
+
+        a.advance = 5;
+        a.bounding_box_offset = 10;
+        a.bounding_box_width = 3;
+
+        let offset = compute_horizontal_offset(HorizontalAlignment::Left, a);
+
+        assert_eq!(offset, 0);
+    }
+
+    #[test]
+    fn HorizontalOffset_Center_Odd() {
+        let mut a = HorizontalRenderedDimensions::empty();
+
+        a.advance = 5;
+        a.bounding_box_offset = 10;
+        a.bounding_box_width = 3;
+
+        let offset = compute_horizontal_offset(HorizontalAlignment::Center, a);
+
+        assert_eq!(offset, -11);
+    }
+
+    #[test]
+    fn HorizontalOffset_Center_Even() {
+        let mut a = HorizontalRenderedDimensions::empty();
+
+        a.advance = 5;
+        a.bounding_box_offset = 10;
+        a.bounding_box_width = 4;
+
+        let offset = compute_horizontal_offset(HorizontalAlignment::Center, a);
+
+        assert_eq!(offset, -12);
+    }
+
+    #[test]
+    fn HorizontalOffset_Right() {
+        let mut a = HorizontalRenderedDimensions::empty();
+
+        a.advance = 5;
+        a.bounding_box_offset = 10;
+        a.bounding_box_width = 6;
+
+        let offset = compute_horizontal_offset(HorizontalAlignment::Right, a);
+
+        assert_eq!(offset, -4);
+    }
 }
