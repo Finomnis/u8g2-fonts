@@ -72,19 +72,22 @@ where
             adjusted_position.y += 1;
         }
 
-        let result = if let Some(text_color) = self.text_color {
-            let color = if let Some(background_color) = self.background_color {
-                FontColor::WithBackground {
+        let result;
+
+        if let Some(text_color) = self.text_color {
+            let color = match self.background_color {
+                Some(background_color) => FontColor::WithBackground {
                     fg: text_color,
                     bg: background_color,
-                }
-            } else {
-                FontColor::Transparent(text_color)
+                },
+                None => FontColor::Transparent(text_color),
             };
-            self.font
+            result = self
+                .font
                 .render(text, adjusted_position, baseline.into(), color, target)
         } else {
-            self.font
+            result = self
+                .font
                 .get_rendered_dimensions(text, adjusted_position, baseline.into())
                 .map_err(Into::into)
         };
