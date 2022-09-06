@@ -88,7 +88,7 @@ fn get_ascent_and_descent() {
 fn get_line_height() {
     let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
 
-    assert_eq!(font.get_line_height(), 37);
+    assert_eq!(font.get_default_line_height(), 37);
 }
 
 #[test]

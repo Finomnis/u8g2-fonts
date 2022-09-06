@@ -4,7 +4,9 @@ use embedded_graphics_core::{
 };
 
 use crate::{
-    content::LineDimensionsIterator,
+    content::{
+        vertical_offset::compute_vertical_offset_from_static_newlines, LineDimensionsIterator,
+    },
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
@@ -319,21 +321,21 @@ impl FontRenderer {
     /// The ascent of the font.
     ///
     /// Usually a positive number.
-    pub fn get_ascent(&self) -> i8 {
+    pub const fn get_ascent(&self) -> i8 {
         self.font.ascent
     }
 
     /// The descent of the font.
     ///
     /// *IMPORTANT*: This is usually a *negative* number.
-    pub fn get_descent(&self) -> i8 {
+    pub const fn get_descent(&self) -> i8 {
         self.font.descent
     }
 
     /// The maximum possible bounding box of a glyph if it was rendered with
     /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
-    pub fn get_glyph_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
-        let y_offset = 'a'.compute_vertical_offset(&self.font, vertical_pos);
+    pub const fn get_glyph_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
+        let y_offset = compute_vertical_offset_from_static_newlines(&self.font, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
                 self.font.font_bounding_box_x_offset as i32,
@@ -351,9 +353,10 @@ impl FontRenderer {
     /// The default line height.
     ///
     /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
-    pub fn get_line_height(&self) -> u32 {
-        let bb_height: u32 = self.font.font_bounding_box_height.try_into().unwrap();
-        bb_height + 1
+    pub const fn get_default_line_height(&self) -> u32 {
+        assert!(self.font.font_bounding_box_height >= 0);
+
+        self.font.font_bounding_box_height as u32 + 1
     }
 }
 

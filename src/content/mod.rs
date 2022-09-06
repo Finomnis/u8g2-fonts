@@ -6,6 +6,7 @@ use crate::{
 mod args;
 mod character;
 mod text;
+pub mod vertical_offset;
 
 pub trait LineDimensionsIterator {
     fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError>;
@@ -18,19 +19,9 @@ pub trait Content {
 
     #[doc(hidden)]
     fn compute_vertical_offset(&self, font: &FontReader, vertical_pos: VerticalPosition) -> i32 {
-        let newline_advance = font.font_bounding_box_height as i32 + 1;
-        let ascent = font.ascent as i32;
-        let descent = font.descent as i32;
-
-        match vertical_pos {
-            VerticalPosition::Baseline => 0,
-            VerticalPosition::Top => ascent + 1,
-            VerticalPosition::Center => {
-                let total_newline_advance = self.get_newline_count() as i32 * newline_advance;
-                (total_newline_advance + ascent - descent + 1) / 2 + descent - total_newline_advance
-            }
-            VerticalPosition::Bottom => descent - self.get_newline_count() as i32 * newline_advance,
-        }
+        vertical_offset::compute_vertical_offset_from_dynamic_newlines(font, vertical_pos, || {
+            self.get_newline_count() as i32
+        })
     }
 
     #[doc(hidden)]
