@@ -323,7 +323,7 @@ fn render_text_with_vertical_pos() {
                 let bounding_box = font
                     .render(
                         "Agi",
-                        Point::new(5 + 50 * x_position as i32, 25),
+                        Point::new(5 + 50 * i32::try_from(x_position).unwrap(), 25),
                         vertical_pos,
                         FontColor::Transparent(Rgb888::new(237, 28, 36)),
                         display,
@@ -341,7 +341,10 @@ fn render_text_with_vertical_pos() {
                 assert_eq!(
                     bounding_box,
                     Some(Rectangle::new(
-                        Point::new(5 + 50 * x_position as i32, 25 + expected_bounding_box_y),
+                        Point::new(
+                            5 + 50 * i32::try_from(x_position).unwrap(),
+                            25 + expected_bounding_box_y
+                        ),
                         Size::new(42, 23)
                     ))
                 );
@@ -366,7 +369,7 @@ fn get_text_dimensions_with_vertical_pos() {
         let bounding_box = font
             .get_rendered_dimensions(
                 "Agi",
-                Point::new(5 + 50 * x_position as i32, 25),
+                Point::new(5 + 50 * i32::try_from(x_position).unwrap(), 25),
                 vertical_pos,
             )
             .unwrap()
@@ -382,7 +385,10 @@ fn get_text_dimensions_with_vertical_pos() {
         assert_eq!(
             bounding_box,
             Some(Rectangle::new(
-                Point::new(5 + 50 * x_position as i32, 25 + expected_bounding_box_y),
+                Point::new(
+                    5 + 50 * i32::try_from(x_position).unwrap(),
+                    25 + expected_bounding_box_y
+                ),
                 Size::new(42, 23)
             ))
         );
@@ -517,7 +523,7 @@ fn get_glyph_dimensions() {
             .into_iter()
             .enumerate()
             {
-                let position = Point::new(2 + 10 * pos as i32, 15);
+                let position = Point::new(2 + 10 * i32::try_from(pos).unwrap(), 15);
                 let dim = font
                     .get_rendered_dimensions(ch, position, vertical_pos)
                     .unwrap();

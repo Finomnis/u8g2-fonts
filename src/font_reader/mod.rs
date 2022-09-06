@@ -92,15 +92,15 @@ impl FontReader {
 
     fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
         // Retrieve u16 glyph value
-        let encoding = u16::try_from(ch as u32).map_err(|_| LookupError::GlyphNotFound(ch))?;
+        let encoding = u16::try_from(u32::from(ch)).map_err(|_| LookupError::GlyphNotFound(ch))?;
 
         let mut glyph = GlyphSearcher::new(self);
 
         if encoding <= 255 {
-            if encoding >= b'a' as u16 {
-                glyph.jump_by(self.array_offset_lower_a as usize);
-            } else if encoding >= b'A' as u16 {
-                glyph.jump_by(self.array_offset_upper_a as usize);
+            if encoding >= u16::from(b'a') {
+                glyph.jump_by(self.array_offset_lower_a.into());
+            } else if encoding >= u16::from(b'A') {
+                glyph.jump_by(self.array_offset_upper_a.into());
             }
 
             while glyph.get_ch() as u16 != encoding {

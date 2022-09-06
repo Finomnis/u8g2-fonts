@@ -17,7 +17,7 @@ impl UnicodeJumptableReader {
 
         while {
             let entry = self.next_entry()?;
-            jump_offset += entry.jump_distance as usize;
+            jump_offset += usize::from(entry.jump_distance);
             entry.character_upper_limit < encoding
         } {}
 
