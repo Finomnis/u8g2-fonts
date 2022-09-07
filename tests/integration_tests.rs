@@ -416,6 +416,61 @@ fn render_text_with_newline() {
 }
 
 #[test]
+fn render_text_with_custom_line_height() {
+    let dimensions = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_custom_line_height.png"),
+        |display| {
+            let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+            let font = font.with_line_height(30);
+            font.render(
+                "Hello,\nWorld!",
+                Point::new(2, 15),
+                VerticalPosition::default(),
+                FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                display,
+            )
+            .unwrap()
+        },
+    );
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(65, 30),
+            bounding_box: Some(Rectangle::new(Point::new(1, 1), Size::new(65, 44)))
+        }
+    );
+}
+
+#[test]
+fn render_text_with_line_height_reset_to_default() {
+    let dimensions = TestDrawTarget::expect_image(
+        std::include_bytes!("assets/render_text_newline.png"),
+        |display| {
+            let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+            let default_line_height = font.get_default_line_height();
+            let font = font.with_line_height(default_line_height);
+            font.render(
+                "Hello,\nWorld!",
+                Point::new(2, 15),
+                VerticalPosition::default(),
+                FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                display,
+            )
+            .unwrap()
+        },
+    );
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(65, 21),
+            bounding_box: Some(Rectangle::new(Point::new(1, 1), Size::new(65, 35)))
+        }
+    );
+}
+
+#[test]
 fn render_args() {
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
     let dimensions =

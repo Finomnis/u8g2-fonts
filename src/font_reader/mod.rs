@@ -31,13 +31,14 @@ pub struct FontReader {
     pub array_offset_lower_a: u16,
     pub array_offset_0x0100: u16,
     pub ignore_unknown_glyphs: bool,
+    pub line_height: u32,
 }
 
 impl FontReader {
     pub const fn new<F: Font>() -> Self {
         let data = F::DATA;
 
-        Self {
+        let mut this = Self {
             data: DebugIgnore(data),
             glyph_count: data[0],
             supports_background_color: data[1] != 0,
@@ -60,12 +61,25 @@ impl FontReader {
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
             ignore_unknown_glyphs: false,
-        }
+            line_height: 0,
+        };
+        this.line_height = this.get_default_line_height() as u32;
+        this
     }
 
-    pub const fn into_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
         self.ignore_unknown_glyphs = ignore;
         self
+    }
+
+    pub const fn with_line_height(mut self, line_height: u32) -> Self {
+        self.line_height = line_height;
+        self
+    }
+
+    pub const fn get_default_line_height(&self) -> u8 {
+        assert!(self.font_bounding_box_height >= 0);
+        self.font_bounding_box_height as u8 + 1
     }
 
     pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader>, LookupError> {
@@ -168,6 +182,7 @@ mod tests {
             array_offset_lower_a: 0,
             array_offset_0x0100: 2,
             ignore_unknown_glyphs: false,
+            line_height: 3,
         };
 
         assert_eq!(format!("{:?}", font), format!("{:?}", expected));

@@ -43,9 +43,23 @@ impl FontRenderer {
     ///
     /// # Arguments
     ///
-    /// * `ignore` - Whether unknown characters should be ignored
+    /// * `ignore` - Whether unknown characters should be ignored.
     pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
-        self.font = self.font.into_ignore_unknown_glyphs(ignore);
+        self.font = self.font.with_ignore_unknown_glyphs(ignore);
+        self
+    }
+
+    /// Sets the line height.
+    ///
+    /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
+    ///
+    /// If the line height is not set explicitly, it will default to the value returned by [`get_default_line_height()`](FontRenderer::get_default_line_height).
+    ///
+    /// # Arguments
+    ///
+    /// * `line_height` - The desired line height, in pixels.
+    pub const fn with_line_height(mut self, line_height: u32) -> Self {
+        self.font = self.font.with_line_height(line_height);
         self
     }
 
@@ -94,7 +108,7 @@ impl FontRenderer {
         content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
             if ch == '\n' {
                 advance.x = 0;
-                advance.y += font.font_bounding_box_height as i32 + 1;
+                advance.y += i32::try_from(font.line_height).unwrap();
             } else {
                 let dimensions = render_glyph(ch, position + advance, color, font, display)?;
                 advance += dimensions.advance;
@@ -181,7 +195,7 @@ impl FontRenderer {
             if ch == '\n' {
                 advance.x =
                     compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?);
-                advance.y += font.font_bounding_box_height as i32 + 1;
+                advance.y += i32::try_from(font.line_height).unwrap();
             } else {
                 let dimensions = render_glyph(ch, position + advance, color, font, display)?;
                 advance += dimensions.advance;
@@ -223,7 +237,7 @@ impl FontRenderer {
         content.for_each_char(|ch| -> Result<(), LookupError> {
             if ch == '\n' {
                 advance.x = 0;
-                advance.y += font.font_bounding_box_height as i32 + 1;
+                advance.y += i32::try_from(font.line_height).unwrap();
             } else {
                 let dimensions = compute_glyph_dimensions(ch, position + advance, font)?;
                 advance += dimensions.advance;
@@ -288,7 +302,7 @@ impl FontRenderer {
 
                 line_advance = 0;
                 line_bounding_box = None;
-                position.y += font.font_bounding_box_height as i32 + 1;
+                position.y += i32::try_from(font.line_height).unwrap();
             } else {
                 let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
                 line_bounding_box =
@@ -354,9 +368,7 @@ impl FontRenderer {
     ///
     /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
     pub const fn get_default_line_height(&self) -> u32 {
-        assert!(self.font.font_bounding_box_height >= 0);
-
-        self.font.font_bounding_box_height as u32 + 1
+        self.font.get_default_line_height() as u32
     }
 }
 

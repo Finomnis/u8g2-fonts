@@ -5,7 +5,8 @@ pub const fn compute_vertical_offset_from_static_newlines(
     vertical_pos: VerticalPosition,
     newline_count: i32,
 ) -> i32 {
-    let newline_advance = font.font_bounding_box_height as i32 + 1;
+    assert!(font.line_height < i32::MAX as u32);
+    let newline_advance = font.line_height as i32;
     let ascent = font.ascent as i32;
     let descent = font.descent as i32;
 
