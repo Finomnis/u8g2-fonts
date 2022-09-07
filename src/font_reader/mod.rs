@@ -67,12 +67,12 @@ impl FontReader {
         this
     }
 
-    pub const fn into_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
         self.ignore_unknown_glyphs = ignore;
         self
     }
 
-    pub const fn into_line_height(mut self, line_height: u32) -> Self {
+    pub const fn with_line_height(mut self, line_height: u32) -> Self {
         self.line_height = line_height;
         self
     }
