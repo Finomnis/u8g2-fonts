@@ -124,8 +124,7 @@ where
     display
         .fill_solid(
             &Rectangle::new(
-                bounding_box.top_left
-                    + Point::new(0, i32::try_from(bounding_box.size.height).unwrap() - 1),
+                bounding_box.top_left + Point::new(0, bounding_box.size.height as i32 - 1),
                 Size::new(bounding_box.size.width, 1),
             ),
             color,
@@ -135,8 +134,7 @@ where
     display
         .fill_solid(
             &Rectangle::new(
-                bounding_box.top_left
-                    + Point::new(i32::try_from(bounding_box.size.width).unwrap() - 1, 0),
+                bounding_box.top_left + Point::new(bounding_box.size.width as i32 - 1, 0),
                 Size::new(1, bounding_box.size.height),
             ),
             color,

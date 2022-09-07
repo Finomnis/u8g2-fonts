@@ -14,7 +14,7 @@ impl TestDrawTarget {
             size,
             data: vec![
                 <Self as DrawTarget>::Color::WHITE;
-                usize::try_from(size.width).unwrap() * usize::try_from(size.height).unwrap()
+                size.width as usize * size.height as usize
             ],
         }
     }
@@ -37,9 +37,7 @@ impl TestDrawTarget {
         for y in 0..size.height {
             for x in 0..size.width {
                 let image::Rgb(expected) = *expected_image.get_pixel(x, y);
-                let actual = display
-                    .get_pixel(Point::new(x.try_into().unwrap(), y.try_into().unwrap()))
-                    .unwrap();
+                let actual = display.get_pixel(Point::new(x as i32, y as i32)).unwrap();
                 let actual = [actual.r(), actual.g(), actual.b()];
                 if expected != actual {
                     let expected_data_url = convert_image_to_data_url(&expected_image);
