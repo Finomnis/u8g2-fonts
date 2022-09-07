@@ -30,14 +30,18 @@ impl HorizontalRenderedDimensions {
             self.bounding_box_width = other.bounding_box_width;
             self.bounding_box_offset = other.bounding_box_offset;
         } else if other.bounding_box_offset != 0 {
-            let self_right =
-                self.bounding_box_offset + i32::try_from(self.bounding_box_width).unwrap();
-            let other_right =
-                other.bounding_box_offset + i32::try_from(other.bounding_box_width).unwrap();
+            debug_assert!(self.bounding_box_width <= i32::MAX as u32);
+            debug_assert!(other.bounding_box_width <= i32::MAX as u32);
+
+            let self_right = self.bounding_box_offset + self.bounding_box_width as i32;
+            let other_right = other.bounding_box_offset + other.bounding_box_width as i32;
             let right = cmp::max(self_right, other_right);
             let left = cmp::min(self.bounding_box_offset, other.bounding_box_offset);
+
+            debug_assert!(right >= left);
+
             self.bounding_box_offset = left;
-            self.bounding_box_width = (right - left).try_into().unwrap();
+            self.bounding_box_width = (right - left) as u32;
         }
     }
 }
