@@ -1,4 +1,2 @@
-- implement const fn: line height setter in Renderer
-
 Maybe later, if requested:
 - Rotation (like in u8g2)
