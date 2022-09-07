@@ -123,7 +123,7 @@ where
             }
         }
 
-        Ok(position + Point::new(width as i32, 0))
+        Ok(position + Size::new(width, 0))
     }
 
     fn measure_string(&self, text: &str, position: Point, baseline: Baseline) -> TextMetrics {

@@ -21,7 +21,7 @@ impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
         if offset == 0 {
             false
         } else {
-            self.jump_by(offset as usize);
+            self.jump_by(offset.into());
             true
         }
     }
@@ -49,7 +49,7 @@ impl<'a> GlyphSearcher<'a, 1> {
         mut self,
         offset: u16,
     ) -> (GlyphSearcher<'a, 2>, UnicodeJumptableReader) {
-        self.jump_by(offset as usize);
+        self.jump_by(offset.into());
 
         (
             GlyphSearcher {

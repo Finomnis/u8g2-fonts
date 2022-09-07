@@ -23,7 +23,7 @@ pub fn compute_horizontal_offset(
                 let width = line_dimensions.bounding_box_width;
                 let left = line_dimensions.bounding_box_offset;
 
-                -(width as i32 / 2 + left)
+                -(i32::try_from(width).unwrap() / 2 + left)
             }
         }
         HorizontalAlignment::Right => {
@@ -56,7 +56,7 @@ pub fn compute_glyph_dimensions(
     };
 
     Ok(RenderedDimensions {
-        advance: Point::new(advance as i32, 0),
+        advance: Point::new(advance.into(), 0),
         bounding_box,
     })
 }
@@ -73,8 +73,8 @@ pub fn compute_horizontal_glyph_dimensions(
         }
     };
 
-    let advance = glyph.advance() as i32;
-    let width = glyph.width() as u32;
+    let advance = glyph.advance().into();
+    let width = glyph.width().into();
     let left = glyph.left(position_x);
 
     Ok(HorizontalRenderedDimensions {
@@ -140,7 +140,7 @@ where
     };
 
     Ok(RenderedDimensions {
-        advance: Point::new(advance as i32, 0),
+        advance: Point::new(advance.into(), 0),
         bounding_box,
     })
 }

@@ -20,7 +20,7 @@ pub trait Content {
     #[doc(hidden)]
     fn compute_vertical_offset(&self, font: &FontReader, vertical_pos: VerticalPosition) -> i32 {
         vertical_offset::compute_vertical_offset_from_dynamic_newlines(font, vertical_pos, || {
-            self.get_newline_count() as i32
+            self.get_newline_count().try_into().unwrap()
         })
     }
 
