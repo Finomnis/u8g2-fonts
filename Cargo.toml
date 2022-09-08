@@ -32,7 +32,6 @@ embedded-graphics-core = "0.3.3"
 embedded-graphics = { version = "0.7.1", optional = true }
 
 [dev-dependencies]
-boxed-array = "0.1.0"
 image = "0.24.3"
 base64 = "0.13.0"
 
