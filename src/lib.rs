@@ -22,7 +22,7 @@
 //!
 //! - [`FontRenderer`] — our own renderer
 //!    - optimized for the U8g2 fonts
-//!    - supports rendering [`format_args()`](format_args)
+//!    - supports rendering [`format_args!()`](format_args)
 //!        - can render everything that can be passed
 //!          to [`format!()`](std::format), [`write!()`](write) or [`println!()`](std::println)
 //!        - does not allocate an intermediate string buffer
