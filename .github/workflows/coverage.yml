@@ -16,27 +16,23 @@ jobs:
       RUST_TEST_THREADS: "1"
     steps:
       - name: Install rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@nightly
         with:
-          toolchain: nightly
           components: llvm-tools-preview
-          override: true
+
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
       - name: Install llvm-cov
-        uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-llvm-cov
-          version: 0.2.3
-          use-tool-cache: true
+        uses: taiki-e/install-action@cargo-llvm-cov
+
       #- uses: Swatinem/rust-cache@v1
+
       - name: Coverage
         env:
           RUST_LOG: "debug"
-        uses: actions-rs/cargo@v1
-        with:
-          command: llvm-cov
-          args: --all-features --workspace --lcov --output-path lcov.info
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

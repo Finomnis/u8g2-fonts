@@ -9,6 +9,9 @@ on:
 
 name: CI
 
+env:
+  RUSTFLAGS: "-D warnings"
+
 jobs:
   build:
     name: Build
@@ -24,16 +27,36 @@ jobs:
           - riscv64gc-unknown-linux-gnu
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --all-features --target=${{ matrix.target }}
+      - name: Install cross
+        uses: taiki-e/install-action@cross
+
+      - name: Build
+        run: cross build --release --all-features --target=${{ matrix.target }}
+
+  build_no_std:
+    name: Build for no-std targets
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - thumbv6m-none-eabi
+          - thumbv7em-none-eabihf
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Install cross
+        uses: taiki-e/install-action@cross
+
+      - name: Build
+        run: cross build --release --features embedded_graphics_textstyle --target=${{ matrix.target }}
 
   build_no_features:
     name: Build with no features
@@ -41,15 +64,16 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --no-default-features
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --no-default-features
+
 
   build_feature_std:
     name: Build with 'std' feature
@@ -57,15 +81,15 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --no-default-features --features std
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --no-default-features --features std
 
   build_feature_embedded_graphics_textstyle:
     name: Build with 'embedded_graphics_textstyle' feature
@@ -73,15 +97,16 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --no-default-features --features embedded_graphics_textstyle
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --no-default-features --features embedded_graphics_textstyle
 
   build_examples:
     name: Build examples
@@ -89,141 +114,102 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install libsdl2-dev
         run: sudo apt-get install -y libsdl2-dev
 
       #- uses: Swatinem/rust-cache@v1
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all --manifest-path ./examples/simulator/Cargo.toml
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --all --manifest-path ./examples/simulator/Cargo.toml
 
   test:
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
-      #- uses: Swatinem/rust-cache@v1
-
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features -- --test-threads 1
+      - name: Build
+        run: cargo test --all-features -- --test-threads 1
 
   lints:
     name: Lints
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
           components: clippy
 
       - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
       - name: Run cargo clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features -- -D warnings
+        run: cargo clippy --all-features -- -D warnings
 
   docs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
+        uses: dtolnay/rust-toolchain@nightly
 
       - name: Run cargo doc
         env:
           RUSTDOCFLAGS: "--cfg docsrs -Dwarnings"
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --all-features
+        run: cargo doc --all-features
 
   leaks:
     name: Memory leaks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install llvm
         # Required to resolve symbols in sanitizer output
         run: sudo apt-get install -y llvm
 
       - name: Install nightly toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
+        uses: dtolnay/rust-toolchain@nightly
 
       #- uses: Swatinem/rust-cache@v1
 
       - name: Build
-        uses: actions-rs/cargo@v1
         env:
           RUSTFLAGS: "-Z sanitizer=address"
-        with:
-          command: build
-          args: --target x86_64-unknown-linux-gnu --tests
+        run: cargo build --target x86_64-unknown-linux-gnu --tests
 
       - name: Run tests with leak sanitizer
-        uses: actions-rs/cargo@v1
         env:
           RUSTFLAGS: "-Z sanitizer=address"
-        with:
-          command: test
-          args: --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
+        run: cargo test --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
 
   check_fonts:
     name: Check generated fonts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       #- uses: Swatinem/rust-cache@v1
 
@@ -237,6 +223,7 @@ jobs:
     if: github.event_name == 'release'
     needs: [
         build,
+        build_no_std,
         build_no_features,
         build_feature_std,
         build_feature_embedded_graphics_textstyle,
@@ -249,15 +236,10 @@ jobs:
       ]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: clippy
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Query crate version
         run: echo "crate_version=$(cargo metadata --format-version=1 --no-deps | python -c "import sys,json; print('v' + json.load(sys.stdin)['packages'][0]['version'])")" >> $GITHUB_ENV
@@ -275,12 +257,7 @@ jobs:
         run: test ${{ env.crate_version }} = ${{ env.release_tag_version }}
 
       - name: Cargo login
-        uses: actions-rs/cargo@v1
-        with:
-          command: login
-          args: ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
 
       - name: Cargo publish
-        uses: actions-rs/cargo@v1
-        with:
-          command: publish
+        run: cargo publish
