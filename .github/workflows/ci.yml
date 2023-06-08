@@ -178,7 +178,7 @@ jobs:
       - name: Run tests with leak sanitizer
         env:
           RUSTFLAGS: "-Z sanitizer=address"
-        runt: cargo test --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
+        run: cargo test --target x86_64-unknown-linux-gnu --tests -- --test-threads 1
 
   check_fonts:
     name: Check generated fonts
