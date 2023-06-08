@@ -1,5 +1,6 @@
 use std::{convert::Infallible, io::Cursor};
 
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use embedded_graphics_core::{pixelcolor::Rgb888, prelude::*};
 use image::RgbImage;
 
@@ -91,7 +92,7 @@ fn convert_image_to_data_url(img: &RgbImage) -> String {
     img.write_to(&mut image_cursor, image::ImageFormat::Png)
         .unwrap();
 
-    format!("data:image/png;base64,{}", base64::encode(image_data))
+    format!("data:image/png;base64,{}", BASE64.encode(image_data))
 }
 
 impl DrawTarget for TestDrawTarget {

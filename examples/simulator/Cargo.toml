@@ -11,6 +11,6 @@ u8g2-fonts = { path = "../..", features = [
     "std",
     "embedded_graphics_textstyle",
 ] }
-embedded-graphics = "0.7"
-embedded-graphics-simulator = "0.3"
-anyhow = "1"
+embedded-graphics = "0.8.0"
+embedded-graphics-simulator = "0.5.0"
+anyhow = "1.0.71"
