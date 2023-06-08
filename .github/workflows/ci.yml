@@ -24,8 +24,6 @@ jobs:
           - x86_64-unknown-linux-gnu
           - arm-unknown-linux-gnueabi
           - armv7-unknown-linux-gnueabihf
-          - thumbv6m-none-eabi
-          - thumbv7em-none-eabihf
           - riscv64gc-unknown-linux-gnu
     steps:
       - name: Checkout sources
@@ -38,6 +36,27 @@ jobs:
 
       - name: Build
         run: cross build --release --all-features --target=${{ matrix.target }}
+
+  build_no_std:
+    name: Build for no-std targets
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - thumbv6m-none-eabi
+          - thumbv7em-none-eabihf
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Install cross
+        uses: taiki-e/install-action@cross
+
+      - name: Build
+        run: cross build --release --features embedded_graphics_textstyle --target=${{ matrix.target }}
 
   build_no_features:
     name: Build with no features
@@ -204,6 +223,7 @@ jobs:
     if: github.event_name == 'release'
     needs: [
         build,
+        build_no_std,
         build_no_features,
         build_feature_std,
         build_feature_embedded_graphics_textstyle,
