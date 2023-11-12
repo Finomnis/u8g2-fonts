@@ -1,0 +1,20 @@
+name: Check for new upstream font data
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  check_upstream_changes:
+    name: Check upstream changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Check generated fonts file
+        run: ./regenerate_fonts_file_from_upstream.sh --check --hide-progress
