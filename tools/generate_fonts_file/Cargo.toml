@@ -10,3 +10,5 @@ clap = { version = "4.3.2", features = ["derive"] }
 miette = { version = "5.9.0", features = ["fancy"] }
 regex = "1.8.4"
 lazy_static = "1.4.0"
+rayon = "1.8.0"
+indicatif = { version = "0.17.7", features = ["rayon"] }
