@@ -8,7 +8,7 @@ use std::{
 };
 
 use clap::Parser;
-use indicatif::ParallelProgressIterator;
+use indicatif::{ParallelProgressIterator, ProgressBar};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
 use rayon::prelude::*;
 
@@ -31,6 +31,10 @@ struct Args {
     /// differs from the existing code
     #[clap(long)]
     check: bool,
+
+    /// Hides the progress bar
+    #[clap(long)]
+    hide_progress: bool,
 }
 
 fn read_input_file(file: &str) -> Result<Vec<u8>> {
@@ -118,13 +122,24 @@ fn main() -> Result<()> {
 
     out.extend_from_slice(b"use crate::Font;\n");
 
-    let fonts = pre_parse_fonts(&input_data).wrap_err("Unable to parse fonts file!")?;
+    let fonts = pre_parse_fonts(&input_data)
+        .wrap_err("Unable to parse fonts file!")?
+        .into_par_iter();
     println!("Found {} fonts.", fonts.len());
-    let font_data = fonts.into_par_iter().progress();
-    let progress_bar = font_data.progress.clone();
-    let font_data = font_data
+
+    let mut print_msg: Box<dyn Fn(String) + Sync + Send> = Box::new(|s| println!("{}", s));
+    let fonts = if args.hide_progress {
+        fonts.progress_with(ProgressBar::hidden())
+    } else {
+        let fonts = fonts.progress();
+        let progress_bar = fonts.progress.clone();
+        print_msg = Box::new(move |s| progress_bar.println(s));
+        fonts
+    };
+
+    let font_data = fonts
         .map(|font_entry| {
-            progress_bar.println(format!(
+            print_msg(format!(
                 "{:>5} kB - {}",
                 font_entry.expected_length / 1024 + 1,
                 font_entry.name,
