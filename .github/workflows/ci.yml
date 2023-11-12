@@ -240,7 +240,7 @@ jobs:
         run: cargo msrv verify --log-target=stdout
 
   semver:
-    name: semver
+    name: Semantic Versioning
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
