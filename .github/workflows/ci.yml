@@ -236,8 +236,8 @@ jobs:
       #- uses: Swatinem/rust-cache@v1
 
       - name: Check MSRV
-        run: cargo msrv
-        #run: cargo msrv verify
+        run: cargo msrv --log-target=stdout
+        #run: cargo msrv verify --log-target=stdout
 
   release:
     name: Publish version
