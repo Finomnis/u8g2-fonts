@@ -216,6 +216,26 @@ jobs:
       - name: Regenerate and check
         run: ./regenerate_fonts_file.sh --check
 
+  msrv:
+    name: Minimum Supported Rust Version
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: "-D warnings"
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install cargo-msrv
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-msrv@0.16.0-beta.17
+
+      #- uses: Swatinem/rust-cache@v1
+
+      - name: Check MSRV
+        run: cargo msrv
+        #run: cargo msrv verify
+
   release:
     name: Publish version
     runs-on: ubuntu-latest
@@ -232,7 +252,8 @@ jobs:
         lints,
         docs,
         leaks,
-        check_fonts
+        check_fonts,
+        msrv
       ]
     steps:
       - name: Checkout sources
