@@ -8,6 +8,7 @@ use std::{
 };
 
 use clap::Parser;
+use indicatif::ParallelProgressIterator;
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
 use rayon::prelude::*;
 
@@ -72,12 +73,6 @@ fn check_output_file(file: &str, data: &[u8]) -> Result<()> {
 }
 
 fn process_font_entry<'a>(font_entry: FontEntry<'a>, out: &mut Vec<u8>) -> Result<()> {
-    println!(
-        "{:>5} kB - {}",
-        font_entry.expected_length / 1024 + 1,
-        font_entry.name,
-    );
-
     out.extend_from_slice(b"\npub struct ");
     out.extend_from_slice(font_entry.name.as_bytes());
     out.extend_from_slice(b";\nimpl Font for ");
@@ -125,21 +120,25 @@ fn main() -> Result<()> {
 
     let fonts = pre_parse_fonts(&input_data).wrap_err("Unable to parse fonts file!")?;
     println!("Found {} fonts.", fonts.len());
-    out = out
-        .into_par_iter()
-        .chain(
-            fonts
-                .into_par_iter()
-                .map(|font_entry| {
-                    let mut font_out = Vec::new();
-                    process_font_entry(font_entry, &mut font_out)
-                        .wrap_err("Error while processing font entry")
-                        .unwrap();
-                    font_out
-                })
-                .flatten(),
-        )
-        .collect();
+    let font_data = fonts.into_par_iter().progress();
+    let progress_bar = font_data.progress.clone();
+    let font_data = font_data
+        .map(|font_entry| {
+            progress_bar.println(format!(
+                "{:>5} kB - {}",
+                font_entry.expected_length / 1024 + 1,
+                font_entry.name,
+            ));
+
+            let mut font_out = Vec::new();
+            process_font_entry(font_entry, &mut font_out)
+                .wrap_err("Error while processing font entry")
+                .unwrap();
+            font_out
+        })
+        .flatten();
+
+    out = out.into_par_iter().chain(font_data).collect();
 
     if args.check {
         check_output_file(&args.file_out, &out)
