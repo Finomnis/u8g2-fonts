@@ -8,7 +8,9 @@ use std::{
 };
 
 use clap::Parser;
+use indicatif::{ParallelProgressIterator, ProgressBar};
 use miette::{bail, IntoDiagnostic, Result, WrapErr};
+use rayon::prelude::*;
 
 use crate::{font_data::consume_font_data, font_entry::FontEntry};
 
@@ -29,6 +31,10 @@ struct Args {
     /// differs from the existing code
     #[clap(long)]
     check: bool,
+
+    /// Hides the progress bar
+    #[clap(long)]
+    hide_progress: bool,
 }
 
 fn read_input_file(file: &str) -> Result<Vec<u8>> {
@@ -70,26 +76,14 @@ fn check_output_file(file: &str, data: &[u8]) -> Result<()> {
     Ok(())
 }
 
-fn process_font_entry<'a>(
-    font_entry: &FontEntry,
-    out: &mut Vec<u8>,
-    mut leftover_data: &'a [u8],
-) -> Result<&'a [u8]> {
-    println!(
-        "{:>5} kB - {}",
-        font_entry.expected_length / 1024 + 1,
-        String::from_utf8(font_entry.name.to_vec()).unwrap(),
-    );
-
+fn process_font_entry<'a>(font_entry: FontEntry<'a>, out: &mut Vec<u8>) -> Result<()> {
     out.extend_from_slice(b"\npub struct ");
-    out.extend_from_slice(font_entry.name);
+    out.extend_from_slice(font_entry.name.as_bytes());
     out.extend_from_slice(b";\nimpl Font for ");
-    out.extend_from_slice(font_entry.name);
+    out.extend_from_slice(font_entry.name.as_bytes());
     out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
 
-    let (d, length) =
-        consume_font_data(leftover_data, out).wrap_err("Unable to consume font data")?;
-    leftover_data = d;
+    let length = consume_font_data(font_entry.data, out).wrap_err("Unable to consume font data")?;
 
     miette::ensure!(
         length == font_entry.expected_length,
@@ -100,7 +94,23 @@ fn process_font_entry<'a>(
 
     out.extend_from_slice(b"\";\n}\n");
 
-    Ok(leftover_data)
+    Ok(())
+}
+
+fn pre_parse_fonts(mut data: &[u8]) -> Result<Vec<FontEntry>> {
+    let mut result = Vec::new();
+    loop {
+        let (leftover, entry) = FontEntry::try_consume(data)?;
+        data = leftover;
+
+        match entry {
+            Some(entry) => {
+                result.push(entry);
+            }
+            None => break,
+        }
+    }
+    Ok(result)
 }
 
 fn main() -> Result<()> {
@@ -112,20 +122,38 @@ fn main() -> Result<()> {
 
     out.extend_from_slice(b"use crate::Font;\n");
 
-    let mut leftover_data = input_data.as_slice();
-    loop {
-        let (s, font_entry) = FontEntry::try_consume(leftover_data)
-            .wrap_err("Error while searching for next font entry")?;
-        leftover_data = s;
+    let fonts = pre_parse_fonts(&input_data)
+        .wrap_err("Unable to parse fonts file!")?
+        .into_par_iter();
+    println!("Found {} fonts.", fonts.len());
 
-        match font_entry {
-            None => break,
-            Some(font_entry) => {
-                leftover_data = process_font_entry(&font_entry, &mut out, &mut leftover_data)
-                    .wrap_err("Error while processing font entry")?;
-            }
-        }
-    }
+    let mut print_msg: Box<dyn Fn(String) + Sync + Send> = Box::new(|s| println!("{}", s));
+    let fonts = if args.hide_progress {
+        fonts.progress_with(ProgressBar::hidden())
+    } else {
+        let fonts = fonts.progress();
+        let progress_bar = fonts.progress.clone();
+        print_msg = Box::new(move |s| progress_bar.println(s));
+        fonts
+    };
+
+    let font_data = fonts
+        .map(|font_entry| {
+            print_msg(format!(
+                "{:>5} kB - {}",
+                font_entry.expected_length / 1024 + 1,
+                font_entry.name,
+            ));
+
+            let mut font_out = Vec::new();
+            process_font_entry(font_entry, &mut font_out)
+                .wrap_err("Error while processing font entry")
+                .unwrap();
+            font_out
+        })
+        .flatten();
+
+    out = out.into_par_iter().chain(font_data).collect();
 
     if args.check {
         check_output_file(&args.file_out, &out)
