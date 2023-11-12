@@ -214,7 +214,7 @@ jobs:
       #- uses: Swatinem/rust-cache@v1
 
       - name: Regenerate and check
-        run: ./regenerate_fonts_file.sh --check
+        run: ./regenerate_fonts_file.sh --check --hide-progress
 
   msrv:
     name: Minimum Supported Rust Version
