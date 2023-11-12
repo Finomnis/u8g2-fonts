@@ -1,0 +1,19 @@
+name: Upstream
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  check_upstream_changes:
+    name: Check fonts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Check if upstream changed the font file
+        run: cd u8g2 && git fetch && git diff --exit-code origin/master HEAD -- csrc/u8g2_fonts.c
