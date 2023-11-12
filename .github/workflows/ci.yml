@@ -241,7 +241,6 @@ jobs:
 
   semver:
     name: semver
-    needs: basics
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
