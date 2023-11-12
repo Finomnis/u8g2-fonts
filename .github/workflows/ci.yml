@@ -225,10 +225,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Install cargo-msrv
+      - name: Install cargo-binstall
         uses: taiki-e/install-action@v2
         with:
-          tool: cargo-msrv@0.16.0-beta.17
+          tool: cargo-binstall
+
+      - name: Install cargo-msrv
+        run: cargo binstall --version 0.16.0-beta.17 --no-confirm cargo-msrv
 
       #- uses: Swatinem/rust-cache@v1
 
