@@ -239,6 +239,16 @@ jobs:
         #run: cargo msrv --log-target=stdout
         run: cargo msrv verify --log-target=stdout
 
+  semver:
+    name: semver
+    needs: basics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Check semver
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+
   release:
     name: Publish version
     runs-on: ubuntu-latest
@@ -256,7 +266,8 @@ jobs:
         docs,
         leaks,
         check_fonts,
-        msrv
+        msrv,
+        semver
       ]
     steps:
       - name: Checkout sources
