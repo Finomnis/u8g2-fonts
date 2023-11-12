@@ -14,8 +14,4 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Check if upstream changed the font file
-        run: |
-          set -eu
-          cd u8g2
-          git fetch
-          git diff origin/master HEAD -- csrc/u8g2_fonts.c
+        run: cd u8g2/ && git fetch && git diff origin/master HEAD -- csrc/u8g2_fonts.c
