@@ -21,7 +21,7 @@ impl TestDrawTarget {
     }
 
     pub fn expect_image<T>(image_data: &'static [u8], render: impl FnOnce(&mut Self) -> T) -> T {
-        let expected_image: RgbImage = image::io::Reader::new(Cursor::new(image_data))
+        let expected_image: RgbImage = image::ImageReader::new(Cursor::new(image_data))
             .with_guessed_format()
             .expect("Reference image data is not a recognized image format!")
             .decode()
