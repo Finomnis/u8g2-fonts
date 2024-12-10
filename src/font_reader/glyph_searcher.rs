@@ -7,7 +7,7 @@ pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize> {
     font: &'a FontReader,
 }
 
-impl<'a, const CHAR_WIDTH: usize> GlyphSearcher<'a, CHAR_WIDTH> {
+impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
     pub fn jump_by(&mut self, offset: usize) {
         self.data = &self.data[offset..];
     }
@@ -61,7 +61,7 @@ impl<'a> GlyphSearcher<'a, 1> {
     }
 }
 
-impl<'a> GlyphSearcher<'a, 2> {
+impl GlyphSearcher<'_, 2> {
     pub fn get_ch(&self) -> u16 {
         u16::from_be_bytes([
             self.data.first().cloned().unwrap(),

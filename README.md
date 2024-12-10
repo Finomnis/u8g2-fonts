@@ -44,4 +44,4 @@ If we [replace the text rendering section](examples/simulator/src/bin/embedded_g
 
 ![Embedded-graphics example with our U8g2 font](assets/embedded_graphics_hello_world.png?raw=true)
 
-Note that the letter `i` sits snuck in between the `h` and the `c`, compared to the original example. This is not a monospace font.
+Note that the letter `i` sits snug in between the `h` and the `c`, compared to the original example. This is not a monospace font.
