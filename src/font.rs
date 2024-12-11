@@ -11,6 +11,7 @@ pub trait Font {
 macro_rules! font_definitions {
     ( $($fontname:ident),* $(,)? ) => {
         $(
+            #[doc = concat!(r#"<img src="https://raw.githubusercontent.com/wiki/olikraus/u8g2/fntpic/"#, stringify!($fontname), r#".png">"#)]
             pub struct $fontname;
             impl $crate::Font for $fontname {
                 const DATA: &'static [u8] = include_bytes!(concat!(stringify!($fontname), ".u8g2font"));
