@@ -14,3 +14,9 @@ u8g2-fonts = { path = "../..", features = [
 embedded-graphics = "0.8.0"
 embedded-graphics-simulator = "0.5.0"
 anyhow = "1.0.71"
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+lto = true
+codegen-units = 1
+
