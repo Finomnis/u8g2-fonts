@@ -1,15 +1,15 @@
 mod font_data;
 mod font_entry;
-mod u8_compression;
 
 use std::{
     fs::File,
     io::{Read, Write},
+    path::{Path, PathBuf},
 };
 
 use clap::Parser;
 use indicatif::{ParallelProgressIterator, ProgressBar};
-use miette::{bail, IntoDiagnostic, Result, WrapErr};
+use miette::{IntoDiagnostic, Result, WrapErr};
 use rayon::prelude::*;
 
 use crate::{font_data::consume_font_data, font_entry::FontEntry};
@@ -19,21 +19,15 @@ use crate::{font_data::consume_font_data, font_entry::FontEntry};
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// The path of the u8g2_fonts.c input file
-    #[clap(value_parser)]
+    #[arg()]
     file_in: String,
 
-    /// The path of the rust output file
-    #[clap(value_parser)]
-    file_out: String,
-
-    /// Doesn't write anything, but instead returns
-    /// a non-zero exitcode if the generated code
-    /// differs from the existing code
-    #[clap(long)]
-    check: bool,
+    /// The path of the rust output directory
+    #[arg()]
+    dir_out: PathBuf,
 
     /// Hides the progress bar
-    #[clap(long)]
+    #[arg(long)]
     hide_progress: bool,
 }
 
@@ -50,40 +44,20 @@ fn read_input_file(file: &str) -> Result<Vec<u8>> {
     Ok(data)
 }
 
-fn write_output_file(file: &str, data: &[u8]) -> Result<()> {
+fn write_file(file: &Path, data: &[u8]) -> Result<()> {
     File::create(file)
         .into_diagnostic()
-        .wrap_err_with(|| format!("Unable to open '{}'", &file))?
+        .wrap_err_with(|| format!("Unable to open '{:?}'", &file))?
         .write_all(data)
         .into_diagnostic()
         .wrap_err("Error while writing file")
 }
 
-fn check_output_file(file: &str, data: &[u8]) -> Result<()> {
-    let mut existing_data = Vec::new();
+fn process_font_entry<'a>(font_entry: FontEntry<'a>) -> Result<Box<[u8]>> {
+    let mut font_data = vec![];
 
-    File::open(&file)
-        .into_diagnostic()
-        .wrap_err_with(|| format!("Unable to open '{}'", &file))?
-        .read_to_end(&mut existing_data)
-        .into_diagnostic()
-        .wrap_err("Error while reading file")?;
-
-    if data != existing_data {
-        bail!("The generated code differs from the existing code!");
-    }
-
-    Ok(())
-}
-
-fn process_font_entry<'a>(font_entry: FontEntry<'a>, out: &mut Vec<u8>) -> Result<()> {
-    out.extend_from_slice(b"\npub struct ");
-    out.extend_from_slice(font_entry.name.as_bytes());
-    out.extend_from_slice(b";\nimpl Font for ");
-    out.extend_from_slice(font_entry.name.as_bytes());
-    out.extend_from_slice(b" {\n    const DATA: &'static [u8] = b\"");
-
-    let length = consume_font_data(font_entry.data, out).wrap_err("Unable to consume font data")?;
+    let length = consume_font_data(font_entry.data, &mut font_data)
+        .wrap_err("Unable to consume font data")?;
 
     miette::ensure!(
         length == font_entry.expected_length,
@@ -92,9 +66,7 @@ fn process_font_entry<'a>(font_entry: FontEntry<'a>, out: &mut Vec<u8>) -> Resul
         length
     );
 
-    out.extend_from_slice(b"\";\n}\n");
-
-    Ok(())
+    Ok(font_data.into_boxed_slice())
 }
 
 fn pre_parse_fonts(mut data: &[u8]) -> Result<Vec<FontEntry>> {
@@ -127,6 +99,13 @@ fn main() -> Result<()> {
         .into_par_iter();
     println!("Found {} fonts.", fonts.len());
 
+    std::fs::remove_dir_all(&args.dir_out)
+        .into_diagnostic()
+        .wrap_err("Unable to remove output directory!")?;
+    std::fs::create_dir(&args.dir_out)
+        .into_diagnostic()
+        .wrap_err("Unable to create output directory!")?;
+
     let mut print_msg: Box<dyn Fn(String) + Sync + Send> = Box::new(|s| println!("{}", s));
     let fonts = if args.hide_progress {
         fonts.progress_with(ProgressBar::hidden())
@@ -137,7 +116,7 @@ fn main() -> Result<()> {
         fonts
     };
 
-    let font_data = fonts
+    let font_names = fonts
         .map(|font_entry| {
             print_msg(format!(
                 "{:>5} kB - {}",
@@ -145,20 +124,39 @@ fn main() -> Result<()> {
                 font_entry.name,
             ));
 
-            let mut font_out = Vec::new();
-            process_font_entry(font_entry, &mut font_out)
+            let name = font_entry.name;
+
+            let font_data = process_font_entry(font_entry)
                 .wrap_err("Error while processing font entry")
                 .unwrap();
-            font_out
+
+            write_file(&args.dir_out.join(format!("{name}.u8g2font")), &font_data)
+                .wrap_err(format!("Failed to write font file '{name}'"))
+                .unwrap();
+
+            name
         })
-        .flatten();
+        .collect::<Vec<_>>();
 
-    out = out.into_par_iter().chain(font_data).collect();
+    let mut fonts_file = File::create(args.dir_out.join("mod.rs"))
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Unable to open '{:?}'", args.dir_out.join("mod.rs")))?;
 
-    if args.check {
-        check_output_file(&args.file_out, &out)
-            .wrap_err("Verifying integrity of generated file failed")
-    } else {
-        write_output_file(&args.file_out, &out).wrap_err("Unable to write converted file")
+    fonts_file
+        .write_all(b"crate::font::font_definitions!(\n")
+        .into_diagnostic()
+        .wrap_err("Error while writing mod.rs!")?;
+
+    for name in font_names {
+        write!(fonts_file, "  {name},")
+            .into_diagnostic()
+            .wrap_err("Error while writing mod.rs!")?;
     }
+
+    fonts_file
+        .write_all(b");")
+        .into_diagnostic()
+        .wrap_err("Error while writing file")?;
+
+    Ok(())
 }

@@ -1,7 +1,5 @@
 use miette::{miette, Result};
 
-use crate::u8_compression::write_byte;
-
 #[derive(Debug)]
 enum State {
     Padding,
@@ -24,7 +22,7 @@ pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<us
     let mut num_produced = 0;
 
     let mut produce = |c| {
-        write_byte(out, c);
+        out.push(c);
         num_produced += 1;
     };
 
