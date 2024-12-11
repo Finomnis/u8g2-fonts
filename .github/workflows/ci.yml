@@ -217,7 +217,7 @@ jobs:
         run: ./regenerate_fonts_file.sh --hide-progress
 
       - name: Check for diffs
-        run: test -z "$(git status --porcelain)"
+        run: git status && test -z "$(git status --porcelain)"
 
   msrv:
     name: Minimum Supported Rust Version
