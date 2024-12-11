@@ -142,19 +142,17 @@ fn main() -> Result<()> {
         .into_diagnostic()
         .wrap_err_with(|| format!("Unable to open '{:?}'", args.dir_out.join("mod.rs")))?;
 
-    fonts_file
-        .write_all(b"crate::font::font_definitions!(\n")
+    write!(fonts_file, "crate::font::font_definitions!(\n")
         .into_diagnostic()
         .wrap_err("Error while writing mod.rs!")?;
 
     for name in font_names {
-        write!(fonts_file, "  {name},")
+        write!(fonts_file, "    {name},\n")
             .into_diagnostic()
             .wrap_err("Error while writing mod.rs!")?;
     }
 
-    fonts_file
-        .write_all(b");")
+    write!(fonts_file, ");\n")
         .into_diagnostic()
         .wrap_err("Error while writing file")?;
 
