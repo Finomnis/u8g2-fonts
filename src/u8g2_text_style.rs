@@ -40,8 +40,9 @@ pub struct U8g2TextStyle<C> {
 
 impl<C> U8g2TextStyle<C> {
     /// Creates a text style with transparent background.
-    pub fn new<F: Font>(font: F, text_color: C) -> Self {
-        drop(font);
+    pub const fn new<F: Font>(font: F, text_color: C) -> Self {
+        // font is a ZST, so it's safe to forget it
+        core::mem::forget(font);
         Self {
             text_color: Some(text_color),
             background_color: None,
