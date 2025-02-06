@@ -63,7 +63,7 @@
 //! The [`FontRenderer::render()`](FontRenderer::render) allows for basic vertical positioning. Horizontally, it renders exactly like specified in the font.
 //!
 //! For more advanced usecases, use the [`FontRenderer::render_aligned()`](FontRenderer::render_aligned) method.
-//! It further allows for horizontal alignment through an aditional parameter.
+//! It further allows for horizontal alignment through an additional parameter.
 //!
 //! ## Bounding Box Calculation
 //!
