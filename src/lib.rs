@@ -49,6 +49,7 @@
 //!
 //! More information about all the available fonts can be found in the [U8g2 wiki](https://github.com/olikraus/u8g2/wiki/fntlistall).
 //!
+//! The fonts can also be seen in [this list](crate::fonts).
 //!
 //! ## Content Types
 //!
@@ -132,7 +133,6 @@ mod utils;
 ///
 /// Note that every font has a different license. For more information, read the [U8g2 License Agreement](https://github.com/olikraus/u8g2/blob/master/LICENSE).
 #[allow(non_camel_case_types)]
-#[allow(missing_docs)]
 pub mod fonts;
 
 /// Data types used in common API functions.
