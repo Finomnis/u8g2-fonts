@@ -39,7 +39,7 @@ impl FontRenderer {
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///
-    /// By default, unkown chars will return an error.
+    /// By default, unknown chars will return an error.
     ///
     /// # Arguments
     ///

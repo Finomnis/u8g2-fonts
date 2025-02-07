@@ -25,8 +25,8 @@ pub struct FontReader {
     pub font_bounding_box_y_offset: i8,
     pub ascent: i8,
     pub descent: i8,
-    pub ascent_of_parantheses: i8,
-    pub descent_of_parantheses: i8,
+    pub ascent_of_parentheses: i8,
+    pub descent_of_parentheses: i8,
     pub array_offset_upper_a: u16,
     pub array_offset_lower_a: u16,
     pub array_offset_0x0100: u16,
@@ -55,8 +55,8 @@ impl FontReader {
             font_bounding_box_y_offset: data[12] as i8,
             ascent: data[13] as i8,
             descent: data[14] as i8,
-            ascent_of_parantheses: data[15] as i8,
-            descent_of_parantheses: data[16] as i8,
+            ascent_of_parentheses: data[15] as i8,
+            descent_of_parentheses: data[16] as i8,
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
@@ -176,8 +176,8 @@ mod tests {
             font_bounding_box_y_offset: 4,
             ascent: 5,
             descent: 6,
-            ascent_of_parantheses: 7,
-            descent_of_parantheses: 8,
+            ascent_of_parentheses: 7,
+            descent_of_parentheses: 8,
             array_offset_upper_a: 0,
             array_offset_lower_a: 0,
             array_offset_0x0100: 2,
@@ -192,7 +192,7 @@ mod tests {
     fn can_handle_unicode_next_is_zero() {
         // This test is specifically engineered to test an error path that doesn't happen
         // in normal, correct fonts.
-        // This means that this should be an assert intead, but it just doesn't feel right.
+        // This means that this should be an assert instead, but it just doesn't feel right.
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
