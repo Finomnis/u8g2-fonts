@@ -53,13 +53,9 @@ impl<T> From<LookupError> for Error<T> {
     }
 }
 
-#[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl std::error::Error for LookupError {}
+impl core::error::Error for LookupError {}
 
-#[cfg(feature = "std")]
-#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl<DisplayError> std::error::Error for Error<DisplayError> where
+impl<DisplayError> core::error::Error for Error<DisplayError> where
     DisplayError: core::fmt::Debug + core::fmt::Display
 {
 }
