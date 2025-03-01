@@ -74,23 +74,6 @@ jobs:
       - name: Build
         run: cargo build --release --no-default-features
 
-
-  build_feature_std:
-    name: Build with 'std' feature
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
-
-      #- uses: Swatinem/rust-cache@v1
-
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Build
-        run: cargo build --release --no-default-features --features std
-
   build_feature_embedded_graphics_textstyle:
     name: Build with 'embedded_graphics_textstyle' feature
     runs-on: ubuntu-latest
@@ -260,7 +243,6 @@ jobs:
         build,
         build_no_std,
         build_no_features,
-        build_feature_std,
         build_feature_embedded_graphics_textstyle,
         build_examples,
         test,
