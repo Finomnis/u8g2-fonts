@@ -22,7 +22,7 @@
 //!    - optimized for the U8g2 fonts
 //!    - supports rendering [`format_args!()`](format_args)
 //!        - can render everything that can be passed
-//!          to [`format!()`](std::format), [`write!()`](write) or [`println!()`](std::println)
+//!          to `format!()`, [`write!()`](write) or `println!()`
 //!        - does not allocate an intermediate string buffer
 //!    - supports multi-line vertical alignment
 //! - [`U8g2TextStyle`] — a compatibility layer for [`embedded_graphics::text`]
