@@ -1,8 +1,8 @@
 [package]
 name = "u8g2-fonts"
-version = "0.5.2"
+version = "0.6.0"
 edition = "2021"
-rust-version = "1.62"
+rust-version = "1.81"
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/Finomnis/u8g2-fonts"
@@ -23,8 +23,6 @@ exclude = [
 ]
 
 [features]
-# Enables std::error::Error impls
-std = []
 # Enables U8g2TextStyle for the embedded_graphics font interface
 embedded_graphics_textstyle = ["dep:embedded-graphics"]
 

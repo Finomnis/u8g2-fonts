@@ -11,8 +11,6 @@
 //! # Crate features
 //! Additional features can be enabled by adding the following features to your Cargo.toml.
 //!
-//! - `std`:
-//!    - derive [`std::error::Error`] for the crate's error types.
 //! - `embedded_graphics_textstyle`:
 //!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
 //!
@@ -118,9 +116,6 @@
     test(attr(allow(dead_code)))
 )]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-
-#[cfg(feature = "std")]
-extern crate std;
 
 mod content;
 mod error;
