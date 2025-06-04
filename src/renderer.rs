@@ -29,7 +29,7 @@ impl FontRenderer {
     /// # Generics
     ///
     /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
-    ///            and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
+    ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
     pub const fn new<FONT: Font>() -> Self {
         Self {
             font: FontReader::new::<FONT>(),
@@ -346,9 +346,9 @@ impl FontRenderer {
         self.font.descent
     }
 
-    /// The maximum possible bounding box of a glyph if it was rendered with
+    /// The maximum possible bounding box of all glyphs if they were rendered with
     /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
-    pub const fn get_glyph_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
+    pub const fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
         let y_offset = compute_vertical_offset_from_static_newlines(&self.font, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
