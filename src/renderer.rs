@@ -95,9 +95,9 @@ impl FontRenderer {
         Display: DrawTarget,
     {
         let font = &self.font;
-        if color.has_background() && !font.supports_background_color {
-            return Err(Error::BackgroundColorNotSupported);
-        }
+        // if color.has_background() && !font.supports_background_color {
+        //     return Err(Error::BackgroundColorNotSupported);
+        // }
 
         let mut advance = Point::new(0, 0);
 
@@ -177,9 +177,9 @@ impl FontRenderer {
         // glyphs/lines, but makes it possible to implement the format_args case.
 
         let font = &self.font;
-        if color.has_background() && !font.supports_background_color {
-            return Err(Error::BackgroundColorNotSupported);
-        }
+        // if color.has_background() && !font.supports_background_color {
+        //     return Err(Error::BackgroundColorNotSupported);
+        // }
 
         position.y += content.compute_vertical_offset(font, vertical_pos);
 

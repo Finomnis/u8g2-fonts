@@ -132,7 +132,10 @@ where
                 renderer.render_transparent(position, display, color)?
             }
             FontColor::WithBackground { fg, bg } => {
-                renderer.render_as_box_fill(position, display, fg, bg)?
+                match font.supports_background_color {
+                    true => renderer.render_as_box_fill(position, display, fg, bg)?,
+                    false => renderer.render_with_advance_fill(position, display, fg, bg)?,
+                }
             }
         })
     } else {

@@ -1,5 +1,5 @@
 use embedded_graphics_core::{
-    prelude::{DrawTarget, Point},
+    prelude::{DrawTarget, Point, Size},
     primitives::Rectangle,
     Pixel,
 };
@@ -66,6 +66,79 @@ impl GlyphRenderer {
             .map_err(Error::DisplayError)?;
 
         Ok(glyph_bounding_box)
+    }
+
+    pub fn render_with_advance_fill<Display>(
+        mut self,
+        position: Point,
+        display: &mut Display,
+        foreground_color: Display::Color,
+        background_color: Display::Color,
+    ) -> Result<Rectangle, Error<Display::Error>>
+    where
+        Display: DrawTarget,
+    {
+        let offset_x = self.glyph.left(0) as i8;
+        let glyph_width = self.glyph.width() as u32;
+        let glyph_advance = self.glyph.advance();
+
+        let left_padding = offset_x.max(0) as u32;
+        let right_padding = (glyph_advance - offset_x - glyph_width as i8).max(0) as u32;
+
+        let glyph_pos = self.glyph.topleft(&position);
+        let advance_pos = Point::new(glyph_pos.x - left_padding as i32, glyph_pos.y);
+
+        let glyph_size = self.glyph.size();
+        let total_width = glyph_size.width + left_padding + right_padding;
+        let total_size = Size::new(total_width, glyph_size.height);
+
+        let advance_bounding_box = Rectangle::new(advance_pos, total_size);
+
+        let color_iter = {
+            let mut x: u32 = 0;
+
+            let mut num_zeros = self.glyph.read_runlength_0();
+            let mut num_ones = self.glyph.read_runlength_1();
+            let mut num_zeros_leftover = num_zeros;
+            let mut num_ones_leftover = num_ones;
+
+            let total_width = self.glyph.advance() as u32;
+
+            move || -> Option<Display::Color> {
+                let is_padding = x < left_padding || x >= (glyph_width + left_padding);
+                x = (x + 1) % total_width;
+
+                if is_padding {
+                    return Some(background_color);
+                }
+
+                if num_zeros_leftover == 0 && num_ones_leftover == 0 {
+                    let repeat = self.glyph.read_unsigned(1) != 0;
+                    if !repeat {
+                        num_zeros = self.glyph.read_runlength_0();
+                        num_ones = self.glyph.read_runlength_1();
+                    }
+                    num_zeros_leftover = num_zeros;
+                    num_ones_leftover = num_ones;
+                }
+
+                let color = if num_zeros_leftover > 0 {
+                    num_zeros_leftover -= 1;
+                    background_color
+                } else {
+                    num_ones_leftover -= 1;
+                    foreground_color
+                };
+
+                Some(color)
+            }
+        };
+
+        display
+            .fill_contiguous(&advance_bounding_box, core::iter::from_fn(color_iter))
+            .map_err(Error::DisplayError)?;
+
+        Ok(advance_bounding_box)
     }
 
     pub fn render_transparent<Display>(
