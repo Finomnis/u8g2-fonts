@@ -5,7 +5,7 @@ https://github.com/Finomnis/u8g2-fonts/blob/main/LICENSE-MIT
 
 
 The fonts, however, are licensed under different conditions.
-They are all taken from the `U8g2` crate, please read their LICENSE
+They are all taken from the `U8g2` library, please read their LICENSE
 file for more information:
 
 https://github.com/olikraus/u8g2/blob/master/LICENSE
