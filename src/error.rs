@@ -28,7 +28,7 @@ where
                 write!(f, "This font does not support a background color.")
             }
             Error::GlyphNotFound(c) => {
-                write!(f, "This font does not support the character '{}'.", c)
+                write!(f, "This font does not support the character '{c}'.")
             }
             Error::DisplayError(e) => write!(f, "Writing to display failed: {e}"),
         }
@@ -39,7 +39,7 @@ impl Display for LookupError {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             LookupError::GlyphNotFound(c) => {
-                write!(f, "This font does not support the character '{}'.", c)
+                write!(f, "This font does not support the character '{c}'.")
             }
         }
     }
