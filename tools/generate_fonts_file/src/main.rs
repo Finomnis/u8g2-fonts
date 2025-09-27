@@ -69,7 +69,7 @@ fn process_font_entry<'a>(font_entry: FontEntry<'a>) -> Result<Box<[u8]>> {
     Ok(font_data.into_boxed_slice())
 }
 
-fn pre_parse_fonts(mut data: &[u8]) -> Result<Vec<FontEntry>> {
+fn pre_parse_fonts(mut data: &[u8]) -> Result<Vec<FontEntry<'_>>> {
     let mut result = Vec::new();
     loop {
         let (leftover, entry) = FontEntry::try_consume(data)?;
