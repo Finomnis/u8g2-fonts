@@ -185,7 +185,7 @@ mod tests {
             line_height: 3,
         };
 
-        assert_eq!(format!("{:?}", font), format!("{:?}", expected));
+        assert_eq!(format!("{font:?}"), format!("{expected:?}"));
     }
 
     #[test]

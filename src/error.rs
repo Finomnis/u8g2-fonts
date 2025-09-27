@@ -68,8 +68,8 @@ mod tests {
     use super::*;
 
     fn examine_error<T: core::fmt::Display + core::fmt::Debug>(error: T, msg: &str) {
-        assert_eq!(format!("{}", error), msg);
-        println!("{:?}", error);
+        assert_eq!(format!("{error}",), msg);
+        println!("{error:?}",);
     }
 
     #[test]
