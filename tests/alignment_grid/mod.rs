@@ -53,7 +53,7 @@ where
             .fill_solid(
                 &Rectangle::new(
                     get_pos(hpos, VerticalPosition::Top),
-                    Size::new(1, display.size().height).try_into().unwrap(),
+                    Size::new(1, display.size().height),
                 ),
                 Rgb888::CSS_ORANGE,
             )

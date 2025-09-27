@@ -105,7 +105,7 @@ mod tests {
     use super::*;
 
     fn implements_traits<T: core::fmt::Debug + Clone + PartialEq>(obj: T) {
-        println!("{:?}", obj);
+        println!("{obj:?}",);
     }
 
     #[test]

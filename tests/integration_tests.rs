@@ -741,7 +741,7 @@ fn args_empty_lines() {
 
     TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
         let dimensions = font
-            .get_rendered_dimensions(format_args!("{}", text), position, vpos)
+            .get_rendered_dimensions(format_args!("{text}"), position, vpos)
             .unwrap();
 
         alignment_grid::draw_bounding_box(
@@ -752,7 +752,7 @@ fn args_empty_lines() {
 
         let rendered_dimensions = font
             .render(
-                format_args!("{}", text),
+                format_args!("{text}"),
                 position,
                 vpos,
                 FontColor::Transparent(Rgb888::CSS_BLUE),
@@ -817,7 +817,7 @@ fn aligned_args_empty_lines() {
 
     TestDrawTarget::expect_image(std::include_bytes!("assets/empty_lines.png"), |display| {
         let bounding_box = font
-            .get_rendered_dimensions_aligned(format_args!("{}", text), position, vpos, hpos)
+            .get_rendered_dimensions_aligned(format_args!("{text}"), position, vpos, hpos)
             .unwrap()
             .unwrap();
 
@@ -825,7 +825,7 @@ fn aligned_args_empty_lines() {
 
         let rendered_bounding_box = font
             .render_aligned(
-                format_args!("{}", text),
+                format_args!("{text}"),
                 position,
                 vpos,
                 hpos,
@@ -1073,7 +1073,7 @@ fn whitespace_str_does_not_crash() {
     }
 }
 
-const ALPHABET_PYRAMID: &'static str = "a\nbb\nccc\ndddd\neeeee\nffffff\nggggggg\nhhhhhhhh\niiiiiiiii\njjjjjjjjjj\nkkkkkkkkkkk\nllllllllllll\nmmmmmmmmmmmmm\nnnnnnnnnnnnnnn\nooooooooooooooo\npppppppppppppppp\nqqqqqqqqqqqqqqqqq\nrrrrrrrrrrrrrrrrrr\nsssssssssssssssssss\ntttttttttttttttttttt\nuuuuuuuuuuuuuuuuuuuuu\nvvvvvvvvvvvvvvvvvvvvvv\nwwwwwwwwwwwwwwwwwwwwwww\nxxxxxxxxxxxxxxxxxxxxxxxx\nyyyyyyyyyyyyyyyyyyyyyyyyy\nzzzzzzzzzzzzzzzzzzzzzzzzzz";
+const ALPHABET_PYRAMID: &str = "a\nbb\nccc\ndddd\neeeee\nffffff\nggggggg\nhhhhhhhh\niiiiiiiii\njjjjjjjjjj\nkkkkkkkkkkk\nllllllllllll\nmmmmmmmmmmmmm\nnnnnnnnnnnnnnn\nooooooooooooooo\npppppppppppppppp\nqqqqqqqqqqqqqqqqq\nrrrrrrrrrrrrrrrrrr\nsssssssssssssssssss\ntttttttttttttttttttt\nuuuuuuuuuuuuuuuuuuuuu\nvvvvvvvvvvvvvvvvvvvvvv\nwwwwwwwwwwwwwwwwwwwwwww\nxxxxxxxxxxxxxxxxxxxxxxxx\nyyyyyyyyyyyyyyyyyyyyyyyyy\nzzzzzzzzzzzzzzzzzzzzzzzzzz";
 
 #[test]
 fn large_content_text() {
@@ -1132,7 +1132,7 @@ fn large_content_args() {
 
             let bounding_box = font
                 .get_rendered_dimensions_aligned(
-                    format_args!("{}", ALPHABET_PYRAMID),
+                    format_args!("{ALPHABET_PYRAMID}"),
                     position,
                     vertical_pos,
                     horizontal_align,
@@ -1145,7 +1145,7 @@ fn large_content_args() {
 
             let rendered_bounding_box = font
                 .render_aligned(
-                    format_args!("{}", ALPHABET_PYRAMID),
+                    format_args!("{ALPHABET_PYRAMID}"),
                     position,
                     vertical_pos,
                     horizontal_align,
@@ -1167,7 +1167,8 @@ fn large_content_args() {
 fn whitespace_glyph_does_not_crash() {
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 
-    for glyph in [' '] {
+    let glyph = ' ';
+    {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
             let dim = font
                 .get_rendered_dimensions(
@@ -1226,7 +1227,7 @@ fn whitespace_args_does_not_crash() {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
             let dim = font
                 .get_rendered_dimensions(
-                    format_args!("{}", text),
+                    format_args!("{text}"),
                     display.bounding_box().center(),
                     VerticalPosition::Center,
                 )
@@ -1235,7 +1236,7 @@ fn whitespace_args_does_not_crash() {
 
             let rendered_dim = font
                 .render(
-                    format_args!("{}", text),
+                    format_args!("{text}"),
                     display.bounding_box().center(),
                     VerticalPosition::Center,
                     FontColor::Transparent(Rgb888::new(237, 28, 36)),
@@ -1249,7 +1250,7 @@ fn whitespace_args_does_not_crash() {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
             let dim = font
                 .get_rendered_dimensions_aligned(
-                    format_args!("{}", text),
+                    format_args!("{text}"),
                     display.bounding_box().center(),
                     VerticalPosition::Center,
                     HorizontalAlignment::Center,
@@ -1259,7 +1260,7 @@ fn whitespace_args_does_not_crash() {
 
             let rendered_dim = font
                 .render_aligned(
-                    format_args!("{}", text),
+                    format_args!("{text}"),
                     display.bounding_box().center(),
                     VerticalPosition::Center,
                     HorizontalAlignment::Center,

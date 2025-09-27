@@ -37,8 +37,8 @@ mod tests {
     #[test]
     fn CombineBoundingBoxes_OneNone_ReturnsOther() {
         let bb = Rectangle::new(Point::new(42, 69), Size::new(3, 2));
-        assert_eq!(combine_bounding_boxes(Some(bb.clone()), None), Some(bb));
-        assert_eq!(combine_bounding_boxes(None, Some(bb.clone())), Some(bb));
+        assert_eq!(combine_bounding_boxes(Some(bb), None), Some(bb));
+        assert_eq!(combine_bounding_boxes(None, Some(bb)), Some(bb));
     }
 
     #[test]

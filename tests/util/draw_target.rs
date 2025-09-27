@@ -51,8 +51,7 @@ impl TestDrawTarget {
                     let actual_data_url = convert_image_to_data_url(&actual_image);
 
                     panic!(
-                        "Expectation not met!\n\nPixel at position ({}, {}) does not match!\n    Expected: {:?}\n    Actual:   {:?}\n\nExpected image:\n{}\n\nActual image:\n{}\n\n",
-                        x, y, expected, actual, expected_data_url, actual_data_url
+                        "Expectation not met!\n\nPixel at position ({x}, {y}) does not match!\n    Expected: {expected:?}\n    Actual:   {actual:?}\n\nExpected image:\n{expected_data_url}\n\nActual image:\n{actual_data_url}\n\n",
                     );
                 }
             }
