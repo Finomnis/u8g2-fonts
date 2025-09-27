@@ -137,7 +137,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Run cargo clippy
-        run: cargo clippy --all-features -- -D warnings
+        run: cargo clippy --all-features --tests -- -D warnings
 
   docs:
     name: Documentation
