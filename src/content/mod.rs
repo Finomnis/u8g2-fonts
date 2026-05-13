@@ -11,7 +11,7 @@ pub trait LineDimensionsIterator {
     fn next(&mut self, font: &Font) -> Result<HorizontalRenderedDimensions, LookupError>;
 }
 
-/// The datatypes that can be rendered by [`FontRenderer`](crate::FontRenderer).
+/// The datatypes that can be rendered by [`Font`](crate::Font).
 pub trait Content {
     #[doc(hidden)]
     type LineDimensionsIter: LineDimensionsIterator;

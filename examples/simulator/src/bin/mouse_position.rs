@@ -14,10 +14,10 @@ use embedded_graphics_simulator::{
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, VerticalPosition},
-    FontRenderer,
+    Font,
 };
 
-const MOUSE_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+const MOUSE_FONT: Font = fonts::u8g2_font_haxrcorp4089_t_cyrillic;
 const TEXT_POS_X: Point = Point::new(6, 62);
 const TEXT_POS_Y: Point = Point::new(124, 62);
 

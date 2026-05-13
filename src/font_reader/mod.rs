@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use crate::{utils::DebugIgnore, LookupError};
 
 use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
@@ -23,6 +25,7 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
+/// A u8g2 formatted font
 #[derive(Debug, Clone)]
 pub struct Font {
     pub data: DebugIgnore<&'static [u8]>,
@@ -227,7 +230,7 @@ impl Font {
 
     /// Renders text to a display with horizontal alignment.
     ///
-    /// The `Left` alignment is identical to [`render()`](crate::FontRenderer::render).
+    /// The `Left` alignment is identical to [`render()`](crate::Font::render).
     ///
     /// # Arguments
     ///
@@ -242,7 +245,7 @@ impl Font {
     ///
     /// The bounding box of the rendered text.
     ///
-    /// Does not return an advance value like [`render()`](crate::FontRenderer::render),
+    /// Does not return an advance value like [`render()`](crate::Font::render),
     /// as due to the alignment it would be meaningless.
     ///
     ///
@@ -309,7 +312,7 @@ impl Font {
         Ok(bounding_box)
     }
 
-    /// Calculates the dimensions that rendering text with [`render()`](crate::FontRenderer::render) would produce.
+    /// Calculates the dimensions that rendering text with [`render()`](crate::Font::render) would produce.
     ///
     /// # Arguments
     ///
@@ -355,7 +358,7 @@ impl Font {
     }
 
     /// Calculates the dimensions that rendering text with
-    /// [`render_aligned()`](crate::FontRenderer::render_aligned) would produce.
+    /// [`render_aligned()`](crate::Font::render_aligned) would produce.
     ///
     /// # Arguments
     ///
@@ -448,7 +451,7 @@ impl Font {
     }
 
     /// The maximum possible bounding box of all glyphs if they were rendered with
-    /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
+    /// [`render()`](crate::Font::render) at position `(0,0)`.
     pub const fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
         let y_offset = compute_vertical_offset_from_static_newlines(self, vertical_pos, 0);
         Rectangle {

@@ -7,7 +7,6 @@ use u8g2_fonts::types::HorizontalAlignment;
 use u8g2_fonts::{
     fonts,
     types::{FontColor, VerticalPosition},
-    FontRenderer,
 };
 
 fn main() -> anyhow::Result<()> {
@@ -16,10 +15,10 @@ fn main() -> anyhow::Result<()> {
 
     let text = "Agi";
 
-    let font_large = FontRenderer::new::<fonts::u8g2_font_logisoso32_tf>();
+    let font_large = fonts::u8g2_font_logisoso32_tf;
     let color_large = Rgb888::BLACK;
     let color_line = Rgb888::CSS_FOREST_GREEN;
-    let font_small = FontRenderer::new::<fonts::u8g2_font_t0_13b_tf>();
+    let font_small = fonts::u8g2_font_t0_13b_tf;
     let color_small = Rgb888::BLACK;
 
     let baseline = (display.bounding_box().size.height * 2 / 5) as i32;

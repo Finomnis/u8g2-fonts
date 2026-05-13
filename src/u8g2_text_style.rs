@@ -10,7 +10,7 @@ use embedded_graphics_core::{
 
 use crate::{
     types::{FontColor, VerticalPosition},
-    Error, Font, FontRenderer,
+    Error, Font,
 };
 
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
@@ -35,18 +35,16 @@ pub struct U8g2TextStyle<C> {
     /// Background color.
     pub background_color: Option<C>,
     /// The font renderer
-    font: FontRenderer,
+    font: Font,
 }
 
 impl<C> U8g2TextStyle<C> {
     /// Creates a text style with transparent background.
-    pub const fn new<F: Font>(font: F, text_color: C) -> Self {
-        // font is a ZST, so it's safe to forget it
-        core::mem::forget(font);
+    pub fn new(font: Font, text_color: C) -> Self {
         Self {
             text_color: Some(text_color),
             background_color: None,
-            font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
+            font: font.with_ignore_unknown_chars(true),
         }
     }
 }
@@ -145,7 +143,7 @@ where
     }
 
     fn line_height(&self) -> u32 {
-        self.font.get_default_line_height()
+        self.font.get_default_line_height() as u32
     }
 }
 
