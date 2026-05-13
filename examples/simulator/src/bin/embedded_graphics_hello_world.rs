@@ -15,7 +15,6 @@ use embedded_graphics_simulator::{
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, VerticalPosition},
-    FontRenderer,
 };
 
 fn main() -> Result<(), std::convert::Infallible> {
@@ -60,7 +59,7 @@ fn main() -> Result<(), std::convert::Infallible> {
         .draw(&mut display)?;
 
     // Draw centered text.
-    let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+    let font = fonts::u8g2_font_haxrcorp4089_t_cyrillic;
     let text = "embedded-graphics";
 
     font.render_aligned(

@@ -1,8 +1,8 @@
 use core::{mem, ops::Range};
 
 use crate::{
-    font_reader::FontReader,
-    renderer::render_actions::compute_horizontal_glyph_dimensions,
+    font_reader::Font,
+    render_actions::compute_horizontal_glyph_dimensions,
     utils::{FormatArgsReader, FormatArgsReaderInfallible, HorizontalRenderedDimensions},
     Content, LookupError,
 };
@@ -60,7 +60,7 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
     pub fn regenerate_buffer(
         &mut self,
         range_start: usize,
-        font: &FontReader,
+        font: &Font,
     ) -> Result<(), LookupError> {
         let mut line_dimensions = HorizontalRenderedDimensions::empty();
         let mut line_num: usize = 0;
@@ -116,7 +116,7 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
 impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
     fn next(
         &mut self,
-        font: &crate::font_reader::FontReader,
+        font: &crate::font_reader::Font,
     ) -> Result<HorizontalRenderedDimensions, LookupError> {
         let next_line = self.next_line;
         self.next_line += 1;
@@ -187,7 +187,7 @@ mod tests {
     fn line_dimensions_iter_provides_correct_values() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let font = fonts::u8g2_font_u8glib_4_tf;
             let mut dims = args.line_dimensions_iterator();
 
             assert_eq!(
@@ -223,7 +223,7 @@ mod tests {
     fn line_dimensions_iter_errors_on_glyph_not_found() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let font = fonts::u8g2_font_u8glib_4_tf;
             let mut dims = args.line_dimensions_iterator();
 
             assert!(matches!(
@@ -239,7 +239,7 @@ mod tests {
     fn line_dimensions_iter_creates_empty_array_when_out_of_range() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+            let font = fonts::u8g2_font_u8glib_4_tf;
             let mut dims = args.line_dimensions_iterator();
 
             dims.regenerate_buffer(1000, &font).unwrap();

@@ -2,7 +2,6 @@
 //!
 //! It is intended for the [embedded-graphics](https://crates.io/crates/embedded-graphics) ecosystem.
 //!
-//!
 //! # Licensing
 //!
 //! While this crate is MIT / Apache-2.0 licensed, note that the fonts themselves *are not*.
@@ -18,7 +17,7 @@
 //!
 //! This crate supports two text renderers:
 //!
-//! - [`FontRenderer`] — our own renderer
+//! - The native renderer inside [`Font`]
 //!    - optimized for the U8g2 fonts
 //!    - supports rendering [`format_args!()`](format_args)
 //!        - can render everything that can be passed
@@ -29,17 +28,18 @@
 //!    - exposes all fonts of this crate to [`embedded_graphics::text::Text`] rendering functions
 //!    - supports [`draw_whitespace`](embedded_graphics::text::renderer::TextRenderer::draw_whitespace) for monospace whitespace drawing with a background color
 //!
-//! Everything below this will be about [`FontRenderer`]. For more information about text rendering through [`embedded_graphics`], read the
+//! Everything below this will be about [`Font`]. For more information about text rendering through [`embedded_graphics`], read the
 //! [embedded-graphics font rendering documentation](embedded_graphics::text).
 //! The intention of [`U8g2TextStyle`] is to replace `MonoTextStyle`.
 //!
 //! # Usage
 //!
-//! The central struct in this crate is the [`FontRenderer`]. It can render one specific font.
+//! The central struct in this crate is the [`Font`]. It can render one specific font.
 //!
-//! A [`FontRenderer`] can be constructed through [`FontRenderer::new()`](FontRenderer::new). Its generic argument [`Font`] specifies which font it will render.
+//! A [`Font`] can be constructed through [`Font::new()`](Font::new) with raw u8g2 data, although the fonts in the module [`fonts`]
+//! provide built in u8g2 fonts.
 //!
-//! Note that [`FontRenderer::new()`] is `const`, so it can be crated as a global variable at compile time for optimal performance.
+//! Note that [`Font::new()`] is `const`, so it can be crated as a global variable at compile time for optimal performance.
 //!
 //! ## Fonts
 //!
@@ -51,7 +51,7 @@
 //!
 //! ## Content Types
 //!
-//! Once constructed, the [`FontRenderer`] can render [the following objects](Content):
+//! Once constructed, a [`Font`] can render [the following objects](Content):
 //!
 //! - Characters: `'a'`
 //! - Strings: `"Hello world!"`
@@ -59,16 +59,16 @@
 //!
 //! ## Positioning and Alignment
 //!
-//! The [`FontRenderer::render()`](FontRenderer::render) allows for basic vertical positioning. Horizontally, it renders exactly like specified in the font.
+//! The [`Font::render()`] allows for basic vertical positioning. Horizontally, it renders exactly like specified in the font.
 //!
-//! For more advanced usecases, use the [`FontRenderer::render_aligned()`](FontRenderer::render_aligned) method.
+//! For more advanced usecases, use the [`Font::render_aligned()`] method.
 //! It further allows for horizontal alignment through an additional parameter.
 //!
 //! ## Bounding Box Calculation
 //!
-//! Additional to the [`render()`](FontRenderer::render) and [`render_aligned()`](FontRenderer::render_aligned) methods,
-//! there is also [`get_rendered_dimensions()`](FontRenderer::get_rendered_dimensions) and
-//! [`get_rendered_dimensions_aligned()`](FontRenderer::get_rendered_dimensions_aligned).
+//! Additional to the [`render()`](Font::render) and [`render_aligned()`](Font::render_aligned) methods,
+//! there is also [`get_rendered_dimensions()`](Font::get_rendered_dimensions) and
+//! [`get_rendered_dimensions_aligned()`](Font::get_rendered_dimensions_aligned).
 //!
 //! Those functions behave almost identical to their `render` counterparts, but don't actually perform any rendering. This
 //! can be very useful if the dimensions of the text are required for other drawing operations prior to the actual text rendering.
@@ -85,7 +85,6 @@
 //!
 //! ```rust
 //! # use u8g2_fonts::types::*;
-//! # use u8g2_fonts::FontRenderer;
 //! # use u8g2_fonts::fonts;
 //! # use embedded_graphics_core::prelude::*;
 //! # use embedded_graphics_core::pixelcolor::BinaryColor;
@@ -94,7 +93,7 @@
 //! #    Display: DrawTarget<Color = BinaryColor>,
 //! #    Display::Error: core::fmt::Debug
 //! # {
-//! let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+//! let font = fonts::u8g2_font_haxrcorp4089_t_cyrillic;
 //!
 //! font.render_aligned(
 //!     format_args!("Answer: {}", 42),
@@ -121,7 +120,7 @@ mod content;
 mod error;
 mod font;
 mod font_reader;
-mod renderer;
+mod render_actions;
 mod utils;
 
 /// A collection of [U8g2 fonts](https://github.com/olikraus/u8g2/wiki/fntlistall).
@@ -136,8 +135,7 @@ pub mod types;
 pub use content::Content;
 pub use error::Error;
 pub use error::LookupError;
-pub use font::Font;
-pub use renderer::FontRenderer;
+pub use font_reader::Font;
 
 #[cfg(feature = "embedded_graphics_textstyle")]
 mod u8g2_text_style;

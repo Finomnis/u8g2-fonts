@@ -11,7 +11,6 @@ use u8g2_fonts::types::HorizontalAlignment;
 use u8g2_fonts::{
     fonts,
     types::{FontColor, VerticalPosition},
-    FontRenderer,
 };
 
 fn main() -> anyhow::Result<()> {
@@ -42,7 +41,7 @@ fn main() -> anyhow::Result<()> {
             .draw(&mut display)?;
     }
 
-    let font = FontRenderer::new::<fonts::u8g2_font_lubI14_tf>();
+    let font = fonts::u8g2_font_lubI14_tf;
 
     let font_bounding_box = font
         .get_rendered_dimensions_aligned(

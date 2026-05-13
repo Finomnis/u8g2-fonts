@@ -1,6 +1,5 @@
 use crate::{
-    font_reader::FontReader, types::VerticalPosition, utils::HorizontalRenderedDimensions,
-    LookupError,
+    font_reader::Font, types::VerticalPosition, utils::HorizontalRenderedDimensions, LookupError,
 };
 
 mod args;
@@ -9,16 +8,16 @@ mod text;
 pub mod vertical_offset;
 
 pub trait LineDimensionsIterator {
-    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError>;
+    fn next(&mut self, font: &Font) -> Result<HorizontalRenderedDimensions, LookupError>;
 }
 
-/// The datatypes that can be rendered by [`FontRenderer`](crate::FontRenderer).
+/// The datatypes that can be rendered by [`Font`](crate::Font).
 pub trait Content {
     #[doc(hidden)]
     type LineDimensionsIter: LineDimensionsIterator;
 
     #[doc(hidden)]
-    fn compute_vertical_offset(&self, font: &FontReader, vertical_pos: VerticalPosition) -> i32 {
+    fn compute_vertical_offset(&self, font: &Font, vertical_pos: VerticalPosition) -> i32 {
         vertical_offset::compute_vertical_offset_from_dynamic_newlines(font, vertical_pos, || {
             self.get_newline_count().try_into().unwrap()
         })
