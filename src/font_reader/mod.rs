@@ -36,7 +36,7 @@ pub struct FontReader {
 
 impl FontReader {
     pub const fn new(F: Font) -> Self {
-        let data = F;
+        let data = F.0;
 
         let mut this = Self {
             data: DebugIgnore(data),
@@ -145,12 +145,12 @@ mod tests {
 
     use super::*;
 
-    const TestFont: Font = &[
+    const TestFont: Font = Font(&[
         0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
         b'\n', 0, // First glyph
         0, 4, 255, 255, // Unicode Table
         0, b'\n', 0, // Unicode entry
-    ];
+    ]);
 
     #[test]
     fn can_read_font_properties() {
