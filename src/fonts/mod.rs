@@ -1,3 +1,5 @@
+#![allow(non_upper_case_globals)]
+
 crate::font::font_definitions!(
     u8g2_font_u8glib_4_tf,
     u8g2_font_u8glib_4_tr,

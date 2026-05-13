@@ -19,7 +19,7 @@ mod alignment_grid;
 fn letters_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_courB10_tn>().render(
+    let result = FontRenderer::new(fonts::u8g2_font_courB10_tn).render(
         'a',
         Point::new(2, 15),
         VerticalPosition::default(),
@@ -34,7 +34,7 @@ fn letters_not_supported() {
 fn unicode_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render(
+    let result = FontRenderer::new(fonts::u8g2_font_lubBI08_tf).render(
         '☃',
         Point::new(2, 15),
         VerticalPosition::default(),
@@ -49,7 +49,7 @@ fn unicode_not_supported() {
 fn background_color_not_supported() {
     let mut display = TestDrawTarget::new(Size::new(1, 1));
 
-    let result1 = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render(
+    let result1 = FontRenderer::new(fonts::u8g2_font_lubBI08_tf).render(
         'a',
         Point::default(),
         VerticalPosition::default(),
@@ -60,7 +60,7 @@ fn background_color_not_supported() {
         &mut display,
     );
 
-    let result2 = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>().render_aligned(
+    let result2 = FontRenderer::new(fonts::u8g2_font_lubBI08_tf).render_aligned(
         'a',
         Point::default(),
         VerticalPosition::default(),
@@ -78,7 +78,7 @@ fn background_color_not_supported() {
 
 #[test]
 fn get_ascent_and_descent() {
-    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_osb21_tf);
 
     assert_eq!(font.get_ascent(), 21);
     assert_eq!(font.get_descent(), -7);
@@ -86,14 +86,14 @@ fn get_ascent_and_descent() {
 
 #[test]
 fn get_line_height() {
-    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_osb21_tf);
 
     assert_eq!(font.get_default_line_height(), 37);
 }
 
 #[test]
 fn get_font_bounding_box() {
-    let font = FontRenderer::new::<fonts::u8g2_font_osb21_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_osb21_tf);
 
     assert_eq!(
         font.get_font_bounding_box(VerticalPosition::Baseline),
@@ -117,7 +117,7 @@ fn get_font_bounding_box() {
 fn render_glyph() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_glyph.png"), |display| {
-            FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
+            FontRenderer::new(fonts::u8g2_font_lubBI08_tf)
                 .render(
                     'j',
                     Point::new(2, 15),
@@ -142,7 +142,7 @@ fn render_glyph_with_ignore_unknown() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_empty.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>()
+            FontRenderer::new(fonts::u8g2_font_lubBI08_tf)
                 .with_ignore_unknown_chars(true)
                 .render(
                     '☃',
@@ -169,7 +169,7 @@ fn render_glyph_unicode() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_unicode.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
+            FontRenderer::new(fonts::u8g2_font_unifont_t_symbols)
                 .render(
                     '☃',
                     Point::new(4, 19),
@@ -195,7 +195,7 @@ fn render_glyph_with_background_color() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_glyph_background.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
+            FontRenderer::new(fonts::u8g2_font_10x20_mf)
                 .render(
                     'j',
                     Point::new(2, 20),
@@ -223,7 +223,7 @@ fn render_glyph_with_background_color() {
 fn render_text() {
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
-            FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+            FontRenderer::new(fonts::u8g2_font_ncenB14_tr)
                 .render(
                     "Hello World!",
                     Point::new(2, 15),
@@ -248,7 +248,7 @@ fn render_text_unicode() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_unicode.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_unifont_t_symbols>()
+            FontRenderer::new(fonts::u8g2_font_unifont_t_symbols)
                 .render(
                     "Snowman: ☃",
                     Point::new(5, 20),
@@ -274,7 +274,7 @@ fn render_text_with_background_color() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_background.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_10x20_mf>()
+            FontRenderer::new(fonts::u8g2_font_10x20_mf)
                 .render(
                     "Hello, W0rld!",
                     Point::new(2, 20),
@@ -300,7 +300,7 @@ fn render_text_with_background_color() {
 
 #[test]
 fn render_text_with_vertical_pos() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB18_tf);
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_with_vertical_pos.png"),
         |display| {
@@ -352,7 +352,7 @@ fn render_text_with_vertical_pos() {
 
 #[test]
 fn get_text_dimensions_with_vertical_pos() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB18_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB18_tf);
 
     for (x_position, vertical_pos) in [
         VerticalPosition::Center,
@@ -394,7 +394,7 @@ fn render_text_with_newline() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_newline.png"),
         |display| {
-            FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>()
+            FontRenderer::new(fonts::u8g2_font_ncenB14_tr)
                 .render(
                     "Hello,\nWorld!",
                     Point::new(2, 15),
@@ -420,7 +420,7 @@ fn render_text_with_custom_line_height() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_custom_line_height.png"),
         |display| {
-            let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+            let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
             let font = font.with_line_height(30);
             font.render(
                 "Hello,\nWorld!",
@@ -447,7 +447,7 @@ fn render_text_with_line_height_reset_to_default() {
     let dimensions = TestDrawTarget::expect_image(
         std::include_bytes!("assets/render_text_newline.png"),
         |display| {
-            let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+            let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
             let default_line_height = font.get_default_line_height();
             let font = font.with_line_height(default_line_height);
             font.render(
@@ -472,7 +472,7 @@ fn render_text_with_line_height_reset_to_default() {
 
 #[test]
 fn render_args() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_args.png"), |display| {
             font.render(
@@ -496,7 +496,7 @@ fn render_args() {
 
 #[test]
 fn get_glyph_dimensions() {
-    let font = FontRenderer::new::<fonts::u8g2_font_lubBI08_tf>();
+    let font = FontRenderer::new(fonts::u8g2_font_lubBI08_tf);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/glyph_dimensions.png"),
@@ -544,7 +544,7 @@ fn get_glyph_dimensions() {
 
 #[test]
 fn get_text_dimensions() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/text_dimensions.png"),
@@ -580,7 +580,7 @@ fn get_text_dimensions() {
 #[test]
 fn aligned_text() {
     let text = "Agi,\niagmA!";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_text_dimensions.png"),
@@ -639,7 +639,7 @@ fn aligned_text() {
 #[test]
 fn aligned_text_with_ignore_unknown() {
     let text = "☃A☃g☃i☃,☃\n☃i☃a☃g☃m☃A☃!☃";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_text_dimensions.png"),
@@ -698,7 +698,7 @@ fn aligned_text_with_ignore_unknown() {
 #[test]
 fn text_empty_lines() {
     let text = "\na\n\nb\n";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
     let vpos = VerticalPosition::Top;
     let position = Point::new(5, 3);
 
@@ -735,7 +735,7 @@ fn text_empty_lines() {
 #[test]
 fn args_empty_lines() {
     let text = "\na\n\nb\n";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
     let vpos = VerticalPosition::Top;
     let position = Point::new(5, 3);
 
@@ -774,7 +774,7 @@ fn args_empty_lines() {
 #[test]
 fn aligned_text_empty_lines() {
     let text = "\na\n\nb\n";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
     let vpos = VerticalPosition::Top;
     let hpos = HorizontalAlignment::Center;
     let position = Point::new(10, 3);
@@ -810,7 +810,7 @@ fn aligned_text_empty_lines() {
 #[test]
 fn aligned_args_empty_lines() {
     let text = "\na\n\nb\n";
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
     let vpos = VerticalPosition::Top;
     let hpos = HorizontalAlignment::Center;
     let position = Point::new(10, 3);
@@ -846,7 +846,7 @@ fn aligned_args_empty_lines() {
 #[test]
 fn aligned_glyph() {
     let ch = 'A';
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_glyph_dimensions.png"),
@@ -904,7 +904,7 @@ fn aligned_glyph() {
 
 #[test]
 fn aligned_args() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_text_dimensions.png"),
@@ -962,7 +962,7 @@ fn aligned_args() {
 
 #[test]
 fn aligned_args_with_ignore_unknown() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>().with_ignore_unknown_chars(true);
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr).with_ignore_unknown_chars(true);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/aligned_text_dimensions.png"),
@@ -1020,7 +1020,7 @@ fn aligned_args_with_ignore_unknown() {
 
 #[test]
 fn whitespace_str_does_not_crash() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     for text in ["", " ", "\n", " \n "] {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
@@ -1077,7 +1077,7 @@ const ALPHABET_PYRAMID: &str = "a\nbb\nccc\ndddd\neeeee\nffffff\nggggggg\nhhhhhh
 
 #[test]
 fn large_content_text() {
-    let font = FontRenderer::new::<fonts::u8g2_font_profont11_mf>();
+    let font = FontRenderer::new(fonts::u8g2_font_profont11_mf);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/alphabet_pyramid.png"),
@@ -1121,7 +1121,7 @@ fn large_content_text() {
 
 #[test]
 fn large_content_args() {
-    let font = FontRenderer::new::<fonts::u8g2_font_profont11_mf>();
+    let font = FontRenderer::new(fonts::u8g2_font_profont11_mf);
 
     TestDrawTarget::expect_image(
         std::include_bytes!("assets/alphabet_pyramid.png"),
@@ -1165,7 +1165,7 @@ fn large_content_args() {
 
 #[test]
 fn whitespace_glyph_does_not_crash() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     let glyph = ' ';
     {
@@ -1221,7 +1221,7 @@ fn whitespace_glyph_does_not_crash() {
 
 #[test]
 fn whitespace_args_does_not_crash() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
 
     for text in ["", " ", "\n", " \n "] {
         TestDrawTarget::expect_image(std::include_bytes!("assets/empty.png"), |display| {
@@ -1276,7 +1276,7 @@ fn whitespace_args_does_not_crash() {
 
 #[test]
 fn passes_on_error() {
-    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let font = FontRenderer::new(fonts::u8g2_font_ncenB14_tr);
     let position = Point::new(1, 1);
     let hpos = HorizontalAlignment::Center;
     let vpos = VerticalPosition::Center;

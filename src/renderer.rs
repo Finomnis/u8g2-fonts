@@ -30,9 +30,9 @@ impl FontRenderer {
     ///
     /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
     ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
-    pub const fn new<FONT: Font>() -> Self {
+    pub const fn new(FONT: Font) -> Self {
         Self {
-            font: FontReader::new::<FONT>(),
+            font: FontReader::new(FONT),
         }
     }
 
@@ -383,7 +383,7 @@ mod tests {
     fn implements_debug() {
         println!(
             "{:?}",
-            FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>()
+            FontRenderer::new(crate::fonts::u8g2_font_u8glib_4_tf)
         );
     }
 }

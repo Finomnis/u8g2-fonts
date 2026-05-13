@@ -35,8 +35,8 @@ pub struct FontReader {
 }
 
 impl FontReader {
-    pub const fn new<F: Font>() -> Self {
-        let data = F::DATA;
+    pub const fn new(F: Font) -> Self {
+        let data = F;
 
         let mut this = Self {
             data: DebugIgnore(data),
@@ -145,19 +145,16 @@ mod tests {
 
     use super::*;
 
-    struct TestFont;
-    impl crate::Font for TestFont {
-        const DATA: &'static [u8] = &[
-            0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
-            b'\n', 0, // First glyph
-            0, 4, 255, 255, // Unicode Table
-            0, b'\n', 0, // Unicode entry
-        ];
-    }
+    const TestFont: Font = &[
+        0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
+        b'\n', 0, // First glyph
+        0, 4, 255, 255, // Unicode Table
+        0, b'\n', 0, // Unicode entry
+    ];
 
     #[test]
     fn can_read_font_properties() {
-        let font = FontReader::new::<TestFont>();
+        let font = FontReader::new(TestFont);
 
         let expected = FontReader {
             data: DebugIgnore(&[]),
@@ -196,7 +193,7 @@ mod tests {
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
-        let font = FontReader::new::<TestFont>();
+        let font = FontReader::new(TestFont);
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
