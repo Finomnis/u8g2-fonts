@@ -14,9 +14,6 @@ mod tests {
 
     #[test]
     fn implements_debug() {
-        println!(
-            "{:?}",
-            FontRenderer::new(crate::fonts::u8g2_font_u8glib_4_tf)
-        );
+        println!("{:?}", crate::fonts::u8g2_font_u8glib_4_tf);
     }
 }

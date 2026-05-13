@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_provides_correct_values() {
-        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf);
+        let font = fonts::u8g2_font_u8glib_4_tf;
         let ch = 'a';
         let mut dims = ch.line_dimensions_iterator();
 
@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_errors_on_glyph_not_found() {
-        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf);
+        let font = fonts::u8g2_font_u8glib_4_tf;
         let ch = '☃';
         let mut dims = ch.line_dimensions_iterator();
 

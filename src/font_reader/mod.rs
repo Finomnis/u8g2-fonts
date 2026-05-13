@@ -1,4 +1,4 @@
-use crate::{utils::DebugIgnore, Font, LookupError};
+use crate::{utils::DebugIgnore, LookupError};
 
 use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
 
@@ -53,8 +53,8 @@ pub struct FontReader {
 }
 
 impl FontReader {
-    pub const fn new(f: Font) -> Self {
-        let data = f.0;
+    pub const fn new(f: &'static [u8]) -> Self {
+        let data = f;
 
         Self {
             data: DebugIgnore(data),
@@ -475,12 +475,12 @@ mod tests {
 
     use super::*;
 
-    const TestFont: Font = Font(&[
+    const TestFont: &'static [u8] = &[
         0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
         b'\n', 0, // First glyph
         0, 4, 255, 255, // Unicode Table
         0, b'\n', 0, // Unicode entry
-    ]);
+    ];
 
     #[test]
     fn can_read_font_properties() {

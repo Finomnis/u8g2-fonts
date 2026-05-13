@@ -85,7 +85,6 @@
 //!
 //! ```rust
 //! # use u8g2_fonts::types::*;
-//! # use u8g2_fonts::FontRenderer;
 //! # use u8g2_fonts::fonts;
 //! # use embedded_graphics_core::prelude::*;
 //! # use embedded_graphics_core::pixelcolor::BinaryColor;
@@ -94,7 +93,7 @@
 //! #    Display: DrawTarget<Color = BinaryColor>,
 //! #    Display::Error: core::fmt::Debug
 //! # {
-//! let font = FontRenderer::new(fonts::u8g2_font_haxrcorp4089_t_cyrillic);
+//! let font = fonts::u8g2_font_haxrcorp4089_t_cyrillic;
 //!
 //! font.render_aligned(
 //!     format_args!("Answer: {}", 42),
@@ -136,7 +135,6 @@ pub mod types;
 pub use content::Content;
 pub use error::Error;
 pub use error::LookupError;
-pub use font::Font;
 pub use renderer::FontRenderer;
 
 #[cfg(feature = "embedded_graphics_textstyle")]
