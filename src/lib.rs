@@ -94,7 +94,7 @@
 //! #    Display: DrawTarget<Color = BinaryColor>,
 //! #    Display::Error: core::fmt::Debug
 //! # {
-//! let font = FontRenderer::new::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+//! let font = FontRenderer::new(fonts::u8g2_font_haxrcorp4089_t_cyrillic);
 //!
 //! font.render_aligned(
 //!     format_args!("Answer: {}", 42),
