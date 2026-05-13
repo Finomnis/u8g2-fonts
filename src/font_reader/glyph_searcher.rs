@@ -1,10 +1,10 @@
 use crate::font_reader::{
-    glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader, FontReader,
+    glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader, Font,
 };
 
 pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize> {
     data: &'static [u8],
-    font: &'a FontReader,
+    font: &'a Font,
 }
 
 impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
@@ -34,7 +34,7 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
 const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
 
 impl<'a> GlyphSearcher<'a, 1> {
-    pub fn new(font: &'a FontReader) -> Self {
+    pub fn new(font: &'a Font) -> Self {
         Self {
             data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
             font,

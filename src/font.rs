@@ -7,7 +7,7 @@ macro_rules! font_definitions {
     ( $($fontname:ident),* $(,)? ) => {
         $(
             #[doc = concat!(r#"<img src="https://raw.githubusercontent.com/wiki/olikraus/u8g2/fntpic/"#, stringify!($fontname), r#".png">"#)]
-            pub const $fontname: $crate::font_reader::FontReader = $crate::font_reader::FontReader::new(include_bytes!(concat!(stringify!($fontname), ".u8g2font")));
+            pub const $fontname: $crate::font_reader::Font = $crate::font_reader::Font::new(include_bytes!(concat!(stringify!($fontname), ".u8g2font")));
         )*
     };
 }

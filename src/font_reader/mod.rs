@@ -16,9 +16,7 @@ use crate::{
     Content, Error,
 };
 
-use crate::renderer::render_actions::{
-    compute_glyph_dimensions, compute_horizontal_offset, render_glyph,
-};
+use crate::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
 
 mod glyph_reader;
 mod glyph_renderer;
@@ -26,7 +24,7 @@ mod glyph_searcher;
 mod unicode_jumptable_reader;
 
 #[derive(Debug, Clone)]
-pub struct FontReader {
+pub struct Font {
     pub data: DebugIgnore<&'static [u8]>,
     pub supports_background_color: bool,
     pub glyph_count: u8,
@@ -52,7 +50,7 @@ pub struct FontReader {
     pub line_height: u8,
 }
 
-impl FontReader {
+impl Font {
     pub const fn new(f: &'static [u8]) -> Self {
         let data = f;
 
@@ -211,7 +209,7 @@ impl FontReader {
         content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
             if ch == '\n' {
                 advance.x = 0;
-                advance.y += i32::try_from(font.line_height).unwrap();
+                advance.y += i32::from(font.line_height);
             } else {
                 let dimensions = render_glyph(ch, position + advance, color, font, display)?;
                 advance += dimensions.advance;
@@ -298,7 +296,7 @@ impl FontReader {
             if ch == '\n' {
                 advance.x =
                     compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?);
-                advance.y += i32::try_from(font.line_height).unwrap();
+                advance.y += i32::from(font.line_height);
             } else {
                 let dimensions = render_glyph(ch, position + advance, color, font, display)?;
                 advance += dimensions.advance;
@@ -340,7 +338,7 @@ impl FontReader {
         content.for_each_char(|ch| -> Result<(), LookupError> {
             if ch == '\n' {
                 advance.x = 0;
-                advance.y += i32::try_from(font.line_height).unwrap();
+                advance.y += i32::from(font.line_height);
             } else {
                 let dimensions = compute_glyph_dimensions(ch, position + advance, font)?;
                 advance += dimensions.advance;
@@ -405,7 +403,7 @@ impl FontReader {
 
                 line_advance = 0;
                 line_bounding_box = None;
-                position.y += i32::try_from(font.line_height).unwrap();
+                position.y += i32::from(font.line_height);
             } else {
                 let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
                 line_bounding_box =
@@ -452,7 +450,7 @@ impl FontReader {
     /// The maximum possible bounding box of all glyphs if they were rendered with
     /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
     pub const fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
-        let y_offset = compute_vertical_offset_from_static_newlines(&self, vertical_pos, 0);
+        let y_offset = compute_vertical_offset_from_static_newlines(self, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
                 self.font_bounding_box_x_offset as i32,
@@ -475,7 +473,7 @@ mod tests {
 
     use super::*;
 
-    const TestFont: &'static [u8] = &[
+    const TEST_FONT: &'static [u8] = &[
         0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
         b'\n', 0, // First glyph
         0, 4, 255, 255, // Unicode Table
@@ -484,9 +482,9 @@ mod tests {
 
     #[test]
     fn can_read_font_properties() {
-        let font = FontReader::new(TestFont);
+        let font = Font::new(TEST_FONT);
 
-        let expected = FontReader {
+        let expected = Font {
             data: DebugIgnore(&[]),
             supports_background_color: false,
             glyph_count: 0,
@@ -523,7 +521,7 @@ mod tests {
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
-        let font = FontReader::new(TestFont);
+        let font = Font::new(TEST_FONT);
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));

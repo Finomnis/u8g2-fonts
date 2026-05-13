@@ -1,12 +1,15 @@
+//! Actions used by the font renderer
+
 use embedded_graphics_core::prelude::{DrawTarget, Point};
 
 use crate::{
-    font_reader::FontReader,
+    font_reader::Font,
     types::{FontColor, HorizontalAlignment, RenderedDimensions},
     utils::HorizontalRenderedDimensions,
     Error, LookupError,
 };
 
+/// Computers the Horizontal Offset of Text Alignment
 pub fn compute_horizontal_offset(
     horizontal_align: HorizontalAlignment,
     line_dimensions: HorizontalRenderedDimensions,
@@ -33,10 +36,11 @@ pub fn compute_horizontal_offset(
     }
 }
 
+/// Computes glyph dimensions
 pub fn compute_glyph_dimensions(
     ch: char,
     position: Point,
-    font: &FontReader,
+    font: &Font,
 ) -> Result<RenderedDimensions, LookupError> {
     let glyph = match font.try_retrieve_glyph_data(ch)? {
         Some(g) => g,
@@ -61,10 +65,11 @@ pub fn compute_glyph_dimensions(
     })
 }
 
+/// Computes Horizontal Glyph Dimensions
 pub fn compute_horizontal_glyph_dimensions(
     ch: char,
     position_x: i32,
-    font: &FontReader,
+    font: &Font,
 ) -> Result<HorizontalRenderedDimensions, LookupError> {
     let glyph = match font.try_retrieve_glyph_data(ch)? {
         Some(g) => g,
@@ -84,10 +89,11 @@ pub fn compute_horizontal_glyph_dimensions(
     })
 }
 
+/// Computes Horizontal Line Dimensions
 pub fn compute_horizontal_line_dimensions(
     line: &str,
     position_x: i32,
-    font: &FontReader,
+    font: &Font,
 ) -> Result<HorizontalRenderedDimensions, LookupError> {
     let mut line_dimensions = HorizontalRenderedDimensions {
         advance: position_x,
@@ -105,11 +111,12 @@ pub fn compute_horizontal_line_dimensions(
     Ok(line_dimensions)
 }
 
+/// Renders an individual glyph onto a display
 pub fn render_glyph<Display>(
     ch: char,
     position: Point,
     color: FontColor<Display::Color>,
-    font: &FontReader,
+    font: &Font,
     display: &mut Display,
 ) -> Result<RenderedDimensions, Error<Display::Error>>
 where

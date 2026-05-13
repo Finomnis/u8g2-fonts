@@ -120,7 +120,6 @@ mod content;
 mod error;
 mod font;
 mod font_reader;
-mod renderer;
 mod utils;
 
 /// A collection of [U8g2 fonts](https://github.com/olikraus/u8g2/wiki/fntlistall).
@@ -135,7 +134,7 @@ pub mod types;
 pub use content::Content;
 pub use error::Error;
 pub use error::LookupError;
-pub use renderer::FontRenderer;
+pub mod render_actions;
 
 #[cfg(feature = "embedded_graphics_textstyle")]
 mod u8g2_text_style;

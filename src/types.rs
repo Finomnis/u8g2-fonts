@@ -15,8 +15,10 @@ use embedded_graphics_core::{
 ///
 /// The default is [`VerticalPosition::Baseline`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum VerticalPosition {
     /// Anchored at the font baseline
+    #[default]
     Baseline,
     /// Anchored at the top
     Top,
@@ -26,11 +28,6 @@ pub enum VerticalPosition {
     Bottom,
 }
 
-impl Default for VerticalPosition {
-    fn default() -> Self {
-        Self::Baseline
-    }
-}
 
 /// The dimensions of a rendered glyph/text.
 #[derive(Debug, Clone, PartialEq, Eq)]

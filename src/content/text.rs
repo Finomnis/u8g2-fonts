@@ -1,5 +1,5 @@
 use crate::{
-    font_reader::FontReader, renderer::render_actions::compute_horizontal_line_dimensions,
+    font_reader::Font, render_actions::compute_horizontal_line_dimensions,
     utils::HorizontalRenderedDimensions, Content, LookupError,
 };
 
@@ -36,7 +36,7 @@ pub struct TextLineDimensionsIterator<'a> {
 }
 
 impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
-    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
+    fn next(&mut self, font: &Font) -> Result<HorizontalRenderedDimensions, LookupError> {
         let line = self.data.next().unwrap_or("");
         compute_horizontal_line_dimensions(line, 0, font)
     }
