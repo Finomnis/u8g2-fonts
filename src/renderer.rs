@@ -46,9 +46,9 @@ impl FontRenderer {
     ///
     /// Panics if `font_data` is not valid U8g2 font data, including if it is
     /// shorter than the required U8g2 font header.
-    pub const fn new_from_slice(font_data: &'static [u8]) -> Self {
+    pub const fn new_from_raw_data(font_data: &'static [u8]) -> Self {
         Self {
-            font: FontReader::new_from_slice(font_data),
+            font: FontReader::new_from_raw_data(font_data),
         }
     }
 
@@ -404,10 +404,10 @@ mod tests {
     }
 
     #[test]
-    fn new_from_slice() {
+    fn new_from_raw_data() {
         let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
         let renderer_from_slice =
-            FontRenderer::new_from_slice(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
+            FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
         assert_eq!(renderer_from_font.font, renderer_from_slice.font);
     }
 }
