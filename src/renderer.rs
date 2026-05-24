@@ -41,6 +41,11 @@ impl FontRenderer {
     /// # Arguments
     ///
     /// * `font_data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `font_data` is not valid U8g2 font data, including if it is
+    /// shorter than the required U8g2 font header.
     pub const fn new_from_slice(font_data: &'static [u8]) -> Self {
         Self {
             font: FontReader::new_from_slice(font_data),
