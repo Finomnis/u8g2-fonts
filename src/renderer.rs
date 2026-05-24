@@ -36,6 +36,22 @@ impl FontRenderer {
         }
     }
 
+    /// Creates a new instance of a font renderer from custom font data.
+    ///
+    /// # Arguments
+    ///
+    /// * `font_data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `font_data` is not valid U8g2 font data, including if it is
+    /// shorter than the required U8g2 font header.
+    pub const fn new_from_raw_data(font_data: &'static [u8]) -> Self {
+        Self {
+            font: FontReader::new_from_raw_data(font_data),
+        }
+    }
+
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///
@@ -385,5 +401,13 @@ mod tests {
             "{:?}",
             FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>()
         );
+    }
+
+    #[test]
+    fn new_from_raw_data() {
+        let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
+        let renderer_from_raw_data =
+            FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
+        assert_eq!(renderer_from_font.font, renderer_from_raw_data.font);
     }
 }

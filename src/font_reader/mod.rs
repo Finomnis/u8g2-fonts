@@ -7,7 +7,7 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontReader {
     pub data: DebugIgnore<&'static [u8]>,
     pub supports_background_color: bool,
@@ -35,9 +35,7 @@ pub struct FontReader {
 }
 
 impl FontReader {
-    pub const fn new<F: Font>() -> Self {
-        let data = F::DATA;
-
+    pub const fn new_from_raw_data(data: &'static [u8]) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
             glyph_count: data[0],
@@ -65,6 +63,11 @@ impl FontReader {
         };
         this.line_height = this.get_default_line_height() as u32;
         this
+    }
+
+    pub const fn new<F: Font>() -> Self {
+        let data = F::DATA;
+        Self::new_from_raw_data(data)
     }
 
     pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
