@@ -408,6 +408,6 @@ mod tests {
         let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
         let renderer_from_raw_data =
             FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
-        assert_eq!(renderer_from_font.font, renderer_from_slice.font);
+        assert_eq!(renderer_from_font.font, renderer_from_raw_data.font);
     }
 }
