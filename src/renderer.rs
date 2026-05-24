@@ -36,6 +36,17 @@ impl FontRenderer {
         }
     }
 
+    /// Creates a new instance of a font renderer from custom font data.
+    ///
+    /// # Arguments
+    ///
+    /// * `font_data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
+    pub const fn new_from_slice(font_data: &'static [u8]) -> Self {
+        Self {
+            font: FontReader::new_from_slice(font_data),
+        }
+    }
+
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///
