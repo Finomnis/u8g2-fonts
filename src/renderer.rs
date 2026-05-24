@@ -397,4 +397,12 @@ mod tests {
             FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>()
         );
     }
+
+    #[test]
+    fn new_from_slice() {
+        let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
+        let renderer_from_slice =
+            FontRenderer::new_from_slice(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
+        assert_eq!(renderer_from_font.font, renderer_from_slice.font);
+    }
 }

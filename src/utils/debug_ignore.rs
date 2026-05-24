@@ -1,6 +1,6 @@
 use core::ops::{Deref, DerefMut};
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct DebugIgnore<T>(pub T);
 
 impl<T> core::fmt::Debug for DebugIgnore<T> {
