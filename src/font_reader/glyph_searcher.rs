@@ -16,6 +16,11 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
         self.data.get(CHAR_WIDTH).cloned().unwrap()
     }
 
+    /// Returns whether the searcher points at the terminator of the glyph list.
+    pub fn is_at_terminator(&self) -> bool {
+        self.get_offset() == 0
+    }
+
     pub fn jump_to_next(&mut self) -> bool {
         let offset = self.get_offset();
         if offset == 0 {

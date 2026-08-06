@@ -106,11 +106,15 @@ impl FontReader {
                 glyph.jump_by(self.array_offset_upper_a.into());
             }
 
-            while glyph.get_ch() as u16 != encoding {
-                glyph
-                    .jump_to_next()
-                    .then_some(())
-                    .ok_or(LookupError::GlyphNotFound(ch))?;
+            loop {
+                // The terminator of the chain is not a glyph, so it is checked first.
+                if glyph.is_at_terminator() {
+                    return Err(LookupError::GlyphNotFound(ch));
+                }
+                if u16::from(glyph.get_ch()) == encoding {
+                    break;
+                }
+                glyph.jump_to_next();
             }
 
             Ok(glyph.into_glyph_reader())
@@ -203,5 +207,15 @@ mod tests {
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
+    }
+
+    #[test]
+    fn does_not_match_the_glyph_list_terminator() {
+        // The terminator of the single byte encoding glyph list has the encoding zero,
+        // but it is not a glyph.
+        let font = FontReader::new::<crate::fonts::u8g2_font_ncenB14_tr>();
+        let glyph = font.retrieve_glyph_data('\u{0}');
+
+        assert!(matches!(glyph, Err(LookupError::GlyphNotFound('\u{0}'))));
     }
 }
