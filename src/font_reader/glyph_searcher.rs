@@ -16,11 +16,6 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
         self.data.get(CHAR_WIDTH).cloned().unwrap()
     }
 
-    /// Returns whether the searcher points at the terminator of the glyph list.
-    pub fn is_at_terminator(&self) -> bool {
-        self.get_offset() == 0
-    }
-
     pub fn jump_to_next(&mut self) -> bool {
         let offset = self.get_offset();
         if offset == 0 {
@@ -38,16 +33,54 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
 
 const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
 
+/// Walks the jump chain of the single byte encoding region and returns the offset
+/// of the glyph of `encoding`, relative to the start of the glyph data.
+///
+/// The returned value is exactly the value that has to be passed to
+/// [`GlyphSearcher::jump_by`] to make a freshly created [`GlyphSearcher<1>`]
+/// point at the glyph of `encoding`.
+///
+/// Returns [`None`] if the font does not contain `encoding`.
+pub const fn find_glyph_offset(
+    data: &[u8],
+    array_offset_upper_a: u16,
+    array_offset_lower_a: u16,
+    encoding: u8,
+) -> Option<usize> {
+    let mut offset = if encoding >= b'a' {
+        array_offset_lower_a as usize
+    } else if encoding >= b'A' {
+        array_offset_upper_a as usize
+    } else {
+        0
+    };
+
+    loop {
+        let pos = U8G2_FONT_DATA_STRUCT_SIZE + offset;
+
+        if pos + 1 >= data.len() {
+            return None;
+        }
+
+        // The terminator of the chain is not a glyph, so it is checked first.
+        let jump_distance = data[pos + 1];
+        if jump_distance == 0 {
+            return None;
+        }
+        if data[pos] == encoding {
+            return Some(offset);
+        }
+
+        offset += jump_distance as usize;
+    }
+}
+
 impl<'a> GlyphSearcher<'a, 1> {
     pub fn new(font: &'a FontReader) -> Self {
         Self {
             data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
             font,
         }
-    }
-
-    pub fn get_ch(&self) -> u8 {
-        self.data.first().cloned().unwrap()
     }
 
     pub fn into_unicode_mode(

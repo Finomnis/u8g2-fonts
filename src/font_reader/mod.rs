@@ -99,23 +99,12 @@ impl FontReader {
 
         let mut glyph = GlyphSearcher::new(self);
 
-        if encoding <= 255 {
-            if encoding >= u16::from(b'a') {
-                glyph.jump_by(self.array_offset_lower_a.into());
-            } else if encoding >= u16::from(b'A') {
-                glyph.jump_by(self.array_offset_upper_a.into());
-            }
+        if let Ok(encoding) = u8::try_from(encoding) {
+            let offset = self
+                .find_glyph_offset(encoding)
+                .ok_or(LookupError::GlyphNotFound(ch))?;
 
-            loop {
-                // The terminator of the chain is not a glyph, so it is checked first.
-                if glyph.is_at_terminator() {
-                    return Err(LookupError::GlyphNotFound(ch));
-                }
-                if u16::from(glyph.get_ch()) == encoding {
-                    break;
-                }
-                glyph.jump_to_next();
-            }
+            glyph.jump_by(offset);
 
             Ok(glyph.into_glyph_reader())
         } else {
@@ -142,6 +131,17 @@ impl FontReader {
 
             Ok(glyph.into_glyph_reader())
         }
+    }
+
+    /// Resolves `encoding` to the offset of its glyph, relative to the start of
+    /// the glyph data.
+    fn find_glyph_offset(&self, encoding: u8) -> Option<usize> {
+        glyph_searcher::find_glyph_offset(
+            &self.data,
+            self.array_offset_upper_a,
+            self.array_offset_lower_a,
+            encoding,
+        )
     }
 }
 
