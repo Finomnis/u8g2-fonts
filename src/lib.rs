@@ -86,6 +86,19 @@
 //! Those functions behave almost identical to their `render` counterparts, but don't actually perform any rendering. This
 //! can be very useful if the dimensions of the text are required for other drawing operations prior to the actual text rendering.
 //!
+//! ## Glyph Enumeration
+//!
+//! [`FontRenderer::glyphs()`] iterates over all characters that a font contains, which makes
+//! it possible to assert that a font provides exactly the characters an application needs:
+//!
+//! ```rust
+//! # use u8g2_fonts::FontRenderer;
+//! # use u8g2_fonts::fonts;
+//! let font = FontRenderer::new::<fonts::u8g2_font_courB10_tn>();
+//!
+//! assert!(font.glyphs().eq(" *+,-./0123456789:".chars()));
+//! ```
+//!
 //! ## Colors and Backgrounds
 //!
 //! While a foreground color must always be specified for rendering a font, there is also the option to set a background color.
@@ -150,6 +163,7 @@ pub use content::Content;
 pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
+pub use font_reader::Glyphs;
 pub use renderer::FontRenderer;
 
 #[cfg(feature = "embedded_graphics_textstyle")]

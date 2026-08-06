@@ -7,7 +7,7 @@ use crate::{
     content::{
         vertical_offset::compute_vertical_offset_from_static_newlines, LineDimensionsIterator,
     },
-    font_reader::FontReader,
+    font_reader::{FontReader, Glyphs},
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
     Content, Error, Font, LookupError,
@@ -107,6 +107,26 @@ impl FontRenderer {
     pub const fn with_line_height(mut self, line_height: u32) -> Self {
         self.font = self.font.with_line_height(line_height);
         self
+    }
+
+    /// Returns an iterator over all characters that this font contains.
+    ///
+    /// The characters are yielded in the order in which the font stores them,
+    /// which is ascending by code point.
+    ///
+    /// # Example
+    ///
+    /// Asserting that a font contains exactly the characters an application needs:
+    ///
+    /// ```rust
+    /// # use u8g2_fonts::FontRenderer;
+    /// # use u8g2_fonts::fonts;
+    /// let font = FontRenderer::new::<fonts::u8g2_font_courB10_tn>();
+    ///
+    /// assert!(font.glyphs().eq(" *+,-./0123456789:".chars()));
+    /// ```
+    pub fn glyphs(&self) -> Glyphs {
+        self.font.glyphs()
     }
 
     /// Renders text to a display.

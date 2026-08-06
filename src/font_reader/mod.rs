@@ -10,7 +10,10 @@ mod glyph_index;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
+mod glyphs;
 mod unicode_jumptable_reader;
+
+pub use glyphs::Glyphs;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontReader {
@@ -96,6 +99,10 @@ impl FontReader {
     pub const fn get_default_line_height(&self) -> u8 {
         assert!(self.font_bounding_box_height >= 0);
         self.font_bounding_box_height as u8 + 1
+    }
+
+    pub fn glyphs(&self) -> Glyphs {
+        Glyphs::new(self)
     }
 
     pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader>, LookupError> {

@@ -31,7 +31,62 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
     }
 }
 
-const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
+pub const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
+
+/// An entry of the single byte encoding jump chain.
+pub struct SingleByteEntry {
+    pub encoding: u8,
+    /// The distance to the next entry. A distance of zero terminates the chain.
+    pub jump_distance: u8,
+}
+
+/// Reads the entry of the single byte encoding jump chain at `pos`.
+///
+/// `pos` is an index into `data`, not an offset into the glyph data.
+///
+/// Returns [`None`] if `data` is too short to contain the entry.
+pub const fn read_single_byte_entry(data: &[u8], pos: usize) -> Option<SingleByteEntry> {
+    if pos + 1 >= data.len() {
+        return None;
+    }
+
+    Some(SingleByteEntry {
+        encoding: data[pos],
+        jump_distance: data[pos + 1],
+    })
+}
+
+/// An entry of the unicode jump chain.
+pub struct UnicodeEntry {
+    /// An encoding of zero terminates the chain.
+    pub encoding: u16,
+    /// The distance to the next entry. A distance of zero terminates the chain.
+    pub jump_distance: u8,
+}
+
+/// Reads the entry of the unicode jump chain at `pos`.
+///
+/// `pos` is an index into `data`, not an offset into the glyph data.
+///
+/// Returns [`None`] if `data` is too short to contain the entry. The chain
+/// terminator consists of the encoding alone, so a missing jump distance is
+/// reported as zero.
+pub const fn read_unicode_entry(data: &[u8], pos: usize) -> Option<UnicodeEntry> {
+    if pos + 1 >= data.len() {
+        return None;
+    }
+
+    let jump_distance = if pos + 2 < data.len() {
+        data[pos + 2]
+    } else {
+        0
+    };
+
+    Some(UnicodeEntry {
+        encoding: u16::from_be_bytes([data[pos], data[pos + 1]]),
+        jump_distance,
+    })
+}
 
 /// Walks the jump chain of the single byte encoding region and returns the offset
 /// of the glyph of `encoding`, relative to the start of the glyph data.
@@ -56,22 +111,20 @@ pub const fn find_glyph_offset(
     };
 
     loop {
-        let pos = U8G2_FONT_DATA_STRUCT_SIZE + offset;
-
-        if pos + 1 >= data.len() {
-            return None;
-        }
+        let entry = match read_single_byte_entry(data, U8G2_FONT_DATA_STRUCT_SIZE + offset) {
+            Some(entry) => entry,
+            None => return None,
+        };
 
         // The terminator of the chain is not a glyph, so it is checked first.
-        let jump_distance = data[pos + 1];
-        if jump_distance == 0 {
+        if entry.jump_distance == 0 {
             return None;
         }
-        if data[pos] == encoding {
+        if entry.encoding == encoding {
             return Some(offset);
         }
 
-        offset += jump_distance as usize;
+        offset += entry.jump_distance as usize;
     }
 }
 
