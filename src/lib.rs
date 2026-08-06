@@ -41,6 +41,19 @@
 //!
 //! Note that [`FontRenderer::new()`] is `const`, so it can be crated as a global variable at compile time for optimal performance.
 //!
+//! ## Glyph Index
+//!
+//! [`FontRenderer::new_indexed()`] adds a lookup table from the printable ASCII characters
+//! (`' '` to `'~'`) to the position of their glyph inside of the font data. It is computed
+//! at compile time and lets every operation on those characters skip the search through the
+//! font's glyph list:
+//!
+//! ```rust
+//! # use u8g2_fonts::FontRenderer;
+//! # use u8g2_fonts::fonts;
+//! const FONT: FontRenderer = FontRenderer::new_indexed::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+//! ```
+//!
 //! ## Fonts
 //!
 //! The fonts are directly imported from [U8g2](https://github.com/olikraus/u8g2/wiki).

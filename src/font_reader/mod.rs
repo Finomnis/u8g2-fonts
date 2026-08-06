@@ -1,7 +1,12 @@
 use crate::{utils::DebugIgnore, Font, LookupError};
 
-use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+use self::{
+    glyph_index::{GlyphIndex, IndexLookup},
+    glyph_reader::GlyphReader,
+    glyph_searcher::GlyphSearcher,
+};
 
+mod glyph_index;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
@@ -32,6 +37,7 @@ pub struct FontReader {
     pub array_offset_0x0100: u16,
     pub ignore_unknown_glyphs: bool,
     pub line_height: u32,
+    pub glyph_index: Option<&'static GlyphIndex>,
 }
 
 impl FontReader {
@@ -60,6 +66,7 @@ impl FontReader {
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
             ignore_unknown_glyphs: false,
             line_height: 0,
+            glyph_index: None,
         };
         this.line_height = this.get_default_line_height() as u32;
         this
@@ -78,6 +85,12 @@ impl FontReader {
     pub const fn with_line_height(mut self, line_height: u32) -> Self {
         self.line_height = line_height;
         self
+    }
+
+    pub const fn new_indexed<F: Font>() -> Self {
+        let mut this = Self::new::<F>();
+        this.glyph_index = const { GlyphIndex::build_for::<F>() }.as_ref();
+        this
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
@@ -135,7 +148,18 @@ impl FontReader {
 
     /// Resolves `encoding` to the offset of its glyph, relative to the start of
     /// the glyph data.
+    ///
+    /// Consults the glyph index if it is present and covers `encoding`, and walks
+    /// the jump chain otherwise.
     fn find_glyph_offset(&self, encoding: u8) -> Option<usize> {
+        if let Some(index) = self.glyph_index {
+            match index.lookup(encoding) {
+                IndexLookup::Found(offset) => return Some(offset),
+                IndexLookup::Absent => return None,
+                IndexLookup::NotCovered => (),
+            }
+        }
+
         glyph_searcher::find_glyph_offset(
             &self.data,
             self.array_offset_upper_a,
@@ -190,6 +214,7 @@ mod tests {
             array_offset_0x0100: 2,
             ignore_unknown_glyphs: false,
             line_height: 3,
+            glyph_index: None,
         };
 
         assert_eq!(format!("{font:?}"), format!("{expected:?}"));
