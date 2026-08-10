@@ -143,6 +143,20 @@ fn unicode_characters_that_are_not_yielded_are_not_retrievable() {
 }
 
 #[test]
+fn is_debug_and_clone() {
+    let font = FontRenderer::new::<fonts::u8g2_font_courB10_tn>();
+    let mut glyphs = font.glyphs();
+
+    assert!(!format!("{glyphs:?}").is_empty());
+
+    glyphs.next().unwrap();
+    assert_eq!(
+        glyphs.clone().collect::<String>(),
+        glyphs.collect::<String>()
+    );
+}
+
+#[test]
 fn the_glyph_list_terminator_is_not_a_glyph() {
     let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
 

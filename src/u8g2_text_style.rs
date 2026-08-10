@@ -250,6 +250,10 @@ mod tests {
     #[test]
     fn is_debug_and_clone() {
         examine(U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, Rgb888::RED));
+        examine(U8g2TextStyle::new_indexed(
+            fonts::u8g2_font_10x20_mf,
+            Rgb888::RED,
+        ));
     }
 
     // Dummy test for coverage; coverage requires unreachable!() branches to be covered,

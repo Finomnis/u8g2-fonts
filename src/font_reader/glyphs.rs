@@ -7,7 +7,7 @@ use crate::{
 };
 
 /// The region of the font data that the iterator is currently walking.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug)]
 enum Region {
     /// Walking the single byte encoding chain, at the given index into the data.
     SingleByte(usize),
@@ -93,5 +93,50 @@ impl Iterator for Glyphs {
                 Region::Finished => return None,
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    extern crate std;
+    use std::vec::Vec;
+
+    use super::*;
+
+    /// Builds font data out of a header whose unicode region starts right behind the
+    /// terminator of the single byte encoding chain, that terminator, and the unicode
+    /// region passed as arguments.
+    macro_rules! font_data {
+        ($($byte:expr),* $(,)?) => {
+            &[
+                0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
+                0, 0, // Terminator of the single byte encoding chain
+                $($byte,)*
+            ]
+        };
+    }
+
+    fn glyphs_of(data: &'static [u8]) -> Vec<char> {
+        FontReader::new_from_raw_data(data).glyphs().collect()
+    }
+
+    #[test]
+    fn a_font_ends_if_its_unicode_region_lies_behind_the_data() {
+        assert!(glyphs_of(font_data![]).is_empty());
+    }
+
+    #[test]
+    fn the_last_unicode_entry_may_omit_its_jump_distance() {
+        // A jump table that leads to a single entry that has no jump distance.
+        assert_eq!(
+            glyphs_of(font_data![0, 4, 0xff, 0xff, 0x04, 0x10]),
+            ['\u{410}']
+        );
+    }
+
+    #[test]
+    fn unicode_entries_that_are_no_characters_are_skipped() {
+        // 0xd800 is a surrogate, so it is not a character.
+        assert!(glyphs_of(font_data![0, 4, 0xff, 0xff, 0xd8, 0x00, 3, 0, 0]).is_empty());
     }
 }

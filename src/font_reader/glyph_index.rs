@@ -26,7 +26,7 @@ pub enum IndexLookup {
 ///
 /// The offsets are relative to the start of the glyph data, identical to what
 /// [`find_glyph_offset`] computes.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct GlyphIndex {
     offsets: [u16; NUM_CHARS],
 }
@@ -94,14 +94,16 @@ mod tests {
     use crate::{font_reader::glyph_searcher, fonts};
 
     /// Runs `check` on a selection of fonts with different glyph ranges, bit widths
-    /// and encodings. `check` receives the font name, a plain and an indexed reader.
-    fn for_each_test_font(check: impl Fn(&str, &FontReader, &FontReader)) {
+    /// and encodings. `check` receives the font name, a plain and an indexed reader,
+    /// and an index that is built at runtime instead of at compile time.
+    fn for_each_test_font(check: impl Fn(&str, &FontReader, &FontReader, Option<GlyphIndex>)) {
         macro_rules! check_font {
             ($font:ty) => {
                 check(
                     stringify!($font),
                     &FontReader::new::<$font>(),
                     &FontReader::new_indexed::<$font>(),
+                    GlyphIndex::build_for::<$font>(),
                 )
             };
         }
@@ -118,8 +120,22 @@ mod tests {
     }
 
     #[test]
+    fn the_index_does_not_depend_on_when_it_is_built() {
+        for_each_test_font(|name, plain, indexed, at_runtime| {
+            assert_eq!(at_runtime.as_ref(), indexed.glyph_index, "{name}");
+
+            let from_data = GlyphIndex::build(
+                &plain.data,
+                plain.array_offset_upper_a,
+                plain.array_offset_lower_a,
+            );
+            assert_eq!(from_data.as_ref(), indexed.glyph_index, "{name}");
+        });
+    }
+
+    #[test]
     fn index_matches_linear_search() {
-        for_each_test_font(|name, plain, indexed| {
+        for_each_test_font(|name, plain, indexed, _| {
             assert!(indexed.glyph_index.is_some(), "{name} has no glyph index");
 
             for encoding in FIRST_CHAR..=LAST_CHAR {
@@ -179,6 +195,33 @@ mod tests {
                 font.find_glyph_offset(encoding)
             );
         }
+    }
+
+    #[test]
+    fn fonts_with_glyphs_beyond_the_offset_range_have_no_index() {
+        // The offset of the only glyph, which is too large for the index.
+        const FAR_OFFSET: usize = ABSENT as usize;
+
+        static DATA: [u8; glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + FAR_OFFSET + 2] = {
+            let mut data = [0; glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + FAR_OFFSET + 2];
+
+            // A chain of entries that are no glyphs, leading up to the glyph of a space.
+            let mut offset = 0;
+            while offset < FAR_OFFSET {
+                let remaining = FAR_OFFSET - offset;
+                let jump_distance = if remaining > 255 { 255 } else { remaining };
+                data[glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + offset] = 0x01;
+                data[glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + offset + 1] = jump_distance as u8;
+                offset += jump_distance;
+            }
+            data[glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + FAR_OFFSET] = b' ';
+            data[glyph_searcher::U8G2_FONT_DATA_STRUCT_SIZE + FAR_OFFSET + 1] = 2;
+
+            data
+        };
+
+        assert_eq!(find_glyph_offset(&DATA, 0, 0, b' '), Some(FAR_OFFSET));
+        assert!(GlyphIndex::build(&DATA, 0, 0).is_none());
     }
 
     // Proves that the whole index is computed at compile time.

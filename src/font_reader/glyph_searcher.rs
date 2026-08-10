@@ -160,3 +160,40 @@ impl GlyphSearcher<'_, 2> {
         ])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn single_byte_entries_need_an_encoding_and_a_jump_distance() {
+        assert!(read_single_byte_entry(&[0x41], 0).is_none());
+
+        let entry = read_single_byte_entry(&[0xff, 0x41, 0x07], 1).unwrap();
+        assert_eq!(entry.encoding, 0x41);
+        assert_eq!(entry.jump_distance, 0x07);
+    }
+
+    #[test]
+    fn a_jump_chain_that_leaves_the_data_does_not_find_a_glyph() {
+        let mut data = [0; U8G2_FONT_DATA_STRUCT_SIZE + 3];
+        data[U8G2_FONT_DATA_STRUCT_SIZE] = b'A';
+        // The jump distance points behind the end of the data.
+        data[U8G2_FONT_DATA_STRUCT_SIZE + 1] = 4;
+
+        assert!(find_glyph_offset(&data, 0, 0, b'B').is_none());
+    }
+
+    #[test]
+    fn unicode_entries_need_an_encoding_and_may_omit_the_jump_distance() {
+        assert!(read_unicode_entry(&[0x04], 0).is_none());
+
+        let terminator = read_unicode_entry(&[0x00, 0x00], 0).unwrap();
+        assert_eq!(terminator.encoding, 0x0000);
+        assert_eq!(terminator.jump_distance, 0);
+
+        let entry = read_unicode_entry(&[0x04, 0x10, 0x09], 0).unwrap();
+        assert_eq!(entry.encoding, 0x0410);
+        assert_eq!(entry.jump_distance, 0x09);
+    }
+}
