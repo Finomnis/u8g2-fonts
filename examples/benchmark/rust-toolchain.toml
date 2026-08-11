@@ -1,0 +1,3 @@
+[toolchain]
+channel = "1.97.1"
+targets = ["thumbv6m-none-eabi", "thumbv7em-none-eabi"]

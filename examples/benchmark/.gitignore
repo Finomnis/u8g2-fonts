@@ -1,0 +1,4 @@
+/target
+
+# Specifically not Cargo.lock, we need that
+# to have consistent benchmarking results
