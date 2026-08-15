@@ -31,8 +31,7 @@ def main():
                                      '--mount', f'type=bind,src={binary_path},dst=/algo.firmware',
                                      'ghcr.io/finomnis/qemu-embedded-bench:v0.2.0',
                                      qemu_machine],
-                                    check=True,
-                                    capture_output=True).stderr
+                                    check=True)
 
             output = json.loads(output)
             print(output)
