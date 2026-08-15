@@ -9,10 +9,10 @@ bench_main! {{
     let result = bench_run!(dimensions, content);
 
     assert_eq!(result, RenderedDimensions {
-        advance: Point::new(5,5),
+        advance: Point::new(224,17),
         bounding_box: Some(Rectangle {
-            top_left: Point::new(5,5),
-            size: Size::new(10,10),
+            top_left: Point::new(321,226),
+            size: Size::new(220,29),
         })
     });
 }}

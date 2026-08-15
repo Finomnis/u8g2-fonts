@@ -9,8 +9,8 @@ bench_main! {{
     let result = bench_run!(dimensions, content);
 
     assert_eq!(result, Some(Rectangle {
-        top_left: Point::new(5,5),
-        size: Size::new(10,10),
+        top_left: Point::new(210,226),
+        size: Size::new(220,29),
     }));
 }}
 

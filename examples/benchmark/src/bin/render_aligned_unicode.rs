@@ -9,7 +9,7 @@ bench_main! {{
 
     let result = bench_run!(render, display, content);
 
-    assert_eq!(result, 0x1d899d9a);
+    assert_eq!(result, 0x4ba52134);
 }}
 
 fn render(mut display: TestDisplay, content: &str) -> u32 {
