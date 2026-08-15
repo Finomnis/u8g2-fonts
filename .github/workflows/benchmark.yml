@@ -37,6 +37,18 @@ jobs:
             --key '${{ secrets.BENCHER_TOKEN }}' \
             --branch '${{ github.ref_name }}' \
             --testbed '${{ matrix.target }}' \
+            --threshold-measure instructions \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
+            --threshold-measure reads \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
+            --threshold-measure writes \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
             --adapter json \
             --github-actions '${{ secrets.GITHUB_TOKEN }}' \
             --file examples/benchmark/benchmark_results.json
