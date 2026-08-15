@@ -23,6 +23,8 @@ def main():
     subprocess.run(['cargo', 'build', '--release', '--target', args.target],
                    cwd=SCRIPT_PATH, check=True)
 
+    results = {}
+
     for binary_name in binary_names:
 
         print(f"Running benchmark '{binary_name}' ...")
@@ -39,6 +41,15 @@ def main():
         print(output)
         assert (output['regions_started'] == 1)
         assert (output['regions_completed'] == 1)
+
+        results[binary_name] = {
+            "instructions": {"value": output['instructions']},
+            "writes": {"value": output['writes']},
+            "reads": {"value": output['reads']},
+        }
+
+    with open(SCRIPT_PATH / "benchmark_results.json", "w") as fil:
+        json.dump(results, fil, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
