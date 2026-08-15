@@ -1,28 +1,17 @@
 #![no_std]
 #![no_main]
 
-use core::hint::black_box;
-use cortex_m_rt::entry;
-use cortex_m_semihosting::{
-    debug::{self, EXIT_SUCCESS},
-    hprintln,
-};
-use panic_semihosting as _;
+use benchmarks::*;
 
-#[entry]
-fn main() -> ! {
-    hprintln!("Dummy test");
+bench_main! {{
+    let arg1 = 3;
+    let arg2 = 2;
 
-    let result = run_benchmark();
+    let result = bench_run!(bench_fn, arg1, arg2);
 
-    black_box(result);
-    assert!(result == 1234);
+    assert_eq!(result, 1);
+}}
 
-    debug::exit(EXIT_SUCCESS);
-    panic!();
-}
-
-#[inline(never)]
-fn run_benchmark() -> u32 {
-    1234
+fn bench_fn(a: u32, b: u32) -> u32 {
+    a - b
 }
