@@ -29,11 +29,12 @@ def main():
 
             output = subprocess.run(['docker', 'run', '--rm',
                                      '--mount', f'type=bind,src={binary_path},dst=/algo.firmware',
-                                     'ghcr.io/finomnis/qemu-embedded-bench:v0.2.0',
+                                     'ghcr.io/finomnis/qemu-embedded-bench:v0.3.0',
                                      qemu_machine],
-                                    check=True)
+                                    check=True,
+                                    stdout=subprocess.PIPE)
 
-            output = json.loads(output)
+            output = json.loads(output.stdout)
             print(output)
             assert (output['regions_started'] == 1)
             assert (output['regions_completed'] == 1)
