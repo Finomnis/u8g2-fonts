@@ -4,16 +4,11 @@
 
 pub use core::convert::Infallible;
 
-use embedded_graphics_core::{
-    draw_target::DrawTarget,
-    geometry::{OriginDimensions, Point, Size},
-    Pixel,
-};
 use panic_semihosting as _;
 use u8g2_fonts::{fonts, FontRenderer};
 
-pub use embedded_graphics_core::pixelcolor::BinaryColor;
-pub use u8g2_fonts::types::{RenderedDimensions, VerticalPosition};
+pub use embedded_graphics_core::{pixelcolor::BinaryColor, prelude::*, primitives::Rectangle};
+pub use u8g2_fonts::types::{HorizontalAlignment, RenderedDimensions, VerticalPosition};
 
 pub const ASCII_TEST_TEXT: &str = "Hello, world!\nLorem ipsum dolor sit amet.";
 pub const UNICODE_TEST_TEXT: &str = "Привет, мир!\nCъeшь ещё этих мягких булок.";
@@ -36,31 +31,21 @@ macro_rules! bench_main {
 #[macro_export]
 macro_rules! bench_run {
     ($fnname:ident $(, $arg:ident)* $(,)?) => {{
-        // Make mut so the asm can use them as inout operands.
-        $(
-            let mut $arg = $arg;
-        )*
-
         // Marks the start of the benchmark
         // and makes args black_box
         #[allow(named_asm_labels)]
         unsafe {
             core::arch::asm!(
-                concat!(
-                    ".global benchmark_begin\n",
-                    "benchmark_begin:\n",
-                    $(
-                        "/* {} ", stringify!($arg), " */\n",
-                    )*
-                ),
-                $(
-                    inout(reg) $arg,
-                )*
+                ".global benchmark_begin",
+                "benchmark_begin:",
                 options(nostack, preserves_flags),
             );
         }
 
-        let mut result = $fnname($($arg),*);
+        $(
+            let $arg = ::core::hint::black_box($arg);
+        )*
+        let result = ::core::hint::black_box($fnname($($arg),*));
 
         // Marks the end of the benchmark
         // and makes result black_box
@@ -68,8 +53,7 @@ macro_rules! bench_run {
         unsafe {
             ::core::arch::asm!(
                 ".global benchmark_end",
-                "benchmark_end: /* {} */",
-                inout(reg) result,
+                "benchmark_end:",
                 options(nostack, preserves_flags),
             );
         }
@@ -106,6 +90,15 @@ impl DrawTarget for TestDisplay {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        todo!()
+        for pixel in pixels {
+            let Pixel(Point { x, y }, color) = pixel;
+
+            self.checksum.update(&x.to_le_bytes());
+            self.checksum.update(&y.to_le_bytes());
+            self.checksum
+                .update(if color.is_on() { &[1] } else { &[0] });
+        }
+
+        Ok(())
     }
 }

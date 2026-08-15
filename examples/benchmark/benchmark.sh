@@ -22,3 +22,29 @@ docker run \
   --mount type=bind,src=./target/thumbv7em-none-eabi/release/dummy,dst=/algo.firmware \
   ghcr.io/finomnis/qemu-embedded-bench:v0.2.0 \
   mps2-an386
+
+
+docker run \
+  --rm \
+  --mount type=bind,src=./target/thumbv6m-none-eabi/release/render_ascii,dst=/algo.firmware \
+  ghcr.io/finomnis/qemu-embedded-bench:v0.2.0 \
+  microbit
+
+docker run \
+  --rm \
+  --mount type=bind,src=./target/thumbv7em-none-eabi/release/render_ascii,dst=/algo.firmware \
+  ghcr.io/finomnis/qemu-embedded-bench:v0.2.0 \
+  mps2-an386
+
+
+docker run \
+  --rm \
+  --mount type=bind,src=./target/thumbv6m-none-eabi/release/render_unicode,dst=/algo.firmware \
+  ghcr.io/finomnis/qemu-embedded-bench:v0.2.0 \
+  microbit
+
+docker run \
+  --rm \
+  --mount type=bind,src=./target/thumbv7em-none-eabi/release/render_unicode,dst=/algo.firmware \
+  ghcr.io/finomnis/qemu-embedded-bench:v0.2.0 \
+  mps2-an386

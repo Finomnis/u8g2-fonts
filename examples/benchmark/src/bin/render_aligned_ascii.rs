@@ -14,10 +14,11 @@ bench_main! {{
 
 fn render(mut display: TestDisplay, content: &str) -> u32 {
     TEST_FONT
-        .render(
+        .render_aligned(
             content,
             CENTER_POINT,
             VerticalPosition::Center,
+            HorizontalAlignment::Center,
             u8g2_fonts::types::FontColor::Transparent(BinaryColor::On),
             &mut display,
         )
