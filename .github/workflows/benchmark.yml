@@ -1,0 +1,23 @@
+name: Coverage
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  benchmark:
+    name: Benchmark and upload to bencher
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Bencher
+        uses: bencherdev/bencher@main
+
+      - name: Run benchmark
+        run: examples/benchmark/benchmark.py
