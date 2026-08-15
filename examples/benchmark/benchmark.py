@@ -25,7 +25,7 @@ def main():
 
     results = {}
 
-    for binary_name in binary_names:
+    for binary_name in sorted(binary_names):
 
         print(f"Running benchmark '{binary_name}' ...")
         binary_path = SCRIPT_PATH / 'target' / args.target / 'release' / binary_name
@@ -38,14 +38,17 @@ def main():
                                 stdout=subprocess.PIPE)
 
         output = json.loads(output.stdout)
-        print(output)
         assert (output['regions_started'] == 1)
         assert (output['regions_completed'] == 1)
 
+        print(f"    Instructions: {output['instructions']: >6}")
+        print(f"           Reads: {output['reads']: >6}")
+        print(f"          Writes: {output['writes']: >6}")
+
         results[binary_name] = {
             "instructions": {"value": output['instructions']},
-            "writes": {"value": output['writes']},
             "reads": {"value": output['reads']},
+            "writes": {"value": output['writes']},
         }
 
     with open(SCRIPT_PATH / "benchmark_results.json", "w") as fil:
