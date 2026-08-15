@@ -1,0 +1,70 @@
+name: Benchmark
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  benchmark:
+    name: Benchmark and upload to bencher
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: thumbv6m-none-eabi
+            machine: microbit
+          - target: thumbv7em-none-eabi
+            machine: mps2-an386
+    steps:
+      - name: Install rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install Bencher
+        uses: bencherdev/bencher@main
+
+      - name: Run benchmark
+        run: examples/benchmark/benchmark.py ${{ matrix.target }} ${{ matrix.machine }}
+
+      - name: Bencher - main
+        if: github.event_name == 'push'
+        run: |
+          bencher run \
+            --project u8g2-fonts \
+            --key '${{ secrets.BENCHER_TOKEN }}' \
+            --branch '${{ github.ref_name }}' \
+            --testbed '${{ matrix.target }}' \
+            --threshold-measure instructions \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
+            --threshold-measure reads \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
+            --threshold-measure writes \
+            --threshold-test percentage \
+            --threshold-max-sample-size 1 \
+            --threshold-upper-boundary 0.05 \
+            --adapter json \
+            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+            --file examples/benchmark/benchmark_results.json
+
+      - name: Bencher - PR
+        if: github.event_name == 'pull_request'
+        run: |
+          bencher run \
+            --project u8g2-fonts \
+            --key '${{ secrets.BENCHER_TOKEN }}' \
+            --branch "$GITHUB_HEAD_REF" \
+            --start-point "$GITHUB_BASE_REF" \
+            --start-point-hash '${{ github.event.pull_request.base.sha }}' \
+            --start-point-clone-thresholds \
+            --start-point-reset \
+            --testbed '${{ matrix.target }}' \
+            --adapter json \
+            --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+            --file examples/benchmark/benchmark_results.json
