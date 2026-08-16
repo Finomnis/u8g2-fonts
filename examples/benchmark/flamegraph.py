@@ -47,7 +47,6 @@ class CodeSegment:
         self.data = seg.data()
         self.start = seg["p_vaddr"]
         self.end = self.start + seg["p_filesz"]
-        print(f"{self.start:x}, {self.end:x}")
 
         self.cache = {}
 
