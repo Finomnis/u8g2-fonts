@@ -1,5 +1,12 @@
 /target
 /benchmark_results.json
+/flamegraph_instrs.folded
+/flamegraph_reads.folded
+/flamegraph_writes.folded
+/flamegraph_instrs.svg
+/flamegraph_reads.svg
+/flamegraph_writes.svg
+/.venv/
 
 # Specifically not Cargo.lock, we need that
 # to have consistent benchmarking results

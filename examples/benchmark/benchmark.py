@@ -32,7 +32,7 @@ def main():
 
         output = subprocess.run(['docker', 'run', '--rm',
                                  '--mount', f'type=bind,src={binary_path},dst=/algo.firmware',
-                                 'ghcr.io/finomnis/qemu-embedded-bench:v0.3.0',
+                                 'ghcr.io/finomnis/qemu-embedded-bench:v0.4.0',
                                  args.machine],
                                 check=True,
                                 stdout=subprocess.PIPE)
