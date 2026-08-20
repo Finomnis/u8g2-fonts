@@ -1,11 +1,19 @@
 use crate::{utils::DebugIgnore, Font, LookupError};
 
-use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+use self::{
+    glyph_index::{GlyphIndex, IndexLookup},
+    glyph_reader::GlyphReader,
+    glyph_searcher::GlyphSearcher,
+};
 
+mod glyph_index;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
+mod glyphs;
 mod unicode_jumptable_reader;
+
+pub use glyphs::Glyphs;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontReader {
@@ -32,6 +40,7 @@ pub struct FontReader {
     pub array_offset_0x0100: u16,
     pub ignore_unknown_glyphs: bool,
     pub line_height: u32,
+    pub glyph_index: Option<&'static GlyphIndex>,
 }
 
 impl FontReader {
@@ -60,6 +69,7 @@ impl FontReader {
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
             ignore_unknown_glyphs: false,
             line_height: 0,
+            glyph_index: None,
         };
         this.line_height = this.get_default_line_height() as u32;
         this
@@ -80,9 +90,19 @@ impl FontReader {
         self
     }
 
+    pub const fn new_indexed<F: Font>() -> Self {
+        let mut this = Self::new::<F>();
+        this.glyph_index = const { GlyphIndex::build_for::<F>() }.as_ref();
+        this
+    }
+
     pub const fn get_default_line_height(&self) -> u8 {
         assert!(self.font_bounding_box_height >= 0);
         self.font_bounding_box_height as u8 + 1
+    }
+
+    pub fn glyphs(&self) -> Glyphs {
+        Glyphs::new(self)
     }
 
     pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader>, LookupError> {
@@ -99,19 +119,12 @@ impl FontReader {
 
         let mut glyph = GlyphSearcher::new(self);
 
-        if encoding <= 255 {
-            if encoding >= u16::from(b'a') {
-                glyph.jump_by(self.array_offset_lower_a.into());
-            } else if encoding >= u16::from(b'A') {
-                glyph.jump_by(self.array_offset_upper_a.into());
-            }
+        if let Ok(encoding) = u8::try_from(encoding) {
+            let offset = self
+                .find_glyph_offset(encoding)
+                .ok_or(LookupError::GlyphNotFound(ch))?;
 
-            while glyph.get_ch() as u16 != encoding {
-                glyph
-                    .jump_to_next()
-                    .then_some(())
-                    .ok_or(LookupError::GlyphNotFound(ch))?;
-            }
+            glyph.jump_by(offset);
 
             Ok(glyph.into_glyph_reader())
         } else {
@@ -138,6 +151,28 @@ impl FontReader {
 
             Ok(glyph.into_glyph_reader())
         }
+    }
+
+    /// Resolves `encoding` to the offset of its glyph, relative to the start of
+    /// the glyph data.
+    ///
+    /// Consults the glyph index if it is present and covers `encoding`, and walks
+    /// the jump chain otherwise.
+    fn find_glyph_offset(&self, encoding: u8) -> Option<usize> {
+        if let Some(index) = self.glyph_index {
+            match index.lookup(encoding) {
+                IndexLookup::Found(offset) => return Some(offset),
+                IndexLookup::Absent => return None,
+                IndexLookup::NotCovered => (),
+            }
+        }
+
+        glyph_searcher::find_glyph_offset(
+            &self.data,
+            self.array_offset_upper_a,
+            self.array_offset_lower_a,
+            encoding,
+        )
     }
 }
 
@@ -186,6 +221,7 @@ mod tests {
             array_offset_0x0100: 2,
             ignore_unknown_glyphs: false,
             line_height: 3,
+            glyph_index: None,
         };
 
         assert_eq!(format!("{font:?}"), format!("{expected:?}"));
@@ -203,5 +239,15 @@ mod tests {
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
+    }
+
+    #[test]
+    fn does_not_match_the_glyph_list_terminator() {
+        // The terminator of the single byte encoding glyph list has the encoding zero,
+        // but it is not a glyph.
+        let font = FontReader::new::<crate::fonts::u8g2_font_ncenB14_tr>();
+        let glyph = font.retrieve_glyph_data('\u{0}');
+
+        assert!(matches!(glyph, Err(LookupError::GlyphNotFound('\u{0}'))));
     }
 }
