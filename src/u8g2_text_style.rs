@@ -49,6 +49,19 @@ impl<C> U8g2TextStyle<C> {
             font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
         }
     }
+
+    /// Creates a text style with transparent background and a compile time glyph index.
+    ///
+    /// See [`FontRenderer::new_indexed()`] for a description of the glyph index.
+    pub const fn new_indexed<F: Font>(font: F, text_color: C) -> Self {
+        // font is a ZST, so it's safe to forget it
+        core::mem::forget(font);
+        Self {
+            text_color: Some(text_color),
+            background_color: None,
+            font: FontRenderer::new_indexed::<F>().with_ignore_unknown_chars(true),
+        }
+    }
 }
 
 impl<C> TextRenderer for U8g2TextStyle<C>
@@ -237,6 +250,10 @@ mod tests {
     #[test]
     fn is_debug_and_clone() {
         examine(U8g2TextStyle::new(fonts::u8g2_font_10x20_mf, Rgb888::RED));
+        examine(U8g2TextStyle::new_indexed(
+            fonts::u8g2_font_10x20_mf,
+            Rgb888::RED,
+        ));
     }
 
     // Dummy test for coverage; coverage requires unreachable!() branches to be covered,

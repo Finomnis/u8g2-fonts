@@ -262,6 +262,30 @@ mod textstyle_tests {
     }
 
     #[test]
+    fn indexed_style_measures_like_the_plain_style() {
+        let text = "Hello, W0rld! ~{|}^_`";
+        let position = Point::new(3, 17);
+
+        let plain = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Rgb888::CSS_BLUE);
+        let indexed = U8g2TextStyle::new_indexed(fonts::u8g2_font_ncenB14_tr, Rgb888::CSS_BLUE);
+
+        for baseline in [
+            Baseline::Top,
+            Baseline::Middle,
+            Baseline::Bottom,
+            Baseline::Alphabetic,
+        ] {
+            let expected = plain.measure_string(text, position, baseline);
+            let actual = indexed.measure_string(text, position, baseline);
+
+            assert_eq!(actual.bounding_box, expected.bounding_box);
+            assert_eq!(actual.next_position, expected.next_position);
+        }
+
+        assert_eq!(indexed.line_height(), plain.line_height());
+    }
+
+    #[test]
     fn passes_on_error() {
         FailingDrawTarget::assert_passes_on_error(|display| {
             let mut character_style =

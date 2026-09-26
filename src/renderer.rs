@@ -7,7 +7,7 @@ use crate::{
     content::{
         vertical_offset::compute_vertical_offset_from_static_newlines, LineDimensionsIterator,
     },
-    font_reader::FontReader,
+    font_reader::{FontReader, Glyphs},
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
     Content, Error, Font, LookupError,
@@ -33,6 +33,36 @@ impl FontRenderer {
     pub const fn new<FONT: Font>() -> Self {
         Self {
             font: FontReader::new::<FONT>(),
+        }
+    }
+
+    /// Creates a new instance of a font renderer with a compile time glyph index.
+    ///
+    /// The glyph index is a lookup table from the printable ASCII characters
+    /// (`' '` to `'~'`) to the position of their glyph inside of the font data.
+    /// It turns every glyph lookup of those characters into a table access,
+    /// instead of a search through the font's glyph list.
+    ///
+    /// Characters outside of the printable ASCII range are unaffected and are
+    /// searched for like [`FontRenderer::new()`] does. The same is true if any of
+    /// the glyph positions exceeds the [`u16`] range, in which case no index is
+    /// built at all.
+    ///
+    /// # Generics
+    ///
+    /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
+    ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use u8g2_fonts::FontRenderer;
+    /// # use u8g2_fonts::fonts;
+    /// const FONT: FontRenderer = FontRenderer::new_indexed::<fonts::u8g2_font_haxrcorp4089_t_cyrillic>();
+    /// ```
+    pub const fn new_indexed<FONT: Font>() -> Self {
+        Self {
+            font: FontReader::new_indexed::<FONT>(),
         }
     }
 
@@ -77,6 +107,26 @@ impl FontRenderer {
     pub const fn with_line_height(mut self, line_height: u32) -> Self {
         self.font = self.font.with_line_height(line_height);
         self
+    }
+
+    /// Returns an iterator over all characters that this font contains.
+    ///
+    /// The characters are yielded in the order in which the font stores them,
+    /// which is ascending by code point.
+    ///
+    /// # Example
+    ///
+    /// Asserting that a font contains exactly the characters an application needs:
+    ///
+    /// ```rust
+    /// # use u8g2_fonts::FontRenderer;
+    /// # use u8g2_fonts::fonts;
+    /// let font = FontRenderer::new::<fonts::u8g2_font_courB10_tn>();
+    ///
+    /// assert!(font.glyphs().eq(" *+,-./0123456789:".chars()));
+    /// ```
+    pub fn glyphs(&self) -> Glyphs {
+        self.font.glyphs()
     }
 
     /// Renders text to a display.
@@ -401,6 +451,15 @@ mod tests {
             "{:?}",
             FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>()
         );
+    }
+
+    #[test]
+    fn new_indexed_builds_a_glyph_index() {
+        let plain = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
+        let indexed = FontRenderer::new_indexed::<crate::fonts::u8g2_font_u8glib_4_tf>();
+
+        assert!(plain.font.glyph_index.is_none());
+        assert!(indexed.font.glyph_index.is_some());
     }
 
     #[test]
