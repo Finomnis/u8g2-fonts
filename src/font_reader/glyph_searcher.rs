@@ -1,19 +1,20 @@
 use crate::font_reader::{
-    glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader, FontReader,
+    data::FontData, glyph_reader::GlyphReader, unicode_jumptable_reader::UnicodeJumptableReader,
+    FontReader,
 };
 
 pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize> {
-    data: &'static [u8],
+    data: FontData,
     font: &'a FontReader,
 }
 
 impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
     pub fn jump_by(&mut self, offset: usize) {
-        self.data = &self.data[offset..];
+        self.data = self.data.skip(offset);
     }
 
     fn get_offset(&self) -> u8 {
-        self.data.get(CHAR_WIDTH).cloned().unwrap()
+        self.data.get(CHAR_WIDTH).unwrap()
     }
 
     pub fn jump_to_next(&mut self) -> bool {
@@ -27,7 +28,7 @@ impl<const CHAR_WIDTH: usize> GlyphSearcher<'_, CHAR_WIDTH> {
     }
 
     pub fn into_glyph_reader(self) -> GlyphReader {
-        GlyphReader::new(self.data.get((CHAR_WIDTH + 1)..).unwrap(), self.font)
+        GlyphReader::new(self.data.skip(CHAR_WIDTH + 1), self.font)
     }
 }
 
@@ -36,13 +37,13 @@ const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
 impl<'a> GlyphSearcher<'a, 1> {
     pub fn new(font: &'a FontReader) -> Self {
         Self {
-            data: &font.data[U8G2_FONT_DATA_STRUCT_SIZE..],
+            data: font.data.skip(U8G2_FONT_DATA_STRUCT_SIZE),
             font,
         }
     }
 
     pub fn get_ch(&self) -> u8 {
-        self.data.first().cloned().unwrap()
+        self.data.get(0).unwrap()
     }
 
     pub fn into_unicode_mode(
@@ -63,9 +64,6 @@ impl<'a> GlyphSearcher<'a, 1> {
 
 impl GlyphSearcher<'_, 2> {
     pub fn get_ch(&self) -> u16 {
-        u16::from_be_bytes([
-            self.data.first().cloned().unwrap(),
-            self.data.get(1).cloned().unwrap(),
-        ])
+        u16::from_be_bytes([self.data.get(0).unwrap(), self.data.get(1).unwrap()])
     }
 }

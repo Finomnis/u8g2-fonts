@@ -52,6 +52,27 @@ impl FontRenderer {
         }
     }
 
+    /// Creates a renderer for U8g2 font bytes stored with [`avr_progmem::progmem!`].
+    ///
+    /// Only the font header is loaded during construction. Rendering
+    /// loads glyphs from flash as needed.
+    ///
+    /// Unlike [`Self::new`], this constructor runs at runtime.
+    ///
+    /// Call [`ProgMem::as_slice`](avr_progmem::wrapper::ProgMem::as_slice) on a
+    /// program-memory array before passing it here.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `font_data` is not valid U8g2 font data.
+    #[cfg(feature = "avr-progmem")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "avr-progmem")))]
+    pub fn new_from_progmem(font_data: avr_progmem::wrapper::ProgMem<[u8]>) -> Self {
+        Self {
+            font: FontReader::new_from_progmem(font_data),
+        }
+    }
+
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///

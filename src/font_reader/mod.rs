@@ -1,7 +1,8 @@
 use crate::{utils::DebugIgnore, Font, LookupError};
 
-use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+use self::{data::FontData, glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
 
+mod data;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
@@ -9,7 +10,7 @@ mod unicode_jumptable_reader;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontReader {
-    pub data: DebugIgnore<&'static [u8]>,
+    pub data: DebugIgnore<FontData>,
     pub supports_background_color: bool,
     pub glyph_count: u8,
     pub m0: u8,
@@ -36,8 +37,18 @@ pub struct FontReader {
 
 impl FontReader {
     pub const fn new_from_raw_data(data: &'static [u8]) -> Self {
+        Self::new_from_header(data, FontData::Slice(data))
+    }
+
+    #[cfg(feature = "avr-progmem")]
+    pub fn new_from_progmem(data: avr_progmem::wrapper::ProgMem<[u8]>) -> Self {
+        let header: [u8; 23] = core::array::from_fn(|index| data.load_at(index));
+        Self::new_from_header(&header, FontData::ProgMem { data, offset: 0 })
+    }
+
+    const fn new_from_header(data: &[u8], source: FontData) -> Self {
         let mut this = Self {
-            data: DebugIgnore(data),
+            data: DebugIgnore(source),
             glyph_count: data[0],
             supports_background_color: data[1] != 0,
             m0: data[2],
@@ -163,7 +174,7 @@ mod tests {
         let font = FontReader::new::<TestFont>();
 
         let expected = FontReader {
-            data: DebugIgnore(&[]),
+            data: DebugIgnore(FontData::Slice(&[])),
             supports_background_color: false,
             glyph_count: 0,
             m0: 4,

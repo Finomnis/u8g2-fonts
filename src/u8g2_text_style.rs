@@ -49,6 +49,19 @@ impl<C> U8g2TextStyle<C> {
             font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
         }
     }
+
+    /// Creates a text style with a transparent background and a font stored in flash.
+    ///
+    /// See [`FontRenderer::new_from_progmem`] for storage requirements and panics.
+    #[cfg(feature = "avr-progmem")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "avr-progmem")))]
+    pub fn new_from_progmem(font_data: avr_progmem::wrapper::ProgMem<[u8]>, text_color: C) -> Self {
+        Self {
+            text_color: Some(text_color),
+            background_color: None,
+            font: FontRenderer::new_from_progmem(font_data).with_ignore_unknown_chars(true),
+        }
+    }
 }
 
 impl<C> TextRenderer for U8g2TextStyle<C>

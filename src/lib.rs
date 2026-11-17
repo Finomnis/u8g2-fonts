@@ -15,6 +15,9 @@
 //!    - includes the bundled U8g2 font collection.
 //! - `embedded_graphics_textstyle`:
 //!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
+//! - `avr-progmem`:
+//!    - enable [`FontRenderer::new_from_progmem`] to read fonts directly from AVR flash.
+//!    - requires nightly Rust, including on hosts; non-AVR targets use ordinary memory reads.
 //!
 //! # Renderers
 //!
