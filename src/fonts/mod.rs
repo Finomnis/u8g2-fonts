@@ -1168,13 +1168,19 @@ crate::font::font_definitions!(
     u8g2_font_unifont_t_chinese1,
     u8g2_font_unifont_t_chinese2,
     u8g2_font_unifont_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_gb2312b,
     u8g2_font_unifont_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_japanese3,
     u8g2_font_unifont_t_korean1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_korean2,
     u8g2_font_unifont_t_vietnamese1,
     u8g2_font_unifont_t_vietnamese2,
@@ -1187,65 +1193,91 @@ crate::font::font_definitions!(
     u8g2_font_wqy12_t_chinese1,
     u8g2_font_wqy12_t_chinese2,
     u8g2_font_wqy12_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy12_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy12_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy12_t_gb2312b,
     u8g2_font_wqy13_t_chinese1,
     u8g2_font_wqy13_t_chinese2,
     u8g2_font_wqy13_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy13_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy13_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy13_t_gb2312b,
     u8g2_font_wqy14_t_chinese1,
     u8g2_font_wqy14_t_chinese2,
     u8g2_font_wqy14_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy14_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy14_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy14_t_gb2312b,
     u8g2_font_wqy15_t_chinese1,
     u8g2_font_wqy15_t_chinese2,
     u8g2_font_wqy15_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy15_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy15_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy15_t_gb2312b,
     u8g2_font_wqy16_t_chinese1,
     u8g2_font_wqy16_t_chinese2,
     u8g2_font_wqy16_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy16_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy16_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_wqy16_t_gb2312b,
     u8g2_font_boutique_bitmap_7x7_tf,
     u8g2_font_boutique_bitmap_7x7_tr,
     u8g2_font_boutique_bitmap_7x7_tn,
     u8g2_font_boutique_bitmap_7x7_te,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_all,
     u8g2_font_boutique_bitmap_7x7_t_chinese1,
     u8g2_font_boutique_bitmap_7x7_t_chinese2,
     u8g2_font_boutique_bitmap_7x7_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_gb2312,
     u8g2_font_boutique_bitmap_7x7_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_gb2312b,
     u8g2_font_boutique_bitmap_9x9_tf,
     u8g2_font_boutique_bitmap_9x9_tr,
     u8g2_font_boutique_bitmap_9x9_tn,
     u8g2_font_boutique_bitmap_9x9_te,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_t_all,
     u8g2_font_boutique_bitmap_9x9_t_chinese1,
     u8g2_font_boutique_bitmap_9x9_t_chinese2,
     u8g2_font_boutique_bitmap_9x9_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_t_gb2312b,
     u8g2_font_boutique_bitmap_9x9_bold_tf,
     u8g2_font_boutique_bitmap_9x9_bold_tr,
     u8g2_font_boutique_bitmap_9x9_bold_tn,
     u8g2_font_boutique_bitmap_9x9_bold_te,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_bold_t_all,
     u8g2_font_boutique_bitmap_9x9_bold_t_chinese1,
     u8g2_font_boutique_bitmap_9x9_bold_t_chinese2,
     u8g2_font_boutique_bitmap_9x9_bold_t_chinese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_bold_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_bold_t_gb2312a,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_bold_t_gb2312b,
     u8g2_font_b10_t_japanese1,
     u8g2_font_b10_t_japanese2,
@@ -1257,23 +1289,31 @@ crate::font::font_definitions!(
     u8g2_font_f10_b_t_japanese2,
     u8g2_font_b12_t_japanese1,
     u8g2_font_b12_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_t_japanese3,
     u8g2_font_b12_b_t_japanese1,
     u8g2_font_b12_b_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_b_t_japanese3,
     u8g2_font_f12_t_japanese1,
     u8g2_font_f12_t_japanese2,
     u8g2_font_f12_b_t_japanese1,
     u8g2_font_f12_b_t_japanese2,
     u8g2_font_b16_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_t_japanese3,
     u8g2_font_b16_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_b_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_b_t_japanese3,
     u8g2_font_f16_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_t_japanese2,
     u8g2_font_f16_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_b_t_japanese2,
     u8g2_font_courB08_tf,
     u8g2_font_courB08_tr,
@@ -1965,8 +2005,10 @@ crate::font::font_definitions!(
     u8g2_font_gulim12_t_korean1,
     u8g2_font_gulim12_t_korean2,
     u8g2_font_gulim14_t_korean1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_gulim14_t_korean2,
     u8g2_font_gulim16_t_korean1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_gulim16_t_korean2,
     u8g2_font_pxplustandynewtv_t_all,
     u8g2_font_pxplusibmvga9_tf,

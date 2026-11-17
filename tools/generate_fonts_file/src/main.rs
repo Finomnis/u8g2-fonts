@@ -116,7 +116,7 @@ fn main() -> Result<()> {
         fonts
     };
 
-    let font_names = fonts
+    let font_names_and_lengths = fonts
         .map(|font_entry| {
             print_msg(format!(
                 "{:>5} kB - {}",
@@ -124,6 +124,7 @@ fn main() -> Result<()> {
                 font_entry.name,
             ));
 
+            let length = font_entry.expected_length;
             let name = font_entry.name;
 
             let font_data = process_font_entry(font_entry)
@@ -134,7 +135,7 @@ fn main() -> Result<()> {
                 .wrap_err(format!("Failed to write font file '{name}'"))
                 .unwrap();
 
-            name
+            (name, length)
         })
         .collect::<Vec<_>>();
 
@@ -146,7 +147,15 @@ fn main() -> Result<()> {
         .into_diagnostic()
         .wrap_err("Error while writing mod.rs!")?;
 
-    for name in font_names {
+    for (name, length) in font_names_and_lengths {
+        if length > usize::from(u16::MAX) {
+            write!(
+                fonts_file,
+                "    #[cfg(not(target_pointer_width = \"16\"))]\n"
+            )
+            .into_diagnostic()
+            .wrap_err("Error while writing mod.rs!")?;
+        }
         write!(fonts_file, "    {name},\n")
             .into_diagnostic()
             .wrap_err("Error while writing mod.rs!")?;
