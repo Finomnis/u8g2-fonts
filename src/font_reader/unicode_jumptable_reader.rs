@@ -1,14 +1,16 @@
+use crate::{font_reader::cursor::Cursor, FontData};
+
 pub struct UnicodeJumptableEntry {
     jump_distance: u16,
     character_upper_limit: u16,
 }
 
-pub struct UnicodeJumptableReader {
-    data: &'static [u8],
+pub struct UnicodeJumptableReader<D> {
+    data: Cursor<D>,
 }
 
-impl UnicodeJumptableReader {
-    pub fn new(data: &'static [u8]) -> Self {
+impl<D: FontData> UnicodeJumptableReader<D> {
+    pub fn new(data: Cursor<D>) -> Self {
         Self { data }
     }
 

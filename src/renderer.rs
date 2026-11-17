@@ -10,7 +10,7 @@ use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
-    Content, Error, Font, LookupError,
+    Content, Error, Font, FontData, LookupError,
 };
 
 use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
@@ -19,8 +19,10 @@ pub mod render_actions;
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug, Clone)]
-pub struct FontRenderer {
-    font: FontReader,
+pub struct FontRenderer<D: FontData = &'static [u8]> {
+    font_data: D,
+    ignore_unknown_glyphs: bool,
+    line_height_override: Option<u32>,
 }
 
 impl FontRenderer {
@@ -31,24 +33,22 @@ impl FontRenderer {
     /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
     ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
     pub const fn new<FONT: Font>() -> Self {
-        Self {
-            font: FontReader::new::<FONT>(),
-        }
+        Self::from_data(FONT::DATA)
     }
+}
 
+impl<D: FontData> FontRenderer<D> {
     /// Creates a new instance of a font renderer from custom font data.
     ///
     /// # Arguments
     ///
     /// * `font_data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
     ///
-    /// # Panics
-    ///
-    /// Panics if `font_data` is not valid U8g2 font data, including if it is
-    /// shorter than the required U8g2 font header.
-    pub const fn new_from_raw_data(font_data: &'static [u8]) -> Self {
+    pub const fn from_data(font_data: D) -> Self {
         Self {
-            font: FontReader::new_from_raw_data(font_data),
+            font_data,
+            ignore_unknown_glyphs: false,
+            line_height_override: None,
         }
     }
 
@@ -60,8 +60,8 @@ impl FontRenderer {
     /// # Arguments
     ///
     /// * `ignore` - Whether unknown characters should be ignored.
-    pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
-        self.font = self.font.with_ignore_unknown_glyphs(ignore);
+    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+        self.ignore_unknown_glyphs = ignore;
         self
     }
 
@@ -75,7 +75,7 @@ impl FontRenderer {
     ///
     /// * `line_height` - The desired line height, in pixels.
     pub const fn with_line_height(mut self, line_height: u32) -> Self {
-        self.font = self.font.with_line_height(line_height);
+        self.line_height_override = Some(line_height);
         self
     }
 
@@ -110,7 +110,8 @@ impl FontRenderer {
     where
         Display: DrawTarget,
     {
-        let font = &self.font;
+        let font = FontReader::new(&self.data, self.ignore_unknown_glyphs, self.line_height);
+
         if color.has_background() && !font.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }

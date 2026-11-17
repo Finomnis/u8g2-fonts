@@ -1,9 +1,19 @@
-use crate::FontData;
+use crate::{utils::DebugIgnore, FontData};
 
 /// Reads from a [`FontData`] and remembers the current position
+#[derive(Debug)]
 pub(crate) struct Cursor<D> {
-    data: D,
+    data: DebugIgnore<D>,
     pos: usize,
+}
+
+impl<D> Cursor<D> {
+    pub fn new(data: D, pos: usize) -> Self {
+        Self {
+            data: DebugIgnore(data),
+            pos,
+        }
+    }
 }
 
 impl<D: FontData> Cursor<D> {

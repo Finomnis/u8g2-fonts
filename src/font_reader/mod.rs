@@ -1,68 +1,27 @@
 use crate::{utils::DebugIgnore, FontData, LookupError};
 
-use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+use self::{font_header::FontHeader, glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
 
 mod cursor;
+mod font_header;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct FontReader<'a, D: ?Sized> {
-    pub data: DebugIgnore<&'a D>,
-    pub glyph_count: u8,
-    pub supports_background_color: bool,
-    pub m0: u8,
-    pub m1: u8,
-    pub bitcnt_w: u8,
-    pub bitcnt_h: u8,
-    pub bitcnt_x: u8,
-    pub bitcnt_y: u8,
-    pub bitcnt_d: u8,
-    pub font_bounding_box_width: i8,
-    pub font_bounding_box_height: i8,
-    pub font_bounding_box_x_offset: i8,
-    pub font_bounding_box_y_offset: i8,
-    pub ascent: i8,
-    pub descent: i8,
-    pub ascent_of_parentheses: i8,
-    pub descent_of_parentheses: i8,
-    pub array_offset_upper_a: u16,
-    pub array_offset_lower_a: u16,
-    pub array_offset_0x0100: u16,
+#[derive(Debug)]
+pub struct FontReader<D> {
+    pub data: DebugIgnore<D>,
+    pub header: FontHeader,
     pub ignore_unknown_glyphs: bool,
     pub line_height: u32,
 }
 
-impl<'a, D: FontData> FontReader<'a, D> {
-    pub fn new(
-        data: &'a D,
-        ignore_unknown_glyphs: bool,
-        line_height_override: Option<u32>,
-    ) -> Self {
+impl<D: FontData> FontReader<D> {
+    pub fn new(data: D, ignore_unknown_glyphs: bool, line_height_override: Option<u32>) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
-            glyph_count: data.get_byte(0),
-            supports_background_color: data.get_byte(1) != 0,
-            m0: data.get_byte(2),
-            m1: data.get_byte(3),
-            bitcnt_w: data.get_byte(4),
-            bitcnt_h: data.get_byte(5),
-            bitcnt_x: data.get_byte(6),
-            bitcnt_y: data.get_byte(7),
-            bitcnt_d: data.get_byte(8),
-            font_bounding_box_width: data.get_byte(9) as i8,
-            font_bounding_box_height: data.get_byte(10) as i8,
-            font_bounding_box_x_offset: data.get_byte(11) as i8,
-            font_bounding_box_y_offset: data.get_byte(12) as i8,
-            ascent: data.get_byte(13) as i8,
-            descent: data.get_byte(14) as i8,
-            ascent_of_parentheses: data.get_byte(15) as i8,
-            descent_of_parentheses: data.get_byte(16) as i8,
-            array_offset_upper_a: u16::from_be_bytes([data.get_byte(17), data.get_byte(18)]),
-            array_offset_lower_a: u16::from_be_bytes([data.get_byte(19), data.get_byte(20)]),
-            array_offset_0x0100: u16::from_be_bytes([data.get_byte(21), data.get_byte(22)]),
+            header: FontHeader::new(data),
             ignore_unknown_glyphs,
             line_height: 0,
         };
@@ -75,11 +34,11 @@ impl<'a, D: FontData> FontReader<'a, D> {
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
-        assert!(self.font_bounding_box_height >= 0);
-        self.font_bounding_box_height as u8 + 1
+        assert!(self.header.font_bounding_box_height >= 0);
+        self.header.font_bounding_box_height as u8 + 1
     }
 
-    pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader>, LookupError> {
+    pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader<D>>, LookupError> {
         match self.retrieve_glyph_data(ch) {
             Err(LookupError::GlyphNotFound(_)) if self.ignore_unknown_glyphs => Ok(None),
             Ok(g) => Ok(Some(g)),
@@ -87,7 +46,7 @@ impl<'a, D: FontData> FontReader<'a, D> {
         }
     }
 
-    fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader, LookupError> {
+    fn retrieve_glyph_data(&self, ch: char) -> Result<GlyphReader<D>, LookupError> {
         // Retrieve u16 glyph value
         let encoding = u16::try_from(u32::from(ch)).map_err(|_| LookupError::GlyphNotFound(ch))?;
 
@@ -95,9 +54,9 @@ impl<'a, D: FontData> FontReader<'a, D> {
 
         if encoding <= 255 {
             if encoding >= u16::from(b'a') {
-                glyph.jump_by(self.array_offset_lower_a.into());
+                glyph.jump_by(self.header.array_offset_lower_a.into());
             } else if encoding >= u16::from(b'A') {
-                glyph.jump_by(self.array_offset_upper_a.into());
+                glyph.jump_by(self.header.array_offset_upper_a.into());
             }
 
             while glyph.get_ch() as u16 != encoding {
@@ -109,7 +68,8 @@ impl<'a, D: FontData> FontReader<'a, D> {
 
             Ok(glyph.into_glyph_reader())
         } else {
-            let (mut glyph, unicode_jump_table) = glyph.into_unicode_mode(self.array_offset_0x0100);
+            let (mut glyph, unicode_jump_table) =
+                glyph.into_unicode_mode(self.header.array_offset_0x0100);
 
             let jump_offset = unicode_jump_table
                 .calculate_jump_offset(encoding)
@@ -158,28 +118,30 @@ mod tests {
     fn can_read_font_properties() {
         let font = FontReader::new(&TestFont::DATA, false, None);
 
-        let expected = FontReader::<[u8]> {
+        let expected = FontReader::<&[u8]> {
             data: DebugIgnore(&[]),
-            supports_background_color: false,
-            glyph_count: 0,
-            m0: 4,
-            m1: 4,
-            bitcnt_w: 8,
-            bitcnt_h: 8,
-            bitcnt_x: 8,
-            bitcnt_y: 8,
-            bitcnt_d: 8,
-            font_bounding_box_width: 1,
-            font_bounding_box_height: 2,
-            font_bounding_box_x_offset: 3,
-            font_bounding_box_y_offset: 4,
-            ascent: 5,
-            descent: 6,
-            ascent_of_parentheses: 7,
-            descent_of_parentheses: 8,
-            array_offset_upper_a: 0,
-            array_offset_lower_a: 0,
-            array_offset_0x0100: 2,
+            header: FontHeader {
+                supports_background_color: false,
+                glyph_count: 0,
+                m0: 4,
+                m1: 4,
+                bitcnt_w: 8,
+                bitcnt_h: 8,
+                bitcnt_x: 8,
+                bitcnt_y: 8,
+                bitcnt_d: 8,
+                font_bounding_box_width: 1,
+                font_bounding_box_height: 2,
+                font_bounding_box_x_offset: 3,
+                font_bounding_box_y_offset: 4,
+                ascent: 5,
+                descent: 6,
+                ascent_of_parentheses: 7,
+                descent_of_parentheses: 8,
+                array_offset_upper_a: 0,
+                array_offset_lower_a: 0,
+                array_offset_0x0100: 2,
+            },
             ignore_unknown_glyphs: false,
             line_height: 3,
         };
