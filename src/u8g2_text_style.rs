@@ -219,7 +219,7 @@ fn unwrap_error<E>(err: Error<E>) -> E {
     }
 }
 
-#[cfg(all(test, feature = "fonts"))]
+#[cfg(test)]
 mod tests {
     extern crate std;
     use std::println;

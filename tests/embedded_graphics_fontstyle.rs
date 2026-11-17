@@ -1,5 +1,3 @@
-#![cfg(feature = "fonts")]
-
 #[cfg(feature = "embedded_graphics_textstyle")]
 mod alignment_grid;
 #[cfg(feature = "embedded_graphics_textstyle")]

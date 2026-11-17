@@ -134,7 +134,7 @@ impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
     }
 }
 
-#[cfg(all(test, feature = "fonts"))]
+#[cfg(test)]
 mod tests {
     extern crate std;
     use core::fmt::Arguments;
