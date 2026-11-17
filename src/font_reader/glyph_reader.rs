@@ -50,7 +50,7 @@ impl GlyphReader {
         let mut bit_end = bit_start + bits;
 
         // Read from current byte
-        let mut value = self.current_byte.overflowing_shr(bit_start as u32).0;
+        let mut value = u16::from(self.current_byte) >> bit_start;
 
         // If necessary, fetch next byte
         if bit_end >= 8 {
@@ -59,12 +59,12 @@ impl GlyphReader {
             bit_end -= 8;
             self.current_byte = value2;
 
-            value |= value2.overflowing_shl((8 - bit_start) as u32).0;
+            value |= u16::from(value2) << (8 - bit_start);
         }
 
         self.bit_pos = bit_end;
 
-        value & (((1u16 << bits) - 1) as u8)
+        (value & ((1u16 << bits) - 1)) as u8
     }
 
     pub fn read_signed(&mut self, bits: u8) -> i8 {
