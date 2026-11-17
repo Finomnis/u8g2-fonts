@@ -1,17 +1,18 @@
-use crate::{utils::DebugIgnore, Font, LookupError};
+use crate::{utils::DebugIgnore, FontData, LookupError};
 
 use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
 
+mod cursor;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct FontReader {
-    pub data: DebugIgnore<&'static [u8]>,
-    pub supports_background_color: bool,
+pub struct FontReader<'a, D: ?Sized> {
+    pub data: DebugIgnore<&'a D>,
     pub glyph_count: u8,
+    pub supports_background_color: bool,
     pub m0: u8,
     pub m1: u8,
     pub bitcnt_w: u8,
@@ -34,50 +35,43 @@ pub struct FontReader {
     pub line_height: u32,
 }
 
-impl FontReader {
-    pub const fn new_from_raw_data(data: &'static [u8]) -> Self {
+impl<'a, D: FontData> FontReader<'a, D> {
+    pub fn new(
+        data: &'a D,
+        ignore_unknown_glyphs: bool,
+        line_height_override: Option<u32>,
+    ) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
-            glyph_count: data[0],
-            supports_background_color: data[1] != 0,
-            m0: data[2],
-            m1: data[3],
-            bitcnt_w: data[4],
-            bitcnt_h: data[5],
-            bitcnt_x: data[6],
-            bitcnt_y: data[7],
-            bitcnt_d: data[8],
-            font_bounding_box_width: data[9] as i8,
-            font_bounding_box_height: data[10] as i8,
-            font_bounding_box_x_offset: data[11] as i8,
-            font_bounding_box_y_offset: data[12] as i8,
-            ascent: data[13] as i8,
-            descent: data[14] as i8,
-            ascent_of_parentheses: data[15] as i8,
-            descent_of_parentheses: data[16] as i8,
-            array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
-            array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
-            array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
-            ignore_unknown_glyphs: false,
+            glyph_count: data.get_byte(0),
+            supports_background_color: data.get_byte(1) != 0,
+            m0: data.get_byte(2),
+            m1: data.get_byte(3),
+            bitcnt_w: data.get_byte(4),
+            bitcnt_h: data.get_byte(5),
+            bitcnt_x: data.get_byte(6),
+            bitcnt_y: data.get_byte(7),
+            bitcnt_d: data.get_byte(8),
+            font_bounding_box_width: data.get_byte(9) as i8,
+            font_bounding_box_height: data.get_byte(10) as i8,
+            font_bounding_box_x_offset: data.get_byte(11) as i8,
+            font_bounding_box_y_offset: data.get_byte(12) as i8,
+            ascent: data.get_byte(13) as i8,
+            descent: data.get_byte(14) as i8,
+            ascent_of_parentheses: data.get_byte(15) as i8,
+            descent_of_parentheses: data.get_byte(16) as i8,
+            array_offset_upper_a: u16::from_be_bytes([data.get_byte(17), data.get_byte(18)]),
+            array_offset_lower_a: u16::from_be_bytes([data.get_byte(19), data.get_byte(20)]),
+            array_offset_0x0100: u16::from_be_bytes([data.get_byte(21), data.get_byte(22)]),
+            ignore_unknown_glyphs,
             line_height: 0,
         };
-        this.line_height = this.get_default_line_height() as u32;
+        if let Some(line_height) = line_height_override {
+            this.line_height = line_height;
+        } else {
+            this.line_height = this.get_default_line_height() as u32;
+        }
         this
-    }
-
-    pub const fn new<F: Font>() -> Self {
-        let data = F::DATA;
-        Self::new_from_raw_data(data)
-    }
-
-    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
-        self.ignore_unknown_glyphs = ignore;
-        self
-    }
-
-    pub const fn with_line_height(mut self, line_height: u32) -> Self {
-        self.line_height = line_height;
-        self
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
@@ -148,6 +142,8 @@ mod tests {
 
     use super::*;
 
+    use crate::font::Font;
+
     struct TestFont;
     impl crate::Font for TestFont {
         const DATA: &'static [u8] = &[
@@ -160,9 +156,9 @@ mod tests {
 
     #[test]
     fn can_read_font_properties() {
-        let font = FontReader::new::<TestFont>();
+        let font = FontReader::new(&TestFont::DATA, false, None);
 
-        let expected = FontReader {
+        let expected = FontReader::<[u8]> {
             data: DebugIgnore(&[]),
             supports_background_color: false,
             glyph_count: 0,
@@ -199,7 +195,7 @@ mod tests {
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
-        let font = FontReader::new::<TestFont>();
+        let font = FontReader::new(&TestFont::DATA, false, None);
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
