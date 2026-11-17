@@ -1301,3 +1301,27 @@ fn passes_on_error() {
         font.render_aligned(format_args!("{}", 1), position, vpos, hpos, color, display)
     });
 }
+
+#[test]
+fn render_font_with_8bit_reads() {
+    let dimensions =
+        TestDrawTarget::expect_image(std::include_bytes!("assets/8bit_reads.png"), |display| {
+            FontRenderer::new::<fonts::u8g2_font_open_iconic_thing_8x_t>()
+                .render(
+                    "@ABC",
+                    Point::new(2, 70),
+                    VerticalPosition::default(),
+                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                    display,
+                )
+                .unwrap()
+        });
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(256, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 6), Size::new(256, 64)))
+        }
+    );
+}
