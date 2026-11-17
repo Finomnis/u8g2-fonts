@@ -388,7 +388,7 @@ impl FontRenderer {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "fonts"))]
 mod tests {
     extern crate std;
     use std::println;

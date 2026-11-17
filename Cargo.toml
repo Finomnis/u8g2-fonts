@@ -23,6 +23,9 @@ exclude = [
 ]
 
 [features]
+default = ["fonts"]
+# Includes the bundled U8g2 font collection
+fonts = []
 # Enables U8g2TextStyle for the embedded_graphics font interface
 embedded_graphics_textstyle = ["dep:embedded-graphics"]
 

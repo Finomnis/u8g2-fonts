@@ -44,7 +44,7 @@ impl LineDimensionsIterator for CharLineDimensionsIterator {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "fonts"))]
 mod tests {
     extern crate std;
     use std::vec::Vec;
