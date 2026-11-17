@@ -63,7 +63,7 @@ pub fn consume_font_data<'a>(mut data: &'a [u8], out: &mut Vec<u8>) -> Result<us
                     "Unexpected character {:?} for state '{:?}'",
                     next_ch as char,
                     state
-                )
+                );
             }
         };
 

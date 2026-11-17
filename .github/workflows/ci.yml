@@ -19,14 +19,13 @@ jobs:
       matrix:
         target:
           - aarch64-unknown-linux-gnu
-          - x86_64-pc-windows-gnu
           - x86_64-unknown-linux-gnu
           - arm-unknown-linux-gnueabi
           - armv7-unknown-linux-gnueabihf
           - riscv64gc-unknown-linux-gnu
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       #- uses: Swatinem/rust-cache@v1
 
@@ -35,6 +34,17 @@ jobs:
 
       - name: Build
         run: cross build --release --all-features --target=${{ matrix.target }}
+
+  build_windows:
+    name: Build (windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --all-features
 
   build_no_std:
     name: Build for no-std targets
@@ -47,7 +57,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       #- uses: Swatinem/rust-cache@v1
 
@@ -63,7 +73,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       #- uses: Swatinem/rust-cache@v1
 
@@ -79,7 +89,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       #- uses: Swatinem/rust-cache@v1
 
@@ -95,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install libsdl2-dev
         run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
@@ -113,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -126,7 +136,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -144,7 +154,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install nightly toolchain
         uses: dtolnay/rust-toolchain@nightly
@@ -159,7 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install llvm
         # Required to resolve symbols in sanitizer output
@@ -185,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -207,7 +217,7 @@ jobs:
       RUSTFLAGS: "-D warnings"
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install cargo-binstall
         uses: taiki-e/install-action@v2
@@ -228,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check semver
         uses: obi1kenobi/cargo-semver-checks-action@v2
 
@@ -254,7 +264,7 @@ jobs:
       ]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
