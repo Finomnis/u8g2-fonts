@@ -5,8 +5,8 @@ use crate::{
     FontData,
 };
 
-#[derive(Debug)]
-pub struct GlyphReader<'a, D> {
+#[derive(Debug, Clone)]
+pub struct GlyphReader<'a, D: Copy> {
     cursor: Cursor<D>,
     header: &'a FontHeader,
     bit_pos: u8,
@@ -56,7 +56,7 @@ impl<'a, D: FontData> GlyphReader<'a, D> {
 
         // If necessary, fetch next byte
         if bit_end >= 8 {
-            let value2 = self.cursor.next();
+            let value2 = self.cursor.next().unwrap();
             bit_end -= 8;
             self.current_byte = value2;
 
@@ -103,7 +103,7 @@ impl<'a, D: FontData> GlyphReader<'a, D> {
         self.read_unsigned(self.bitcount_1)
     }
 
-    pub fn create_renderer(&self) -> GlyphRenderer {
-        GlyphRenderer::new(self)
+    pub fn create_renderer(&self) -> GlyphRenderer<'a, D> {
+        GlyphRenderer::new(self.clone())
     }
 }

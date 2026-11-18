@@ -110,9 +110,13 @@ impl<D: FontData> FontRenderer<D> {
     where
         Display: DrawTarget,
     {
-        let font = FontReader::new(&self.data, self.ignore_unknown_glyphs, self.line_height);
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
 
-        if color.has_background() && !font.supports_background_color {
+        if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
 
@@ -174,6 +178,12 @@ impl<D: FontData> FontRenderer<D> {
     where
         Display: DrawTarget,
     {
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
+
         // If `horizontal_align` is `Left`, it is identical to
         // `render()`. As `render()` is quite a bit faster,
         // forward this call.
@@ -193,8 +203,7 @@ impl<D: FontData> FontRenderer<D> {
         // Therefore we introduce a line_dimensions_iterator that is almost no overhead for
         // glyphs/lines, but makes it possible to implement the format_args case.
 
-        let font = &self.font;
-        if color.has_background() && !font.supports_background_color {
+        if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
 
@@ -214,7 +223,7 @@ impl<D: FontData> FontRenderer<D> {
                     compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?);
                 advance.y += i32::try_from(font.line_height).unwrap();
             } else {
-                let dimensions = render_glyph(ch, position + advance, color, font, display)?;
+                let dimensions = render_glyph(ch, position + advance, color, &font, display)?;
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
@@ -243,7 +252,11 @@ impl<D: FontData> FontRenderer<D> {
         mut position: Point,
         vertical_pos: VerticalPosition,
     ) -> Result<RenderedDimensions, LookupError> {
-        let font = &self.font;
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
 
         let mut advance = Point::new(0, 0);
 
@@ -291,7 +304,11 @@ impl<D: FontData> FontRenderer<D> {
         vertical_pos: VerticalPosition,
         horizontal_align: HorizontalAlignment,
     ) -> Result<Option<Rectangle>, LookupError> {
-        let font = &self.font;
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
 
         position.y += content.compute_vertical_offset(font, vertical_pos);
 
@@ -352,15 +369,25 @@ impl<D: FontData> FontRenderer<D> {
     /// The ascent of the font.
     ///
     /// Usually a positive number.
-    pub const fn get_ascent(&self) -> i8 {
-        self.font.ascent
+    pub fn get_ascent(&self) -> i8 {
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
+        font.header.ascent
     }
 
     /// The descent of the font.
     ///
     /// *IMPORTANT*: This is usually a *negative* number.
-    pub const fn get_descent(&self) -> i8 {
-        self.font.descent
+    pub fn get_descent(&self) -> i8 {
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
+        font.header.descent
     }
 
     /// The maximum possible bounding box of all glyphs if they were rendered with

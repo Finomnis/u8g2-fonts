@@ -21,7 +21,7 @@ impl<D: FontData> FontReader<D> {
     pub fn new(data: D, ignore_unknown_glyphs: bool, line_height_override: Option<u32>) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
-            header: FontHeader::new(data),
+            header: FontHeader::new(data).expect("Failed to read font header"),
             ignore_unknown_glyphs,
             line_height: 0,
         };

@@ -6,7 +6,7 @@ use crate::{
     FontData,
 };
 
-pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize, D> {
+pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize, D: Copy> {
     cursor: Cursor<D>,
     header: &'a FontHeader,
 }
@@ -17,7 +17,7 @@ impl<'a, const CHAR_WIDTH: usize, D: FontData> GlyphSearcher<'a, CHAR_WIDTH, D> 
     }
 
     fn get_offset(&self) -> u8 {
-        self.cursor.peek(CHAR_WIDTH)
+        self.cursor.peek(CHAR_WIDTH).unwrap()
     }
 
     pub fn jump_to_next(&mut self) -> bool {
@@ -48,13 +48,13 @@ impl<'a, D: FontData> GlyphSearcher<'a, 1, D> {
     }
 
     pub fn get_ch(&self) -> u8 {
-        self.cursor.peek(0)
+        self.cursor.peek(0).unwrap()
     }
 
     pub fn into_unicode_mode(
         mut self,
         offset: u16,
-    ) -> (GlyphSearcher<'a, 2, D>, UnicodeJumptableReader) {
+    ) -> (GlyphSearcher<'a, 2, D>, UnicodeJumptableReader<D>) {
         self.jump_by(offset.into());
 
         (
@@ -69,6 +69,6 @@ impl<'a, D: FontData> GlyphSearcher<'a, 1, D> {
 
 impl<D: FontData> GlyphSearcher<'_, 2, D> {
     pub fn get_ch(&self) -> u16 {
-        u16::from_be_bytes([self.cursor.peek(0), self.cursor.peek(1)])
+        u16::from_be_bytes([self.cursor.peek(0).unwrap(), self.cursor.peek(1).unwrap()])
     }
 }

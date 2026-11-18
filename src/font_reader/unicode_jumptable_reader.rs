@@ -5,13 +5,13 @@ pub struct UnicodeJumptableEntry {
     character_upper_limit: u16,
 }
 
-pub struct UnicodeJumptableReader<D> {
-    data: Cursor<D>,
+pub struct UnicodeJumptableReader<D: Copy> {
+    cursor: Cursor<D>,
 }
 
 impl<D: FontData> UnicodeJumptableReader<D> {
-    pub fn new(data: Cursor<D>) -> Self {
-        Self { data }
+    pub fn new(cursor: Cursor<D>) -> Self {
+        Self { cursor }
     }
 
     pub fn calculate_jump_offset(mut self, encoding: u16) -> Option<usize> {
@@ -36,8 +36,6 @@ impl<D: FontData> UnicodeJumptableReader<D> {
     }
 
     fn next_byte(&mut self) -> Option<u8> {
-        let value = *self.data.first()?;
-        self.data = self.data.get(1..)?;
-        Some(value)
+        self.cursor.next()
     }
 }
