@@ -1,6 +1,6 @@
 use crate::{
     font_reader::FontReader, renderer::render_actions::compute_horizontal_line_dimensions,
-    utils::HorizontalRenderedDimensions, Content, LookupError,
+    utils::HorizontalRenderedDimensions, Content, FontData, LookupError,
 };
 
 use super::LineDimensionsIterator;
@@ -36,7 +36,10 @@ pub struct TextLineDimensionsIterator<'a> {
 }
 
 impl LineDimensionsIterator for TextLineDimensionsIterator<'_> {
-    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
+    fn next<D: FontData>(
+        &mut self,
+        font: &FontReader<D>,
+    ) -> Result<HorizontalRenderedDimensions, LookupError> {
         let line = self.data.next().unwrap_or("");
         compute_horizontal_line_dimensions(line, 0, font)
     }
@@ -47,7 +50,7 @@ mod tests {
     extern crate std;
     use std::vec::Vec;
 
-    use crate::fonts;
+    use crate::{fonts, Font};
 
     use super::*;
 
@@ -92,7 +95,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_provides_correct_values() {
-        let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf::DATA, false, None);
         let text = "a\nbc\n";
         let mut dims = text.line_dimensions_iterator();
 
@@ -124,7 +127,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_errors_on_glyph_not_found() {
-        let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
+        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf::DATA, false, None);
         let text = "a\n☃";
         let mut dims = text.line_dimensions_iterator();
 

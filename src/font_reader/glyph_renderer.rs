@@ -6,12 +6,12 @@ use embedded_graphics_core::{
 
 use crate::{font_reader::glyph_reader::GlyphReader, Error, FontData};
 
-pub struct GlyphRenderer<'a, D: Copy> {
-    glyph: GlyphReader<'a, D>,
+pub struct GlyphRenderer<D: Copy> {
+    glyph: GlyphReader<D>,
 }
 
-impl<'a, D: FontData> GlyphRenderer<'a, D> {
-    pub fn new(glyph: GlyphReader<'a, D>) -> Self {
+impl<'a, D: FontData> GlyphRenderer<D> {
+    pub fn new(glyph: GlyphReader<D>) -> Self {
         Self { glyph: glyph }
     }
 

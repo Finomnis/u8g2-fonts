@@ -60,7 +60,7 @@ impl<D: FontData> FontRenderer<D> {
     /// # Arguments
     ///
     /// * `ignore` - Whether unknown characters should be ignored.
-    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+    pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
         self.ignore_unknown_glyphs = ignore;
         self
     }
@@ -124,14 +124,14 @@ impl<D: FontData> FontRenderer<D> {
 
         let mut bounding_box = None;
 
-        position.y += content.compute_vertical_offset(font, vertical_pos);
+        position.y += content.compute_vertical_offset(&font, vertical_pos);
 
         content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
             if ch == '\n' {
                 advance.x = 0;
                 advance.y += i32::try_from(font.line_height).unwrap();
             } else {
-                let dimensions = render_glyph(ch, position + advance, color, font, display)?;
+                let dimensions = render_glyph(ch, position + advance, color, &font, display)?;
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
@@ -207,20 +207,20 @@ impl<D: FontData> FontRenderer<D> {
             return Err(Error::BackgroundColorNotSupported);
         }
 
-        position.y += content.compute_vertical_offset(font, vertical_pos);
+        position.y += content.compute_vertical_offset(&font, vertical_pos);
 
         let mut bounding_box = None;
 
         let mut line_dimensions = content.line_dimensions_iterator();
         let mut advance = Point::new(
-            compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?),
+            compute_horizontal_offset(horizontal_align, line_dimensions.next(&font)?),
             0,
         );
 
         content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
             if ch == '\n' {
                 advance.x =
-                    compute_horizontal_offset(horizontal_align, line_dimensions.next(font)?);
+                    compute_horizontal_offset(horizontal_align, line_dimensions.next(&font)?);
                 advance.y += i32::try_from(font.line_height).unwrap();
             } else {
                 let dimensions = render_glyph(ch, position + advance, color, &font, display)?;
@@ -262,14 +262,14 @@ impl<D: FontData> FontRenderer<D> {
 
         let mut bounding_box = None;
 
-        position.y += content.compute_vertical_offset(font, vertical_pos);
+        position.y += content.compute_vertical_offset(&font, vertical_pos);
 
         content.for_each_char(|ch| -> Result<(), LookupError> {
             if ch == '\n' {
                 advance.x = 0;
                 advance.y += i32::try_from(font.line_height).unwrap();
             } else {
-                let dimensions = compute_glyph_dimensions(ch, position + advance, font)?;
+                let dimensions = compute_glyph_dimensions(ch, position + advance, &font)?;
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
@@ -310,7 +310,7 @@ impl<D: FontData> FontRenderer<D> {
             self.line_height_override,
         );
 
-        position.y += content.compute_vertical_offset(font, vertical_pos);
+        position.y += content.compute_vertical_offset(&font, vertical_pos);
 
         let mut bounding_box = None;
 
@@ -338,7 +338,7 @@ impl<D: FontData> FontRenderer<D> {
                 line_bounding_box = None;
                 position.y += i32::try_from(font.line_height).unwrap();
             } else {
-                let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), font)?;
+                let dimensions = compute_glyph_dimensions(ch, Point::new(line_advance, 0), &font)?;
                 line_bounding_box =
                     combine_bounding_boxes(line_bounding_box, dimensions.bounding_box);
                 line_advance += dimensions.advance.x;
@@ -392,18 +392,23 @@ impl<D: FontData> FontRenderer<D> {
 
     /// The maximum possible bounding box of all glyphs if they were rendered with
     /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
-    pub const fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
-        let y_offset = compute_vertical_offset_from_static_newlines(&self.font, vertical_pos, 0);
+    pub fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
+        let y_offset = compute_vertical_offset_from_static_newlines(&font, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
-                self.font.font_bounding_box_x_offset as i32,
+                font.header.font_bounding_box_x_offset as i32,
                 y_offset
-                    - (self.font.font_bounding_box_height as i32
-                        + self.font.font_bounding_box_y_offset as i32),
+                    - (font.header.font_bounding_box_height as i32
+                        + font.header.font_bounding_box_y_offset as i32),
             ),
             size: Size::new(
-                self.font.font_bounding_box_width as u32,
-                self.font.font_bounding_box_height as u32,
+                font.header.font_bounding_box_width as u32,
+                font.header.font_bounding_box_height as u32,
             ),
         }
     }
@@ -411,8 +416,13 @@ impl<D: FontData> FontRenderer<D> {
     /// The default line height.
     ///
     /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
-    pub const fn get_default_line_height(&self) -> u32 {
-        self.font.get_default_line_height() as u32
+    pub fn get_default_line_height(&self) -> u32 {
+        let font = FontReader::new(
+            self.font_data,
+            self.ignore_unknown_glyphs,
+            self.line_height_override,
+        );
+        font.get_default_line_height() as u32
     }
 }
 
@@ -435,7 +445,10 @@ mod tests {
     fn new_from_raw_data() {
         let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
         let renderer_from_raw_data =
-            FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
-        assert_eq!(renderer_from_font.font, renderer_from_raw_data.font);
+            FontRenderer::from_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
+        assert_eq!(
+            renderer_from_font.font_data,
+            renderer_from_raw_data.font_data
+        );
     }
 }

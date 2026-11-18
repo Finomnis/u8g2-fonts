@@ -6,9 +6,8 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct GlyphReader<'a, D: Copy> {
+pub struct GlyphReader<D: Copy> {
     cursor: Cursor<D>,
-    header: &'a FontHeader,
     bit_pos: u8,
     current_byte: u8,
     glyph_width: u8,
@@ -20,11 +19,10 @@ pub struct GlyphReader<'a, D: Copy> {
     bitcount_1: u8,
 }
 
-impl<'a, D: FontData> GlyphReader<'a, D> {
-    pub fn new(cursor: Cursor<D>, header: &'a FontHeader) -> Self {
+impl<D: FontData> GlyphReader<D> {
+    pub(crate) fn new(cursor: Cursor<D>, header: &FontHeader) -> Self {
         let mut this = Self {
             cursor,
-            header,
             // Start at 8 to mark current_byte as invalid
             bit_pos: 8,
             current_byte: 0,
@@ -103,7 +101,7 @@ impl<'a, D: FontData> GlyphReader<'a, D> {
         self.read_unsigned(self.bitcount_1)
     }
 
-    pub fn create_renderer(&self) -> GlyphRenderer<'a, D> {
+    pub fn create_renderer(&self) -> GlyphRenderer<D> {
         GlyphRenderer::new(self.clone())
     }
 }

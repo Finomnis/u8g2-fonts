@@ -30,7 +30,7 @@ impl<'a, const CHAR_WIDTH: usize, D: FontData> GlyphSearcher<'a, CHAR_WIDTH, D> 
         }
     }
 
-    pub fn into_glyph_reader(self) -> GlyphReader<'a, D> {
+    pub fn into_glyph_reader(self) -> GlyphReader<D> {
         let mut cursor = self.cursor;
         cursor.skip(CHAR_WIDTH + 1);
         GlyphReader::new(cursor, self.header)
