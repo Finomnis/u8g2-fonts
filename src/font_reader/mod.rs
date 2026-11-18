@@ -32,6 +32,16 @@ impl<D: FontData> FontReader<D> {
         Self::new_from_data(F::HEADER, F::DATA)
     }
 
+    pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {
+        self.ignore_unknown_glyphs = ignore;
+        self
+    }
+
+    pub const fn with_line_height(mut self, line_height: u32) -> Self {
+        self.line_height = line_height;
+        self
+    }
+
     pub const fn get_default_line_height(&self) -> u8 {
         assert!(self.header.font_bounding_box_height >= 0);
         self.header.font_bounding_box_height as u8 + 1
