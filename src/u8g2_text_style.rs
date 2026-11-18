@@ -10,7 +10,7 @@ use embedded_graphics_core::{
 
 use crate::{
     types::{FontColor, VerticalPosition},
-    Error, Font, FontRenderer,
+    Error, Font, FontData, FontRenderer,
 };
 
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
@@ -29,13 +29,13 @@ impl From<Baseline> for VerticalPosition {
 ///
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
 #[derive(Debug, Clone)]
-pub struct U8g2TextStyle<C> {
+pub struct U8g2TextStyle<C, D: FontData = &'static [u8]> {
     /// Text color.
     pub text_color: Option<C>,
     /// Background color.
     pub background_color: Option<C>,
     /// The font renderer
-    font: FontRenderer,
+    font: FontRenderer<D>,
 }
 
 impl<C> U8g2TextStyle<C> {
