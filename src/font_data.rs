@@ -14,6 +14,7 @@ impl<T> FontData for &T
 where
     T: FontData + ?Sized,
 {
+    #[inline]
     fn get_byte(&self, offset: usize) -> Option<u8> {
         T::get_byte(self, offset)
     }
