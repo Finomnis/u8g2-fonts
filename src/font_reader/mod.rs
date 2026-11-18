@@ -9,45 +9,27 @@ mod glyph_searcher;
 mod unicode_jumptable_reader;
 
 #[derive(Debug)]
-pub struct FontReader<'a, D> {
+pub struct FontReader<D> {
     pub data: DebugIgnore<D>,
-    pub header: &'a FontHeader,
+    pub header: FontHeader,
     pub ignore_unknown_glyphs: bool,
     pub line_height: u32,
 }
 
-impl<'a, D: FontData> FontReader<'a, D> {
-    pub fn new<FONT: Font>(
-        header: &'a FontHeader,
-        data: D,
-        ignore_unknown_glyphs: bool,
-        line_height_override: Option<u32>,
-    ) -> Self {
+impl<D: FontData> FontReader<D> {
+    pub const fn new_from_data(header: FontHeader, data: D) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
             header,
-            ignore_unknown_glyphs,
+            ignore_unknown_glyphs: false,
             line_height: 0,
         };
-        if let Some(line_height) = line_height_override {
-            this.line_height = line_height;
-        } else {
-            this.line_height = this.get_default_line_height() as u32;
-        }
+        this.line_height = this.get_default_line_height() as u32;
         this
     }
 
-    /// Just for unit tests
-    pub(super) fn from_font<F: Font<FontDataType = D>>(
-        ignore_unknown_glyphs: bool,
-        line_height_override: Option<u32>,
-    ) -> Self {
-        Self::new(
-            &F::HEADER,
-            F::DATA,
-            ignore_unknown_glyphs,
-            line_height_override,
-        )
+    pub const fn new<F: Font<FontDataType = D>>() -> Self {
+        Self::new_from_data(F::HEADER, F::DATA)
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
@@ -135,11 +117,11 @@ mod tests {
 
     #[test]
     fn can_read_font_properties() {
-        let font = FontReader::from_font::<TestFont>(false, None);
+        let font = FontReader::new::<TestFont>();
 
         let expected = FontReader::<&[u8]> {
             data: DebugIgnore(&[]),
-            header: &FontHeader {
+            header: FontHeader {
                 supports_background_color: false,
                 glyph_count: 0,
                 m0: 4,
@@ -176,7 +158,7 @@ mod tests {
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
-        let font = FontReader::from_font::<TestFont>(false, None);
+        let font = FontReader::new::<TestFont>();
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));
