@@ -1,27 +1,31 @@
-use crate::{utils::DebugIgnore, FontData, LookupError};
+use crate::{utils::DebugIgnore, Font, FontData, FontHeader, LookupError};
 
-use self::{font_header::FontHeader, glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
+use self::{glyph_reader::GlyphReader, glyph_searcher::GlyphSearcher};
 
 mod cursor;
-mod font_header;
 mod glyph_reader;
 mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
 #[derive(Debug)]
-pub struct FontReader<D> {
+pub struct FontReader<'a, D> {
     pub data: DebugIgnore<D>,
-    pub header: FontHeader,
+    pub header: &'a FontHeader,
     pub ignore_unknown_glyphs: bool,
     pub line_height: u32,
 }
 
-impl<D: FontData> FontReader<D> {
-    pub fn new(data: D, ignore_unknown_glyphs: bool, line_height_override: Option<u32>) -> Self {
+impl<'a, D: FontData> FontReader<'a, D> {
+    pub fn new<FONT: Font>(
+        header: &'a FontHeader,
+        data: D,
+        ignore_unknown_glyphs: bool,
+        line_height_override: Option<u32>,
+    ) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
-            header: FontHeader::new(data).expect("Failed to read font header"),
+            header,
             ignore_unknown_glyphs,
             line_height: 0,
         };
@@ -31,6 +35,19 @@ impl<D: FontData> FontReader<D> {
             this.line_height = this.get_default_line_height() as u32;
         }
         this
+    }
+
+    /// Just for unit tests
+    pub(super) fn from_font<F: Font<FontDataType = D>>(
+        ignore_unknown_glyphs: bool,
+        line_height_override: Option<u32>,
+    ) -> Self {
+        Self::new(
+            &F::HEADER,
+            F::DATA,
+            ignore_unknown_glyphs,
+            line_height_override,
+        )
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
@@ -102,10 +119,12 @@ mod tests {
 
     use super::*;
 
-    use crate::font::Font;
+    use crate::FontHeader;
 
     struct TestFont;
     impl crate::Font for TestFont {
+        type FontDataType = &'static [u8];
+        const HEADER: FontHeader = FontHeader::from_raw(Self::DATA);
         const DATA: &'static [u8] = &[
             0, 0, 4, 4, 8, 8, 8, 8, 8, 1, 2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 2, // Header
             b'\n', 0, // First glyph
@@ -116,11 +135,11 @@ mod tests {
 
     #[test]
     fn can_read_font_properties() {
-        let font = FontReader::new(&TestFont::DATA, false, None);
+        let font = FontReader::from_font::<TestFont>(false, None);
 
         let expected = FontReader::<&[u8]> {
             data: DebugIgnore(&[]),
-            header: FontHeader {
+            header: &FontHeader {
                 supports_background_color: false,
                 glyph_count: 0,
                 m0: 4,
@@ -157,7 +176,7 @@ mod tests {
         // There is no formal specification that this error path is impossible, and resilient
         // programming tells me it should be a normal error path.
         // Sadly, that reduces our test coverage :D so let's trigger that error manually.
-        let font = FontReader::new(&TestFont::DATA, false, None);
+        let font = FontReader::from_font::<TestFont>(false, None);
         let glyph = font.retrieve_glyph_data('☃');
 
         assert!(matches!(glyph, Err(LookupError::GlyphNotFound('☃'))));

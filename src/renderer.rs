@@ -10,7 +10,7 @@ use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
-    Content, Error, Font, FontData, LookupError,
+    Content, Error, Font, FontData, FontHeader, LookupError,
 };
 
 use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
@@ -20,38 +20,53 @@ pub mod render_actions;
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug, Clone)]
 pub struct FontRenderer<D: FontData = &'static [u8]> {
+    font_header: FontHeader,
     font_data: D,
     ignore_unknown_glyphs: bool,
     line_height_override: Option<u32>,
 }
 
-impl FontRenderer {
+impl FontRenderer<&'static [u8]> {}
+
+impl<D: FontData> FontRenderer<D> {
     /// Creates a new instance of a font renderer.
     ///
     /// # Generics
     ///
     /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
     ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
-    pub const fn new<FONT: Font>() -> Self {
-        Self::from_data(FONT::DATA)
+    pub const fn new<FONT: Font<FontDataType = D>>() -> Self {
+        Self {
+            font_header: FONT::HEADER,
+            font_data: FONT::DATA,
+            ignore_unknown_glyphs: false,
+            line_height_override: None,
+        }
     }
 }
 
-impl<D: FontData> FontRenderer<D> {
+impl<'a> FontRenderer<&'a [u8]> {
     /// Creates a new instance of a font renderer from custom font data.
     ///
     /// # Arguments
     ///
     /// * `font_data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
     ///
-    pub const fn from_data(font_data: D) -> Self {
+    /// # Panics
+    ///
+    /// Panics if `font_data` is not valid U8g2 font data, including if it is
+    /// shorter than the required U8g2 font header.
+    pub const fn new_from_raw_data(font_data: &'a [u8]) -> Self {
         Self {
+            font_header: FontHeader::from_raw(font_data),
             font_data,
             ignore_unknown_glyphs: false,
             line_height_override: None,
         }
     }
+}
 
+impl<D: FontData> FontRenderer<D> {
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///
@@ -445,10 +460,14 @@ mod tests {
     fn new_from_raw_data() {
         let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
         let renderer_from_raw_data =
-            FontRenderer::from_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
+            FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
         assert_eq!(
             renderer_from_font.font_data,
             renderer_from_raw_data.font_data
+        );
+        assert_eq!(
+            renderer_from_font.font_header,
+            renderer_from_raw_data.font_header
         );
     }
 }

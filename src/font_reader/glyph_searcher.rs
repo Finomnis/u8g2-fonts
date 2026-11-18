@@ -1,9 +1,9 @@
 use crate::{
     font_reader::{
-        cursor::Cursor, font_header::FontHeader, glyph_reader::GlyphReader,
+        cursor::Cursor, glyph_reader::GlyphReader,
         unicode_jumptable_reader::UnicodeJumptableReader, FontReader,
     },
-    FontData,
+    FontData, FontHeader, U8G2_FONT_HEADER_SIZE,
 };
 
 pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize, D: Copy> {
@@ -37,12 +37,10 @@ impl<'a, const CHAR_WIDTH: usize, D: FontData> GlyphSearcher<'a, CHAR_WIDTH, D> 
     }
 }
 
-const U8G2_FONT_DATA_STRUCT_SIZE: usize = 23;
-
 impl<'a, D: FontData> GlyphSearcher<'a, 1, D> {
     pub fn new(font: &'a FontReader<D>) -> Self {
         Self {
-            cursor: Cursor::new(font.data.0, U8G2_FONT_DATA_STRUCT_SIZE),
+            cursor: Cursor::new(font.data.0, U8G2_FONT_HEADER_SIZE),
             header: &font.header,
         }
     }

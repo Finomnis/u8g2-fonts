@@ -52,7 +52,7 @@ mod tests {
     extern crate std;
     use std::vec::Vec;
 
-    use crate::{fonts, Font};
+    use crate::fonts;
 
     use super::*;
 
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_provides_correct_values() {
-        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf::DATA, false, None);
+        let font = FontReader::from_font::<fonts::u8g2_font_u8glib_4_tf>(false, None);
         let ch = 'a';
         let mut dims = ch.line_dimensions_iterator();
 
@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn line_dimensions_iter_errors_on_glyph_not_found() {
-        let font = FontReader::new(fonts::u8g2_font_u8glib_4_tf::DATA, false, None);
+        let font = FontReader::from_font::<fonts::u8g2_font_u8glib_4_tf>(false, None);
         let ch = '☃';
         let mut dims = ch.line_dimensions_iterator();
 

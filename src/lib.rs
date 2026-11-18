@@ -121,6 +121,7 @@ mod content;
 mod error;
 mod font;
 mod font_data;
+mod font_header;
 mod font_reader;
 mod renderer;
 mod utils;
@@ -139,6 +140,7 @@ pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
 pub use font_data::FontData;
+pub use font_header::{FontHeader, U8G2_FONT_HEADER_SIZE};
 pub use renderer::FontRenderer;
 
 #[cfg(feature = "embedded_graphics_textstyle")]

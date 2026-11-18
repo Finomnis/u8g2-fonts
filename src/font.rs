@@ -4,8 +4,11 @@
 ///
 /// Implemented by [all available fonts](crate::fonts).
 pub trait Font {
+    type FontDataType: FontData;
     #[doc(hidden)]
-    const DATA: &'static [u8];
+    const HEADER: FontHeader;
+    #[doc(hidden)]
+    const DATA: Self::FontDataType;
 }
 
 macro_rules! font_definitions {
@@ -22,6 +25,8 @@ macro_rules! font_definitions {
 
             $(#[$attr])*
             impl $crate::Font for $fontname {
+                type FontDataType = &'static [u8];
+                const HEADER: $crate::FontHeader = $crate::FontHeader::from_raw(Self::DATA);
                 const DATA: &'static [u8] = include_bytes!(concat!(stringify!($fontname), ".u8g2font"));
             }
         )*
@@ -29,3 +34,5 @@ macro_rules! font_definitions {
 }
 
 pub(crate) use font_definitions;
+
+use crate::{FontData, FontHeader};

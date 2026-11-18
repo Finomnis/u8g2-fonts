@@ -1,8 +1,8 @@
 use embedded_graphics_core::prelude::{Point, Size};
 
 use crate::{
-    font_reader::{cursor::Cursor, font_header::FontHeader, glyph_renderer::GlyphRenderer},
-    FontData,
+    font_reader::{cursor::Cursor, glyph_renderer::GlyphRenderer},
+    FontData, FontHeader,
 };
 
 #[derive(Debug, Clone)]
