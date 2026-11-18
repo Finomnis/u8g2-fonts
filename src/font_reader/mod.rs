@@ -8,7 +8,7 @@ mod glyph_renderer;
 mod glyph_searcher;
 mod unicode_jumptable_reader;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FontReader<D> {
     pub data: DebugIgnore<D>,
     pub header: FontHeader,
@@ -17,7 +17,7 @@ pub struct FontReader<D> {
 }
 
 impl<D: FontData> FontReader<D> {
-    pub const fn new_from_data(header: FontHeader, data: D) -> Self {
+    pub const fn new_from_raw_data(header: FontHeader, data: D) -> Self {
         let mut this = Self {
             data: DebugIgnore(data),
             header,
@@ -29,7 +29,7 @@ impl<D: FontData> FontReader<D> {
     }
 
     pub const fn new<F: Font<FontDataType = D>>() -> Self {
-        Self::new_from_data(F::HEADER, F::DATA)
+        Self::new_from_raw_data(F::HEADER, F::DATA)
     }
 
     pub const fn with_ignore_unknown_glyphs(mut self, ignore: bool) -> Self {

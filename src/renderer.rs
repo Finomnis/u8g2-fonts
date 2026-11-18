@@ -20,13 +20,8 @@ pub mod render_actions;
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug, Clone)]
 pub struct FontRenderer<D: FontData = &'static [u8]> {
-    font_header: FontHeader,
-    font_data: D,
-    ignore_unknown_glyphs: bool,
-    line_height_override: Option<u32>,
+    font: FontReader<D>,
 }
-
-impl FontRenderer<&'static [u8]> {}
 
 impl<D: FontData> FontRenderer<D> {
     /// Creates a new instance of a font renderer.
@@ -37,10 +32,7 @@ impl<D: FontData> FontRenderer<D> {
     ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
     pub const fn new<FONT: Font<FontDataType = D>>() -> Self {
         Self {
-            font_header: FONT::HEADER,
-            font_data: FONT::DATA,
-            ignore_unknown_glyphs: false,
-            line_height_override: None,
+            font: FontReader::new::<FONT>(),
         }
     }
 }
@@ -58,10 +50,7 @@ impl<'a> FontRenderer<&'a [u8]> {
     /// shorter than the required U8g2 font header.
     pub const fn new_from_raw_data(font_data: &'a [u8]) -> Self {
         Self {
-            font_header: FontHeader::from_raw(font_data),
-            font_data,
-            ignore_unknown_glyphs: false,
-            line_height_override: None,
+            font: FontReader::new_from_raw_data(FontHeader::from_raw(font_data), font_data),
         }
     }
 }
@@ -76,7 +65,7 @@ impl<D: FontData> FontRenderer<D> {
     ///
     /// * `ignore` - Whether unknown characters should be ignored.
     pub const fn with_ignore_unknown_chars(mut self, ignore: bool) -> Self {
-        self.ignore_unknown_glyphs = ignore;
+        self.font = self.font.with_ignore_unknown_glyphs(ignore);
         self
     }
 
@@ -90,7 +79,7 @@ impl<D: FontData> FontRenderer<D> {
     ///
     /// * `line_height` - The desired line height, in pixels.
     pub const fn with_line_height(mut self, line_height: u32) -> Self {
-        self.line_height_override = Some(line_height);
+        self.font = self.font.with_line_height(line_height);
         self
     }
 
@@ -125,12 +114,7 @@ impl<D: FontData> FontRenderer<D> {
     where
         Display: DrawTarget,
     {
-        let font = FontReader::new(
-            self.font_data,
-            self.ignore_unknown_glyphs,
-            self.line_height_override,
-        );
-
+        let font = &self.font;
         if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
@@ -139,14 +123,14 @@ impl<D: FontData> FontRenderer<D> {
 
         let mut bounding_box = None;
 
-        position.y += content.compute_vertical_offset(&font, vertical_pos);
+        position.y += content.compute_vertical_offset(font, vertical_pos);
 
         content.for_each_char(|ch| -> Result<(), Error<Display::Error>> {
             if ch == '\n' {
                 advance.x = 0;
                 advance.y += i32::try_from(font.line_height).unwrap();
             } else {
-                let dimensions = render_glyph(ch, position + advance, color, &font, display)?;
+                let dimensions = render_glyph(ch, position + advance, color, font, display)?;
                 advance += dimensions.advance;
                 bounding_box = combine_bounding_boxes(bounding_box, dimensions.bounding_box);
             }
@@ -193,12 +177,6 @@ impl<D: FontData> FontRenderer<D> {
     where
         Display: DrawTarget,
     {
-        let font = FontReader::new(
-            self.font_data,
-            self.ignore_unknown_glyphs,
-            self.line_height_override,
-        );
-
         // If `horizontal_align` is `Left`, it is identical to
         // `render()`. As `render()` is quite a bit faster,
         // forward this call.
@@ -217,6 +195,8 @@ impl<D: FontData> FontRenderer<D> {
         // This is really hard with format_args.
         // Therefore we introduce a line_dimensions_iterator that is almost no overhead for
         // glyphs/lines, but makes it possible to implement the format_args case.
+
+        let font = &self.font;
 
         if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
