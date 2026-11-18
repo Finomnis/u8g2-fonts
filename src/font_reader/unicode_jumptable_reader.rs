@@ -1,14 +1,16 @@
+use super::data::FontData;
+
 pub struct UnicodeJumptableEntry {
     jump_distance: u16,
     character_upper_limit: u16,
 }
 
 pub struct UnicodeJumptableReader {
-    data: &'static [u8],
+    data: FontData,
 }
 
 impl UnicodeJumptableReader {
-    pub fn new(data: &'static [u8]) -> Self {
+    pub fn new(data: FontData) -> Self {
         Self { data }
     }
 
@@ -34,8 +36,6 @@ impl UnicodeJumptableReader {
     }
 
     fn next_byte(&mut self) -> Option<u8> {
-        let value = *self.data.first()?;
-        self.data = self.data.get(1..)?;
-        Some(value)
+        self.data.next()
     }
 }

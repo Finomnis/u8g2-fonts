@@ -2,12 +2,13 @@
 ///
 /// Contains all information to create a [`FontRenderer`](crate::FontRenderer).
 ///
-/// Implemented by [all available fonts](crate::fonts).
+/// Implemented by [all available fonts](crate::fonts) when the `fonts` feature is enabled.
 pub trait Font {
     #[doc(hidden)]
     const DATA: &'static [u8];
 }
 
+#[cfg(feature = "fonts")]
 macro_rules! font_definitions {
     (
         $(
@@ -28,4 +29,5 @@ macro_rules! font_definitions {
     };
 }
 
+#[cfg(feature = "fonts")]
 pub(crate) use font_definitions;

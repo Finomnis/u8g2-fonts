@@ -11,8 +11,13 @@
 //! # Crate features
 //! Additional features can be enabled by adding the following features to your Cargo.toml.
 //!
+//! - `fonts` (enabled by default):
+//!    - includes the bundled U8g2 font collection.
 //! - `embedded_graphics_textstyle`:
 //!    - enable [`U8g2TextStyle`] struct for drawing text with [`embedded_graphics::text::Text`].
+//! - `avr-progmem`:
+//!    - enable [`FontRenderer::new_from_progmem`] to read fonts directly from AVR flash.
+//!    - requires nightly Rust, including on hosts; non-AVR targets use ordinary memory reads.
 //!
 //! # Renderers
 //!
@@ -84,6 +89,8 @@
 //! # Example
 //!
 //! ```rust
+//! # #[cfg(feature = "fonts")]
+//! # {
 //! # use u8g2_fonts::types::*;
 //! # use u8g2_fonts::FontRenderer;
 //! # use u8g2_fonts::fonts;
@@ -105,6 +112,7 @@
 //!     &mut display,
 //! )
 //! .unwrap();
+//! # }
 //! # }
 //! ```
 
@@ -128,6 +136,8 @@ mod utils;
 ///
 /// Note that every font has a different license. For more information, read the [U8g2 License Agreement](https://github.com/olikraus/u8g2/blob/master/LICENSE).
 #[allow(non_camel_case_types)]
+#[cfg(feature = "fonts")]
+#[cfg_attr(docsrs, doc(cfg(feature = "fonts")))]
 pub mod fonts;
 
 /// Data types used in common API functions.

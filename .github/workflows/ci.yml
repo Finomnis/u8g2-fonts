@@ -32,8 +32,11 @@ jobs:
       - name: Install cross
         uses: taiki-e/install-action@cross
 
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
       - name: Build
-        run: cross build --release --all-features --target=${{ matrix.target }}
+        run: cross +nightly build --release --all-features --target=${{ matrix.target }}
 
   build_windows:
     name: Build (windows)
@@ -125,8 +128,8 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
 
       - name: Build
         run: cargo test --all-features -- --test-threads 1
@@ -138,8 +141,8 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
 

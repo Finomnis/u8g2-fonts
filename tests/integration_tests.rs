@@ -1,3 +1,5 @@
+#![cfg(feature = "fonts")]
+
 mod util;
 
 use embedded_graphics_core::{
