@@ -29,18 +29,18 @@ impl From<Baseline> for VerticalPosition {
 ///
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
 #[derive(Debug, Clone)]
-pub struct U8g2TextStyle<C, D: FontData = &'static [u8]> {
+pub struct U8g2TextStyle<C, FD: FontData = &'static [u8]> {
     /// Text color.
     pub text_color: Option<C>,
     /// Background color.
     pub background_color: Option<C>,
     /// The font renderer
-    font: FontRenderer<D>,
+    font: FontRenderer<FD>,
 }
 
-impl<C> U8g2TextStyle<C, &'static [u8]> {
+impl<C, FD: FontData> U8g2TextStyle<C, FD> {
     /// Creates a text style with transparent background.
-    pub const fn new<F: Font>(font: F, text_color: C) -> Self {
+    pub const fn new<F: Font<FontDataType = FD>>(font: F, text_color: C) -> Self {
         // font is a ZST, so it's safe to forget it
         core::mem::forget(font);
         Self {
@@ -51,10 +51,10 @@ impl<C> U8g2TextStyle<C, &'static [u8]> {
     }
 }
 
-impl<C, D: FontData> U8g2TextStyle<C, D> {
+impl<C, FD: FontData> U8g2TextStyle<C, FD> {
     /// Creates a text style with transparent background
     /// from a [`FontData`] object
-    pub const fn from_data(data: D, text_color: C) -> Self {
+    pub const fn new_from_raw_data(font_data: D, text_color: C) -> Self {
         Self {
             text_color: Some(text_color),
             background_color: None,
