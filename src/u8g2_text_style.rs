@@ -38,7 +38,7 @@ pub struct U8g2TextStyle<C, D: FontData = &'static [u8]> {
     font: FontRenderer<D>,
 }
 
-impl<C> U8g2TextStyle<C> {
+impl<C> U8g2TextStyle<C, &'static [u8]> {
     /// Creates a text style with transparent background.
     pub const fn new<F: Font>(font: F, text_color: C) -> Self {
         // font is a ZST, so it's safe to forget it
@@ -51,7 +51,19 @@ impl<C> U8g2TextStyle<C> {
     }
 }
 
-impl<C> TextRenderer for U8g2TextStyle<C>
+impl<C, D: FontData> U8g2TextStyle<C, D> {
+    /// Creates a text style with transparent background
+    /// from a [`FontData`] object
+    pub const fn from_data(data: D, text_color: C) -> Self {
+        Self {
+            text_color: Some(text_color),
+            background_color: None,
+            font: FontRenderer::from_data(data).with_ignore_unknown_chars(true),
+        }
+    }
+}
+
+impl<C, FD: FontData> TextRenderer for U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
@@ -152,7 +164,7 @@ where
 /// Note that `U8g2TextStyle` does not support underline or strikethrough,
 /// so [`set_underline_color()`](CharacterStyle::set_underline_color) and
 /// [`set_strikethrough_color()`](CharacterStyle::set_strikethrough_color()) does nothing.
-impl<C> CharacterStyle for U8g2TextStyle<C>
+impl<C, FD: FontData> CharacterStyle for U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
@@ -167,7 +179,7 @@ where
     }
 }
 
-impl<C> TextRenderer for &U8g2TextStyle<C>
+impl<C, FD: FontData> TextRenderer for &U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
