@@ -301,7 +301,7 @@ mod textstyle_tests {
         struct CustomFontData;
         impl FontData for CustomFontData {
             fn get_byte(&self, offset: usize) -> Option<u8> {
-                fonts::u8g2_font_10x20_mf::DATA.get(offset).copied();
+                fonts::u8g2_font_10x20_mf::DATA.get(offset).copied()
             }
         }
         let dimensions = TestDrawTarget::expect_image(
