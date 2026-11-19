@@ -23,7 +23,7 @@ mod textstyle_tests {
     use u8g2_fonts::{
         fonts,
         types::{HorizontalAlignment, VerticalPosition},
-        Error, Font, FontData, U8g2TextStyle,
+        Error, Font, FontData, FontHeader, FontRenderer, U8g2TextStyle,
     };
 
     use util::{FailingDrawTarget, TestDrawTarget};
@@ -307,8 +307,12 @@ mod textstyle_tests {
         let dimensions = TestDrawTarget::expect_image(
             std::include_bytes!("assets/render_text_background.png"),
             |display| {
+                let renderer = FontRenderer::new_from_parts(
+                    FontHeader::from_fontdata(CustomFontData).unwrap(),
+                    CustomFontData,
+                );
                 let mut character_style =
-                    U8g2TextStyle::from_data(CustomFontData, Rgb888::new(255, 255, 254));
+                    U8g2TextStyle::from_renderer(renderer, Rgb888::new(255, 255, 254));
 
                 character_style.set_text_color(Some(Rgb888::new(237, 28, 36)));
                 character_style.set_background_color(Some(Rgb888::new(1, 1, 1)));

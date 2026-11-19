@@ -8,7 +8,7 @@ use embedded_graphics_core::{
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    Error, Font, FontData, FontRenderer,
+    Error, Font, FontData, FontHeader, FontRenderer,
 };
 
 use util::{FailingDrawTarget, TestDrawTarget};
@@ -1029,15 +1029,18 @@ fn custom_fontdata() {
     }
     let dimensions =
         TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
-            FontRenderer::from_data(CustomFontData)
-                .render(
-                    "Hello World!",
-                    Point::new(2, 15),
-                    VerticalPosition::default(),
-                    FontColor::Transparent(Rgb888::new(237, 28, 36)),
-                    display,
-                )
-                .unwrap()
+            FontRenderer::new_from_parts(
+                FontHeader::from_fontdata(CustomFontData).unwrap(),
+                CustomFontData,
+            )
+            .render(
+                "Hello World!",
+                Point::new(2, 15),
+                VerticalPosition::default(),
+                FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                display,
+            )
+            .unwrap()
         });
 
     assert_eq!(
