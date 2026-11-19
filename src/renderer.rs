@@ -63,7 +63,7 @@ impl<D: FontData> FontRenderer<D> {
     /// * `header` - the parsed header. Must match `data`, otherwise wild things happen.
     /// * `data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
     ///
-    pub fn new_from_parts(header: FontHeader, data: D) -> Self {
+    pub const fn new_from_parts(header: FontHeader, data: D) -> Self {
         Self {
             font: FontReader::new_from_raw_data(header, data),
         }
