@@ -1024,7 +1024,7 @@ fn custom_fontdata() {
     struct CustomFontData;
     impl FontData for CustomFontData {
         fn get_byte(&self, offset: usize) -> Option<u8> {
-            fonts::u8g2_font_ncenB14_tr::DATA.get(offset).copied();
+            fonts::u8g2_font_ncenB14_tr::DATA.get(offset).copied()
         }
     }
     let dimensions =
