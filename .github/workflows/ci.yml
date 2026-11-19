@@ -225,7 +225,7 @@ jobs:
           tool: cargo-binstall
 
       - name: Install cargo-msrv
-        run: cargo binstall --version 0.16.0-beta.17 --no-confirm cargo-msrv
+        run: cargo binstall --version 0.19.6 --no-confirm cargo-msrv
 
       #- uses: Swatinem/rust-cache@v1
 
