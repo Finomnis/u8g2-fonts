@@ -10,9 +10,9 @@ pub struct GlyphRenderer<D> {
     glyph: GlyphReader<D>,
 }
 
-impl<'a, D: FontData> GlyphRenderer<D> {
+impl<D: FontData> GlyphRenderer<D> {
     pub fn new(glyph: GlyphReader<D>) -> Self {
-        Self { glyph: glyph }
+        Self { glyph }
     }
 
     pub fn get_glyph_bounding_box(&self, position: Point) -> Rectangle {

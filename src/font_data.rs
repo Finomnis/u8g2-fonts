@@ -4,7 +4,7 @@ pub trait FontData: Copy {
     fn get_byte(&self, offset: usize) -> Option<u8>;
 }
 
-impl<'a> FontData for &'a [u8] {
+impl FontData for &[u8] {
     #[inline]
     fn get_byte(&self, offset: usize) -> Option<u8> {
         self.get(offset).copied()
@@ -13,7 +13,7 @@ impl<'a> FontData for &'a [u8] {
 
 impl<T> FontData for &T
 where
-    T: FontData + ?Sized,
+    T: FontData,
 {
     #[inline]
     fn get_byte(&self, offset: usize) -> Option<u8> {
