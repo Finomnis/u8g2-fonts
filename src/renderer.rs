@@ -404,6 +404,16 @@ impl<D: FontData> FontRenderer<D> {
     pub const fn get_default_line_height(&self) -> u32 {
         self.font.get_default_line_height() as u32
     }
+
+    /// The currently used line height.
+    ///
+    /// Equal to [`get_default_line_height`](Self::get_default_line_height) unless overridden
+    /// by [`with_line_height`](Self::with_line_height).
+    ///
+    /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
+    pub const fn get_line_height(&self) -> u32 {
+        self.font.get_line_height()
+    }
 }
 
 #[cfg(test)]

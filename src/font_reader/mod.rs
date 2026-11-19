@@ -47,6 +47,10 @@ impl<D: FontData> FontReader<D> {
         self.header.font_bounding_box_height as u8 + 1
     }
 
+    pub const fn get_line_height(&self) -> u32 {
+        self.line_height
+    }
+
     pub fn try_retrieve_glyph_data(&self, ch: char) -> Result<Option<GlyphReader<D>>, LookupError> {
         match self.retrieve_glyph_data(ch) {
             Err(LookupError::GlyphNotFound(_)) if self.ignore_unknown_glyphs => Ok(None),

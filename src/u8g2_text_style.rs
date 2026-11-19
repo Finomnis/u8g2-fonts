@@ -154,7 +154,7 @@ where
     }
 
     fn line_height(&self) -> u32 {
-        self.font.get_default_line_height()
+        self.font.get_line_height()
     }
 }
 
