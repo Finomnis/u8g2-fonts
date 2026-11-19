@@ -382,7 +382,7 @@ impl<D: FontData> FontRenderer<D> {
 
     /// The maximum possible bounding box of all glyphs if they were rendered with
     /// [`render()`](crate::FontRenderer::render) at position `(0,0)`.
-    pub fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
+    pub const fn get_font_bounding_box(&self, vertical_pos: VerticalPosition) -> Rectangle {
         let y_offset = compute_vertical_offset_from_static_newlines(&self.font, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
