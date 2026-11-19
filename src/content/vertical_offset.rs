@@ -1,6 +1,6 @@
-use crate::{font_reader::FontReader, types::VerticalPosition, FontData};
+use crate::{font_reader::FontReader, types::VerticalPosition};
 
-pub const fn compute_vertical_offset_from_static_newlines<D: FontData>(
+pub const fn compute_vertical_offset_from_static_newlines<D>(
     font: &FontReader<D>,
     vertical_pos: VerticalPosition,
     newline_count: i32,
@@ -23,7 +23,7 @@ pub const fn compute_vertical_offset_from_static_newlines<D: FontData>(
 
 // This one is faster, because it avoids computing the newline count if it isn't needed for the computation.
 // It isn't const, however. That's why both exist.
-pub fn compute_vertical_offset_from_dynamic_newlines<D: FontData>(
+pub fn compute_vertical_offset_from_dynamic_newlines<D>(
     font: &FontReader<D>,
     vertical_pos: VerticalPosition,
     newline_count: impl FnOnce() -> i32,
