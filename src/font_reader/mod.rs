@@ -18,14 +18,13 @@ pub struct FontReader<D> {
 
 impl<D: FontData> FontReader<D> {
     pub const fn new_from_raw_data(header: FontHeader, data: D) -> Self {
-        let mut this = Self {
+        let line_height = header.get_default_line_height() as u32;
+        Self {
             data: DebugIgnore(data),
             header,
             ignore_unknown_glyphs: false,
-            line_height: 0,
-        };
-        this.line_height = this.get_default_line_height() as u32;
-        this
+            line_height,
+        }
     }
 
     pub const fn new<F: Font<FontDataType = D>>() -> Self {
@@ -43,8 +42,7 @@ impl<D: FontData> FontReader<D> {
     }
 
     pub const fn get_default_line_height(&self) -> u8 {
-        assert!(self.header.font_bounding_box_height >= 0);
-        self.header.font_bounding_box_height as u8 + 1
+        self.header.get_default_line_height()
     }
 
     pub const fn get_line_height(&self) -> u32 {

@@ -31,7 +31,7 @@ pub struct FontHeader {
 impl FontHeader {
     /// Creates a [`FontHeader`] from raw header data
     pub const fn from_raw(data: &[u8]) -> Self {
-        Self {
+        let this = Self {
             glyph_count: data[0],
             supports_background_color: data[1] != 0,
             m0: data[2],
@@ -52,7 +52,12 @@ impl FontHeader {
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
-        }
+        };
+
+        assert!(this.font_bounding_box_height >= 0);
+        assert!(this.font_bounding_box_width >= 0);
+
+        this
     }
     /// Reads a [`FontHeader`] from the start of [`FontData`].
     pub fn from_fontdata<D: FontData>(data: D) -> Option<Self> {
@@ -61,5 +66,11 @@ impl FontHeader {
             *val = data.get_byte(pos)?;
         }
         Some(Self::from_raw(&header_raw))
+    }
+
+    /// Reads the default line height for the font
+    pub const fn get_default_line_height(&self) -> u8 {
+        assert!(self.font_bounding_box_height >= 0);
+        self.font_bounding_box_height as u8 + 1
     }
 }
