@@ -56,7 +56,7 @@ impl FontHeader {
     }
     /// Reads a [`FontHeader`] from the start of [`FontData`].
     pub fn from_fontdata<D: FontData>(data: D) -> Option<Self> {
-        let mut header_raw = [0u8; 23];
+        let mut header_raw = [0u8; U8G2_FONT_HEADER_SIZE];
         for (pos, val) in header_raw.iter_mut().enumerate() {
             *val = data.get_byte(pos)?;
         }
