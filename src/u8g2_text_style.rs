@@ -49,16 +49,16 @@ impl<C, FD: FontData> U8g2TextStyle<C, FD> {
             font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
         }
     }
-}
 
-impl<C, FD: FontData> U8g2TextStyle<C, FD> {
-    /// Creates a text style with transparent background
-    /// from a [`FontData`] object
-    pub const fn new_from_raw_data(font_data: D, text_color: C) -> Self {
+    /// Creates a text style with transparent background from a given FontRenderer.
+    pub const fn from_renderer<F: Font<FontDataType = FD>>(
+        font: FontRenderer<FD>,
+        text_color: C,
+    ) -> Self {
         Self {
             text_color: Some(text_color),
             background_color: None,
-            font: FontRenderer::from_data(data).with_ignore_unknown_chars(true),
+            font,
         }
     }
 }

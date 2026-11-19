@@ -35,7 +35,9 @@ impl<D: FontData> FontRenderer<D> {
             font: FontReader::new::<FONT>(),
         }
     }
+}
 
+impl<'a> FontRenderer<&'a [u8]> {
     /// Creates a new instance of a font renderer from custom font data.
     ///
     /// # Arguments
@@ -46,17 +48,27 @@ impl<D: FontData> FontRenderer<D> {
     ///
     /// Panics if `font_data` is not valid U8g2 font data, including if it is
     /// shorter than the required U8g2 font header.
-    pub const fn new_from_raw_data(font_data: D) -> Self {
+    pub const fn new_from_raw_data(font_data: &'a [u8]) -> Self {
         Self {
-            font: FontReader::new_from_raw_data(
-                FontHeader::from_fontdata(font_data).unwrap(),
-                font_data,
-            ),
+            font: FontReader::new_from_raw_data(FontHeader::from_raw(font_data), font_data),
         }
     }
 }
 
 impl<D: FontData> FontRenderer<D> {
+    /// Creates a new instance of a font renderer from custom font data.
+    ///
+    /// # Arguments
+    ///
+    /// * `header` - the parsed header. Must match `data`, otherwise wild things happen.
+    /// * `data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
+    ///
+    pub fn new_from_parts(header: FontHeader, data: D) -> Self {
+        Self {
+            font: FontReader::new_from_raw_data(header, data),
+        }
+    }
+
     /// Switches the font rendering mode to ignore all unrenderable characters
     /// instead of raising an error.
     ///
