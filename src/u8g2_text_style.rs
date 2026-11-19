@@ -52,13 +52,13 @@ impl<C, FD: FontData> U8g2TextStyle<C, FD> {
 
     /// Creates a text style with transparent background from a given FontRenderer.
     pub const fn from_renderer<F: Font<FontDataType = FD>>(
-        font: FontRenderer<FD>,
+        renderer: FontRenderer<FD>,
         text_color: C,
     ) -> Self {
         Self {
             text_color: Some(text_color),
             background_color: None,
-            font,
+            font: renderer.with_ignore_unknown_chars(true),
         }
     }
 }
