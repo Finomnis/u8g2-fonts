@@ -140,7 +140,7 @@ mod tests {
     use core::fmt::Arguments;
     use std::vec::Vec;
 
-    use crate::{fonts, Font};
+    use crate::fonts;
 
     use super::*;
 
@@ -187,12 +187,7 @@ mod tests {
     fn line_dimensions_iter_provides_correct_values() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new(
-                &fonts::u8g2_font_u8glib_4_tf::HEADER,
-                fonts::u8g2_font_u8glib_4_tf::DATA,
-                false,
-                None,
-            );
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
             let mut dims = args.line_dimensions_iterator();
 
             assert_eq!(
@@ -228,12 +223,7 @@ mod tests {
     fn line_dimensions_iter_errors_on_glyph_not_found() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new(
-                &fonts::u8g2_font_u8glib_4_tf::HEADER,
-                fonts::u8g2_font_u8glib_4_tf::DATA,
-                false,
-                None,
-            );
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
             let mut dims = args.line_dimensions_iterator();
 
             assert!(matches!(
@@ -249,12 +239,7 @@ mod tests {
     fn line_dimensions_iter_creates_empty_array_when_out_of_range() {
         // Nested function to deal with format_args!()'s weird lifetimes
         fn run_test(args: Arguments<'_>) {
-            let font = FontReader::new(
-                &fonts::u8g2_font_u8glib_4_tf::HEADER,
-                fonts::u8g2_font_u8glib_4_tf::DATA,
-                false,
-                None,
-            );
+            let font = FontReader::new::<fonts::u8g2_font_u8glib_4_tf>();
             let mut dims = args.line_dimensions_iterator();
 
             dims.regenerate_buffer(1000, &font).unwrap();

@@ -4,10 +4,11 @@
 ///
 /// Implemented by [all available fonts](crate::fonts).
 pub trait Font {
+    /// The font data backend
     type FontDataType: FontData;
-    #[doc(hidden)]
+    /// The parsed font header
     const HEADER: FontHeader;
-    #[doc(hidden)]
+    /// The actual font data
     const DATA: Self::FontDataType;
 }
 
