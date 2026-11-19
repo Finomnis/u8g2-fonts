@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct GlyphReader<D: Copy> {
+pub struct GlyphReader<D> {
     cursor: Cursor<D>,
     bit_pos: u8,
     current_byte: u8,

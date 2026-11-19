@@ -6,7 +6,7 @@ use embedded_graphics_core::{
 
 use crate::{font_reader::glyph_reader::GlyphReader, Error, FontData};
 
-pub struct GlyphRenderer<D: Copy> {
+pub struct GlyphRenderer<D> {
     glyph: GlyphReader<D>,
 }
 

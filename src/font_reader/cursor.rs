@@ -2,12 +2,12 @@ use crate::{utils::DebugIgnore, FontData};
 
 /// Reads from a [`FontData`] and remembers the current position
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct Cursor<D: Copy> {
+pub(crate) struct Cursor<D> {
     data: DebugIgnore<D>,
     pos: usize,
 }
 
-impl<D: Copy> Cursor<D> {
+impl<D> Cursor<D> {
     pub fn new(data: D, pos: usize) -> Self {
         Self {
             data: DebugIgnore(data),

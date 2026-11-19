@@ -6,7 +6,7 @@ use crate::{
     FontData, FontHeader, U8G2_FONT_HEADER_SIZE,
 };
 
-pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize, D: Copy> {
+pub struct GlyphSearcher<'a, const CHAR_WIDTH: usize, D> {
     cursor: Cursor<D>,
     header: &'a FontHeader,
 }

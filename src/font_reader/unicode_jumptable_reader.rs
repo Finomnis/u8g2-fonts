@@ -5,7 +5,7 @@ pub struct UnicodeJumptableEntry {
     character_upper_limit: u16,
 }
 
-pub struct UnicodeJumptableReader<D: Copy> {
+pub struct UnicodeJumptableReader<D> {
     cursor: Cursor<D>,
 }
 
