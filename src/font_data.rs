@@ -1,6 +1,6 @@
 /// Can retrieve the data of a font
 pub trait FontData: Copy {
-    /// Fetch the font at the given position
+    /// Read a byte from the font data at the given offset
     fn get_byte(&self, offset: usize) -> Option<u8>;
 }
 
