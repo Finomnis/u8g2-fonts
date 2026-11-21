@@ -70,11 +70,15 @@ impl<D: FontData> FontReader<D> {
                 glyph.jump_by(self.header.array_offset_upper_a.into());
             }
 
-            while glyph.get_ch() as u16 != encoding {
-                glyph
-                    .jump_to_next()
-                    .then_some(())
-                    .ok_or(LookupError::GlyphNotFound(ch))?;
+            loop {
+                // The terminator of the chain is not a glyph, so it is checked first.
+                if glyph.is_at_terminator() {
+                    return Err(LookupError::GlyphNotFound(ch));
+                }
+                if u16::from(glyph.get_ch()) == encoding {
+                    break;
+                }
+                glyph.jump_to_next();
             }
 
             Ok(glyph.into_glyph_reader())

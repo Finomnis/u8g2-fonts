@@ -1,5 +1,7 @@
 mod util;
 
+use std::assert_matches;
+
 use embedded_graphics_core::{
     pixelcolor::Rgb888,
     prelude::{Dimensions, DrawTarget, OriginDimensions, Point, Size, WebColors},
@@ -8,7 +10,7 @@ use embedded_graphics_core::{
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    Error, Font, FontData, FontHeader, FontRenderer,
+    Error, Font, FontData, FontHeader, FontRenderer, LookupError,
 };
 
 use util::{FailingDrawTarget, TestDrawTarget};
@@ -1306,6 +1308,16 @@ fn whitespace_args_does_not_crash() {
             assert_eq!(dim, rendered_dim);
         });
     }
+}
+
+#[test]
+fn zero_byte_returns_glyph_not_found() {
+    let font = FontRenderer::new::<fonts::u8g2_font_ncenB14_tr>();
+    let position = Point::new(1, 1);
+    let vpos = VerticalPosition::Center;
+
+    let result = font.get_rendered_dimensions("\0", position, vpos);
+    assert_matches!(result, Err(LookupError::GlyphNotFound('\0')));
 }
 
 #[test]
