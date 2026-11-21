@@ -30,7 +30,8 @@ macro_rules! font_definitions {
             impl $crate::Font for $fontname {
                 type FontDataType = &'static [u8];
                 const HEADER: $crate::FontHeader = $crate::FontHeader::from_raw(Self::DATA);
-                const DATA: &'static [u8] = include_bytes!(concat!(stringify!($fontname), ".u8g2font"));
+                // Wrapped in `const` to avoid constant from being rendered in the docs
+                const DATA: &'static [u8] = const { include_bytes!(concat!(stringify!($fontname), ".u8g2font")) };
             }
         )*
     };

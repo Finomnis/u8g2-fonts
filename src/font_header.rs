@@ -1,8 +1,5 @@
 use crate::FontData;
 
-/// The size of the font header
-pub const U8G2_FONT_HEADER_SIZE: usize = 23;
-
 /// The parsed header of the font
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontHeader {
@@ -29,6 +26,9 @@ pub struct FontHeader {
 }
 
 impl FontHeader {
+    /// The size of the font header
+    pub const RAW_SIZE: usize = 23;
+
     /// Creates a [`FontHeader`] from raw header data
     pub const fn from_raw(data: &[u8]) -> Self {
         let this = Self {
@@ -61,7 +61,7 @@ impl FontHeader {
     }
     /// Reads a [`FontHeader`] from the start of [`FontData`].
     pub fn from_fontdata<D: FontData>(data: D) -> Option<Self> {
-        let mut header_raw = [0u8; U8G2_FONT_HEADER_SIZE];
+        let mut header_raw = [0u8; FontHeader::RAW_SIZE];
         for (pos, val) in header_raw.iter_mut().enumerate() {
             *val = data.get_byte(pos)?;
         }

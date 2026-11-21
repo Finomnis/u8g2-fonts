@@ -140,7 +140,7 @@ pub use error::Error;
 pub use error::LookupError;
 pub use font::Font;
 pub use font_data::FontData;
-pub use font_header::{FontHeader, U8G2_FONT_HEADER_SIZE};
+pub use font_header::FontHeader;
 pub use renderer::FontRenderer;
 
 #[cfg(feature = "embedded_graphics_textstyle")]
