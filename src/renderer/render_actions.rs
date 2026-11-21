@@ -49,7 +49,7 @@ pub fn compute_glyph_dimensions<D: FontData>(
     let size = glyph.size();
 
     let bounding_box = if size.width > 0 && size.height > 0 {
-        let renderer = glyph.create_renderer();
+        let renderer = glyph.into_renderer();
         Some(renderer.get_glyph_bounding_box(position))
     } else {
         None
@@ -126,7 +126,7 @@ where
     let size = glyph.size();
 
     let bounding_box = if size.width > 0 && size.height > 0 {
-        let renderer = glyph.create_renderer();
+        let renderer = glyph.into_renderer();
         Some(match color {
             FontColor::Transparent(color) => {
                 renderer.render_transparent(position, display, color)?

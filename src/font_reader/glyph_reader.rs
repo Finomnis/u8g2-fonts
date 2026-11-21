@@ -5,7 +5,7 @@ use crate::{
     FontData, FontHeader,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct GlyphReader<D> {
     cursor: Cursor<D>,
     bit_pos: u8,
@@ -101,7 +101,7 @@ impl<D: FontData> GlyphReader<D> {
         self.read_unsigned(self.bitcount_1)
     }
 
-    pub fn create_renderer(&self) -> GlyphRenderer<D> {
-        GlyphRenderer::new(self.clone())
+    pub fn into_renderer(self) -> GlyphRenderer<D> {
+        GlyphRenderer::new(self)
     }
 }
