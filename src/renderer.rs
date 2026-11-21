@@ -210,7 +210,6 @@ impl<D: FontData> FontRenderer<D> {
         // glyphs/lines, but makes it possible to implement the format_args case.
 
         let font = &self.font;
-
         if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
