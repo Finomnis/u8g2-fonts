@@ -51,6 +51,9 @@ impl<C, FD: FontData> U8g2TextStyle<C, FD> {
     }
 
     /// Creates a text style with transparent background from a given FontRenderer.
+    ///
+    /// Be aware that this sets `ignore_unknown_chars` to `true` because the
+    /// `embedded_graphics` traits do not have an error path for glyph-not-found.
     pub const fn from_renderer(renderer: FontRenderer<FD>, text_color: C) -> Self {
         Self {
             text_color: Some(text_color),
