@@ -296,7 +296,7 @@ mod textstyle_tests {
     }
 
     #[test]
-    fn custon_fontdata() {
+    fn custom_fontdata() {
         #[derive(Clone, Copy)]
         struct CustomFontData;
         impl FontData for CustomFontData {
