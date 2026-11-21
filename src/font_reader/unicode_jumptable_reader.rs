@@ -1,15 +1,17 @@
+use crate::{font_reader::cursor::Cursor, FontData};
+
 pub struct UnicodeJumptableEntry {
     jump_distance: u16,
     character_upper_limit: u16,
 }
 
-pub struct UnicodeJumptableReader {
-    data: &'static [u8],
+pub struct UnicodeJumptableReader<D> {
+    cursor: Cursor<D>,
 }
 
-impl UnicodeJumptableReader {
-    pub fn new(data: &'static [u8]) -> Self {
-        Self { data }
+impl<D: FontData> UnicodeJumptableReader<D> {
+    pub fn new(cursor: Cursor<D>) -> Self {
+        Self { cursor }
     }
 
     pub fn calculate_jump_offset(mut self, encoding: u16) -> Option<usize> {
@@ -34,8 +36,6 @@ impl UnicodeJumptableReader {
     }
 
     fn next_byte(&mut self) -> Option<u8> {
-        let value = *self.data.first()?;
-        self.data = self.data.get(1..)?;
-        Some(value)
+        self.cursor.next()
     }
 }

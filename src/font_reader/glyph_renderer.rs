@@ -4,17 +4,15 @@ use embedded_graphics_core::{
     Pixel,
 };
 
-use crate::{font_reader::glyph_reader::GlyphReader, Error};
+use crate::{font_reader::glyph_reader::GlyphReader, Error, FontData};
 
-pub struct GlyphRenderer {
-    glyph: GlyphReader,
+pub struct GlyphRenderer<D> {
+    glyph: GlyphReader<D>,
 }
 
-impl GlyphRenderer {
-    pub fn new(glyph: &GlyphReader) -> Self {
-        Self {
-            glyph: glyph.clone(),
-        }
+impl<D: FontData> GlyphRenderer<D> {
+    pub fn new(glyph: GlyphReader<D>) -> Self {
+        Self { glyph }
     }
 
     pub fn get_glyph_bounding_box(&self, position: Point) -> Rectangle {

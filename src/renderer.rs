@@ -10,7 +10,7 @@ use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
     utils::{combine_bounding_boxes, HorizontalRenderedDimensions},
-    Content, Error, Font, LookupError,
+    Content, Error, Font, FontData, FontHeader, LookupError,
 };
 
 use self::render_actions::{compute_glyph_dimensions, compute_horizontal_offset, render_glyph};
@@ -19,23 +19,25 @@ pub mod render_actions;
 
 /// Renders text of a specific [`Font`] to a [`DrawTarget`].
 #[derive(Debug, Clone)]
-pub struct FontRenderer {
-    font: FontReader,
+pub struct FontRenderer<D: FontData = &'static [u8]> {
+    font: FontReader<D>,
 }
 
-impl FontRenderer {
+impl<D: FontData> FontRenderer<D> {
     /// Creates a new instance of a font renderer.
     ///
     /// # Generics
     ///
     /// * `FONT` - the font to render. See [fonts](crate::fonts) for a list of available fonts
     ///   and refer to [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) for a more detailed description of each font.
-    pub const fn new<FONT: Font>() -> Self {
+    pub const fn new<FONT: Font<FontDataType = D>>() -> Self {
         Self {
             font: FontReader::new::<FONT>(),
         }
     }
+}
 
+impl<'a> FontRenderer<&'a [u8]> {
     /// Creates a new instance of a font renderer from custom font data.
     ///
     /// # Arguments
@@ -46,9 +48,24 @@ impl FontRenderer {
     ///
     /// Panics if `font_data` is not valid U8g2 font data, including if it is
     /// shorter than the required U8g2 font header.
-    pub const fn new_from_raw_data(font_data: &'static [u8]) -> Self {
+    pub const fn new_from_raw_data(font_data: &'a [u8]) -> Self {
         Self {
-            font: FontReader::new_from_raw_data(font_data),
+            font: FontReader::new_from_raw_data(FontHeader::from_raw(font_data), font_data),
+        }
+    }
+}
+
+impl<D: FontData> FontRenderer<D> {
+    /// Creates a new instance of a font renderer from custom font data.
+    ///
+    /// # Arguments
+    ///
+    /// * `header` - the parsed header. Must match `data`, otherwise wild things happen.
+    /// * `data` - the font to render. Must adhere to the [U8g2 font format](https://github.com/olikraus/u8g2/wiki/u8g2fontformat).
+    ///
+    pub const fn new_from_parts(header: FontHeader, data: D) -> Self {
+        Self {
+            font: FontReader::new_from_raw_data(header, data),
         }
     }
 
@@ -111,7 +128,7 @@ impl FontRenderer {
         Display: DrawTarget,
     {
         let font = &self.font;
-        if color.has_background() && !font.supports_background_color {
+        if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
 
@@ -193,7 +210,7 @@ impl FontRenderer {
         // glyphs/lines, but makes it possible to implement the format_args case.
 
         let font = &self.font;
-        if color.has_background() && !font.supports_background_color {
+        if color.has_background() && !font.header.supports_background_color {
             return Err(Error::BackgroundColorNotSupported);
         }
 
@@ -352,14 +369,14 @@ impl FontRenderer {
     ///
     /// Usually a positive number.
     pub const fn get_ascent(&self) -> i8 {
-        self.font.ascent
+        self.font.header.ascent
     }
 
     /// The descent of the font.
     ///
     /// *IMPORTANT*: This is usually a *negative* number.
     pub const fn get_descent(&self) -> i8 {
-        self.font.descent
+        self.font.header.descent
     }
 
     /// The maximum possible bounding box of all glyphs if they were rendered with
@@ -368,14 +385,14 @@ impl FontRenderer {
         let y_offset = compute_vertical_offset_from_static_newlines(&self.font, vertical_pos, 0);
         Rectangle {
             top_left: Point::new(
-                self.font.font_bounding_box_x_offset as i32,
+                self.font.header.font_bounding_box_x_offset as i32,
                 y_offset
-                    - (self.font.font_bounding_box_height as i32
-                        + self.font.font_bounding_box_y_offset as i32),
+                    - (self.font.header.font_bounding_box_height as i32
+                        + self.font.header.font_bounding_box_y_offset as i32),
             ),
             size: Size::new(
-                self.font.font_bounding_box_width as u32,
-                self.font.font_bounding_box_height as u32,
+                self.font.header.font_bounding_box_width as u32,
+                self.font.header.font_bounding_box_height as u32,
             ),
         }
     }
@@ -385,6 +402,16 @@ impl FontRenderer {
     /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
     pub const fn get_default_line_height(&self) -> u32 {
         self.font.get_default_line_height() as u32
+    }
+
+    /// The currently used line height.
+    ///
+    /// Equal to [`get_default_line_height`](Self::get_default_line_height) unless overridden
+    /// by [`with_line_height`](Self::with_line_height).
+    ///
+    /// The line height is defined as the vertical distance between the baseline of two adjacent lines in pixels.
+    pub const fn get_line_height(&self) -> u32 {
+        self.font.get_line_height()
     }
 }
 
@@ -408,6 +435,13 @@ mod tests {
         let renderer_from_font = FontRenderer::new::<crate::fonts::u8g2_font_u8glib_4_tf>();
         let renderer_from_raw_data =
             FontRenderer::new_from_raw_data(crate::fonts::u8g2_font_u8glib_4_tf::DATA);
-        assert_eq!(renderer_from_font.font, renderer_from_raw_data.font);
+        assert_eq!(
+            renderer_from_font.font.data,
+            renderer_from_raw_data.font.data
+        );
+        assert_eq!(
+            renderer_from_font.font.header,
+            renderer_from_raw_data.font.header
+        );
     }
 }

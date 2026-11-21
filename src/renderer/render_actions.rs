@@ -4,7 +4,7 @@ use crate::{
     font_reader::FontReader,
     types::{FontColor, HorizontalAlignment, RenderedDimensions},
     utils::HorizontalRenderedDimensions,
-    Error, LookupError,
+    Error, FontData, LookupError,
 };
 
 pub fn compute_horizontal_offset(
@@ -33,10 +33,10 @@ pub fn compute_horizontal_offset(
     }
 }
 
-pub fn compute_glyph_dimensions(
+pub fn compute_glyph_dimensions<D: FontData>(
     ch: char,
     position: Point,
-    font: &FontReader,
+    font: &FontReader<D>,
 ) -> Result<RenderedDimensions, LookupError> {
     let glyph = match font.try_retrieve_glyph_data(ch)? {
         Some(g) => g,
@@ -49,7 +49,7 @@ pub fn compute_glyph_dimensions(
     let size = glyph.size();
 
     let bounding_box = if size.width > 0 && size.height > 0 {
-        let renderer = glyph.create_renderer();
+        let renderer = glyph.into_renderer();
         Some(renderer.get_glyph_bounding_box(position))
     } else {
         None
@@ -61,10 +61,10 @@ pub fn compute_glyph_dimensions(
     })
 }
 
-pub fn compute_horizontal_glyph_dimensions(
+pub fn compute_horizontal_glyph_dimensions<D: FontData>(
     ch: char,
     position_x: i32,
-    font: &FontReader,
+    font: &FontReader<D>,
 ) -> Result<HorizontalRenderedDimensions, LookupError> {
     let glyph = match font.try_retrieve_glyph_data(ch)? {
         Some(g) => g,
@@ -84,10 +84,10 @@ pub fn compute_horizontal_glyph_dimensions(
     })
 }
 
-pub fn compute_horizontal_line_dimensions(
+pub fn compute_horizontal_line_dimensions<D: FontData>(
     line: &str,
     position_x: i32,
-    font: &FontReader,
+    font: &FontReader<D>,
 ) -> Result<HorizontalRenderedDimensions, LookupError> {
     let mut line_dimensions = HorizontalRenderedDimensions {
         advance: position_x,
@@ -105,11 +105,11 @@ pub fn compute_horizontal_line_dimensions(
     Ok(line_dimensions)
 }
 
-pub fn render_glyph<Display>(
+pub fn render_glyph<Display, D: FontData>(
     ch: char,
     position: Point,
     color: FontColor<Display::Color>,
-    font: &FontReader,
+    font: &FontReader<D>,
     display: &mut Display,
 ) -> Result<RenderedDimensions, Error<Display::Error>>
 where
@@ -126,7 +126,7 @@ where
     let size = glyph.size();
 
     let bounding_box = if size.width > 0 && size.height > 0 {
-        let renderer = glyph.create_renderer();
+        let renderer = glyph.into_renderer();
         Some(match color {
             FontColor::Transparent(color) => {
                 renderer.render_transparent(position, display, color)?

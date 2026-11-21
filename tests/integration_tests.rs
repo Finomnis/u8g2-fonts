@@ -8,7 +8,7 @@ use embedded_graphics_core::{
 use u8g2_fonts::{
     fonts,
     types::{FontColor, HorizontalAlignment, RenderedDimensions, VerticalPosition},
-    Error, FontRenderer,
+    Error, Font, FontData, FontHeader, FontRenderer,
 };
 
 use util::{FailingDrawTarget, TestDrawTarget};
@@ -1015,6 +1015,40 @@ fn aligned_args_with_ignore_unknown() {
                 }
             }
         },
+    );
+}
+
+#[test]
+fn custom_fontdata() {
+    #[derive(Clone, Copy)]
+    struct CustomFontData;
+    impl FontData for CustomFontData {
+        fn get_byte(&self, offset: usize) -> Option<u8> {
+            fonts::u8g2_font_ncenB14_tr::DATA.get(offset).copied()
+        }
+    }
+    let dimensions =
+        TestDrawTarget::expect_image(std::include_bytes!("assets/render_text.png"), |display| {
+            FontRenderer::new_from_parts(
+                FontHeader::from_fontdata(CustomFontData).unwrap(),
+                CustomFontData,
+            )
+            .render(
+                "Hello World!",
+                Point::new(2, 15),
+                VerticalPosition::default(),
+                FontColor::Transparent(Rgb888::new(237, 28, 36)),
+                display,
+            )
+            .unwrap()
+        });
+
+    assert_eq!(
+        dimensions,
+        RenderedDimensions {
+            advance: Point::new(121, 0),
+            bounding_box: Some(Rectangle::new(Point::new(2, 1), Size::new(120, 14)))
+        }
     );
 }
 

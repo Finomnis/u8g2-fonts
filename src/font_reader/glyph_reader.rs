@@ -1,13 +1,13 @@
 use embedded_graphics_core::prelude::{Point, Size};
 
 use crate::{
-    font_reader::{glyph_renderer::GlyphRenderer, FontReader},
-    utils::DebugIgnore,
+    font_reader::{cursor::Cursor, glyph_renderer::GlyphRenderer},
+    FontData, FontHeader,
 };
 
-#[derive(Clone, Debug)]
-pub struct GlyphReader {
-    data: DebugIgnore<&'static [u8]>,
+#[derive(Debug)]
+pub struct GlyphReader<D> {
+    cursor: Cursor<D>,
     bit_pos: u8,
     current_byte: u8,
     glyph_width: u8,
@@ -19,10 +19,10 @@ pub struct GlyphReader {
     bitcount_1: u8,
 }
 
-impl GlyphReader {
-    pub fn new(data: &'static [u8], font: &FontReader) -> Self {
+impl<D: FontData> GlyphReader<D> {
+    pub(crate) fn new(cursor: Cursor<D>, header: &FontHeader) -> Self {
         let mut this = Self {
-            data: DebugIgnore(data),
+            cursor,
             // Start at 8 to mark current_byte as invalid
             bit_pos: 8,
             current_byte: 0,
@@ -31,16 +31,16 @@ impl GlyphReader {
             offset_x: 0,
             offset_y: 0,
             advance: 0,
-            bitcount_0: font.m0,
-            bitcount_1: font.m1,
+            bitcount_0: header.m0,
+            bitcount_1: header.m1,
         };
 
-        this.glyph_width = this.read_unsigned(font.bitcnt_w);
-        this.glyph_height = this.read_unsigned(font.bitcnt_h);
+        this.glyph_width = this.read_unsigned(header.bitcnt_w);
+        this.glyph_height = this.read_unsigned(header.bitcnt_h);
 
-        this.offset_x = this.read_signed(font.bitcnt_x);
-        this.offset_y = this.read_signed(font.bitcnt_y);
-        this.advance = this.read_signed(font.bitcnt_d);
+        this.offset_x = this.read_signed(header.bitcnt_x);
+        this.offset_y = this.read_signed(header.bitcnt_y);
+        this.advance = this.read_signed(header.bitcnt_d);
 
         this
     }
@@ -54,8 +54,7 @@ impl GlyphReader {
 
         // If necessary, fetch next byte
         if bit_end >= 8 {
-            let value2 = *self.data.first().unwrap();
-            *self.data = self.data.get(1..).unwrap();
+            let value2 = self.cursor.next().unwrap();
             bit_end -= 8;
             self.current_byte = value2;
 
@@ -102,7 +101,7 @@ impl GlyphReader {
         self.read_unsigned(self.bitcount_1)
     }
 
-    pub fn create_renderer(&self) -> GlyphRenderer {
+    pub fn into_renderer(self) -> GlyphRenderer<D> {
         GlyphRenderer::new(self)
     }
 }

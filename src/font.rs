@@ -1,11 +1,17 @@
+use crate::{FontData, FontHeader};
+
 /// An abstract [U8g2](https://github.com/olikraus/u8g2/wiki/fntlistall) font interface.
 ///
 /// Contains all information to create a [`FontRenderer`](crate::FontRenderer).
 ///
 /// Implemented by [all available fonts](crate::fonts).
 pub trait Font {
-    #[doc(hidden)]
-    const DATA: &'static [u8];
+    /// The font data backend
+    type FontDataType: FontData;
+    /// The parsed font header
+    const HEADER: FontHeader;
+    /// The actual font data
+    const DATA: Self::FontDataType;
 }
 
 macro_rules! font_definitions {
@@ -22,7 +28,10 @@ macro_rules! font_definitions {
 
             $(#[$attr])*
             impl $crate::Font for $fontname {
-                const DATA: &'static [u8] = include_bytes!(concat!(stringify!($fontname), ".u8g2font"));
+                type FontDataType = &'static [u8];
+                const HEADER: $crate::FontHeader = $crate::FontHeader::from_raw(Self::DATA);
+                // Wrapped in `const` to avoid constant from being rendered in the docs
+                const DATA: &'static [u8] = const { include_bytes!(concat!(stringify!($fontname), ".u8g2font")) };
             }
         )*
     };

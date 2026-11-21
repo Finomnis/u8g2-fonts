@@ -23,7 +23,7 @@ mod textstyle_tests {
     use u8g2_fonts::{
         fonts,
         types::{HorizontalAlignment, VerticalPosition},
-        Error, U8g2TextStyle,
+        Error, Font, FontData, FontHeader, FontRenderer, U8g2TextStyle,
     };
 
     use util::{FailingDrawTarget, TestDrawTarget};
@@ -292,6 +292,42 @@ mod textstyle_tests {
 
                 text.draw(display).ok();
             },
+        );
+    }
+
+    #[test]
+    fn custom_fontdata() {
+        #[derive(Clone, Copy)]
+        struct CustomFontData;
+        impl FontData for CustomFontData {
+            fn get_byte(&self, offset: usize) -> Option<u8> {
+                fonts::u8g2_font_10x20_mf::DATA.get(offset).copied()
+            }
+        }
+        let dimensions = TestDrawTarget::expect_image(
+            std::include_bytes!("assets/render_text_background.png"),
+            |display| {
+                let renderer = FontRenderer::new_from_parts(
+                    FontHeader::from_fontdata(CustomFontData).unwrap(),
+                    CustomFontData,
+                );
+                let mut character_style =
+                    U8g2TextStyle::from_renderer(renderer, Rgb888::new(255, 255, 254));
+
+                character_style.set_text_color(Some(Rgb888::new(237, 28, 36)));
+                character_style.set_background_color(Some(Rgb888::new(1, 1, 1)));
+
+                let text = Text::new("Hello, W0rld!", Point::new(2, 19), character_style);
+
+                text.draw(display).unwrap();
+
+                text.bounding_box()
+            },
+        );
+
+        assert_eq!(
+            dimensions,
+            Rectangle::new(Point::new(2, 4), Size::new(130, 20))
         );
     }
 }

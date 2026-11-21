@@ -1,6 +1,6 @@
 use crate::{
     font_reader::FontReader, renderer::render_actions::compute_horizontal_glyph_dimensions,
-    utils::HorizontalRenderedDimensions, Content, LookupError,
+    utils::HorizontalRenderedDimensions, Content, FontData, LookupError,
 };
 
 use super::LineDimensionsIterator;
@@ -36,7 +36,10 @@ pub struct CharLineDimensionsIterator {
 }
 
 impl LineDimensionsIterator for CharLineDimensionsIterator {
-    fn next(&mut self, font: &FontReader) -> Result<HorizontalRenderedDimensions, LookupError> {
+    fn next<D: FontData>(
+        &mut self,
+        font: &FontReader<D>,
+    ) -> Result<HorizontalRenderedDimensions, LookupError> {
         self.ch.take().map_or_else(
             || Ok(HorizontalRenderedDimensions::empty()),
             |ch| compute_horizontal_glyph_dimensions(ch, 0, font),

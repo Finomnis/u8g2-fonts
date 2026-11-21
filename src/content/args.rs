@@ -4,7 +4,7 @@ use crate::{
     font_reader::FontReader,
     renderer::render_actions::compute_horizontal_glyph_dimensions,
     utils::{FormatArgsReader, FormatArgsReaderInfallible, HorizontalRenderedDimensions},
-    Content, LookupError,
+    Content, FontData, LookupError,
 };
 
 use super::LineDimensionsIterator;
@@ -57,10 +57,10 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
         }
     }
 
-    pub fn regenerate_buffer(
+    pub fn regenerate_buffer<D: FontData>(
         &mut self,
         range_start: usize,
-        font: &FontReader,
+        font: &FontReader<D>,
     ) -> Result<(), LookupError> {
         let mut line_dimensions = HorizontalRenderedDimensions::empty();
         let mut line_num: usize = 0;
@@ -114,9 +114,9 @@ impl<'a> ArgsLineDimensionsIterator<'a> {
 }
 
 impl LineDimensionsIterator for ArgsLineDimensionsIterator<'_> {
-    fn next(
+    fn next<D: FontData>(
         &mut self,
-        font: &crate::font_reader::FontReader,
+        font: &FontReader<D>,
     ) -> Result<HorizontalRenderedDimensions, LookupError> {
         let next_line = self.next_line;
         self.next_line += 1;

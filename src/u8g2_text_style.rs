@@ -10,7 +10,7 @@ use embedded_graphics_core::{
 
 use crate::{
     types::{FontColor, VerticalPosition},
-    Error, Font, FontRenderer,
+    Error, Font, FontData, FontRenderer,
 };
 
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
@@ -29,18 +29,18 @@ impl From<Baseline> for VerticalPosition {
 ///
 #[cfg_attr(docsrs, doc(cfg(feature = "embedded_graphics_textstyle")))]
 #[derive(Debug, Clone)]
-pub struct U8g2TextStyle<C> {
+pub struct U8g2TextStyle<C, FD: FontData = &'static [u8]> {
     /// Text color.
     pub text_color: Option<C>,
     /// Background color.
     pub background_color: Option<C>,
     /// The font renderer
-    font: FontRenderer,
+    font: FontRenderer<FD>,
 }
 
-impl<C> U8g2TextStyle<C> {
+impl<C, FD: FontData> U8g2TextStyle<C, FD> {
     /// Creates a text style with transparent background.
-    pub const fn new<F: Font>(font: F, text_color: C) -> Self {
+    pub const fn new<F: Font<FontDataType = FD>>(font: F, text_color: C) -> Self {
         // font is a ZST, so it's safe to forget it
         core::mem::forget(font);
         Self {
@@ -49,9 +49,21 @@ impl<C> U8g2TextStyle<C> {
             font: FontRenderer::new::<F>().with_ignore_unknown_chars(true),
         }
     }
+
+    /// Creates a text style with transparent background from a given FontRenderer.
+    ///
+    /// Be aware that this sets `ignore_unknown_chars` to `true` because the
+    /// `embedded_graphics` traits do not have an error path for glyph-not-found.
+    pub const fn from_renderer(renderer: FontRenderer<FD>, text_color: C) -> Self {
+        Self {
+            text_color: Some(text_color),
+            background_color: None,
+            font: renderer.with_ignore_unknown_chars(true),
+        }
+    }
 }
 
-impl<C> TextRenderer for U8g2TextStyle<C>
+impl<C, FD: FontData> TextRenderer for U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
@@ -145,14 +157,14 @@ where
     }
 
     fn line_height(&self) -> u32 {
-        self.font.get_default_line_height()
+        self.font.get_line_height()
     }
 }
 
 /// Note that `U8g2TextStyle` does not support underline or strikethrough,
 /// so [`set_underline_color()`](CharacterStyle::set_underline_color) and
 /// [`set_strikethrough_color()`](CharacterStyle::set_strikethrough_color()) does nothing.
-impl<C> CharacterStyle for U8g2TextStyle<C>
+impl<C, FD: FontData> CharacterStyle for U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
@@ -167,7 +179,7 @@ where
     }
 }
 
-impl<C> TextRenderer for &U8g2TextStyle<C>
+impl<C, FD: FontData> TextRenderer for &U8g2TextStyle<C, FD>
 where
     C: PixelColor,
 {
