@@ -20,13 +20,3 @@ impl FontData for &[u8] {
         self.get(offset).copied()
     }
 }
-
-impl<T> FontData for &T
-where
-    T: FontData,
-{
-    #[inline]
-    fn get_byte(&self, offset: usize) -> Option<u8> {
-        T::get_byte(self, offset)
-    }
-}
