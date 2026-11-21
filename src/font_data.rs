@@ -1,4 +1,4 @@
-/// Provides random-access access to font data.
+/// Provides random access to font data.
 ///
 /// Implementations must provide infallible reads for valid offsets.
 /// Storage or I/O failures must not be represented by `None`;
