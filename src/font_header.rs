@@ -3,7 +3,9 @@ use crate::FontData;
 /// The parsed header of the font
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FontHeader {
-    pub(crate) glyph_count: u8,
+    // Unused by us or even u8g2 itself;
+    // overflows for many fonts so isn't even valid
+    // pub(crate) glyph_count: u8,
     pub(crate) supports_background_color: bool,
     pub(crate) m0: u8,
     pub(crate) m1: u8,
@@ -18,8 +20,9 @@ pub struct FontHeader {
     pub(crate) font_bounding_box_y_offset: i8,
     pub(crate) ascent: i8,
     pub(crate) descent: i8,
-    pub(crate) ascent_of_parentheses: i8,
-    pub(crate) descent_of_parentheses: i8,
+    // Unused as of now
+    // pub(crate) ascent_of_parentheses: i8,
+    // pub(crate) descent_of_parentheses: i8,
     pub(crate) array_offset_upper_a: u16,
     pub(crate) array_offset_lower_a: u16,
     pub(crate) array_offset_0x0100: u16,
@@ -32,7 +35,7 @@ impl FontHeader {
     /// Creates a [`FontHeader`] from raw header data
     pub const fn from_raw(data: &[u8]) -> Self {
         let this = Self {
-            glyph_count: data[0],
+            // glyph_count: data[0],
             supports_background_color: data[1] != 0,
             m0: data[2],
             m1: data[3],
@@ -47,8 +50,8 @@ impl FontHeader {
             font_bounding_box_y_offset: data[12] as i8,
             ascent: data[13] as i8,
             descent: data[14] as i8,
-            ascent_of_parentheses: data[15] as i8,
-            descent_of_parentheses: data[16] as i8,
+            // ascent_of_parentheses: data[15] as i8,
+            // descent_of_parentheses: data[16] as i8,
             array_offset_upper_a: u16::from_be_bytes([data[17], data[18]]),
             array_offset_lower_a: u16::from_be_bytes([data[19], data[20]]),
             array_offset_0x0100: u16::from_be_bytes([data[21], data[22]]),
