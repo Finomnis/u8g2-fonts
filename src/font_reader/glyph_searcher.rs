@@ -20,6 +20,11 @@ impl<'a, const CHAR_WIDTH: usize, D: FontData> GlyphSearcher<'a, CHAR_WIDTH, D> 
         self.cursor.peek(CHAR_WIDTH).unwrap()
     }
 
+    /// Returns whether the searcher points at the terminator of the glyph list.
+    pub fn is_at_terminator(&self) -> bool {
+        self.get_offset() == 0
+    }
+
     pub fn jump_to_next(&mut self) -> bool {
         let offset = self.get_offset();
         if offset == 0 {

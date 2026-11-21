@@ -70,7 +70,8 @@ impl<D: FontData> FontReader<D> {
                 glyph.jump_by(self.header.array_offset_upper_a.into());
             }
 
-            while glyph.get_ch() as u16 != encoding {
+            // Don't break if we are at a terminator, that will fall into jump_to_next == false.
+            while glyph.get_ch() as u16 != encoding || glyph.is_at_terminator() {
                 glyph
                     .jump_to_next()
                     .then_some(())
