@@ -148,7 +148,8 @@ fn main() -> Result<()> {
         .wrap_err("Error while writing mod.rs!")?;
 
     for (name, length) in font_names_and_lengths {
-        if length > usize::from(u16::MAX) {
+        // On 16-bit targets, no object may exceed `isize::MAX` (32767) bytes
+        if length > i16::MAX as usize {
             write!(
                 fonts_file,
                 "    #[cfg(not(target_pointer_width = \"16\"))]\n"
