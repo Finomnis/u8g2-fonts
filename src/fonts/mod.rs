@@ -232,6 +232,7 @@ crate::font::font_definitions!(
     u8g2_font_t0_11_mr,
     u8g2_font_t0_11_mn,
     u8g2_font_t0_11_me,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_t0_11_t_all,
     u8g2_font_t0_11_t_symbol,
     u8g2_font_t0_11b_tf,
@@ -487,6 +488,7 @@ crate::font::font_definitions!(
     u8g2_font_open_iconic_thing_8x_t,
     u8g2_font_open_iconic_weather_8x_t,
     u8g2_font_open_iconic_www_8x_t,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_streamline_all_t,
     u8g2_font_streamline_building_real_estate_t,
     u8g2_font_streamline_business_t,
@@ -1167,6 +1169,7 @@ crate::font::font_definitions!(
     u8g2_font_unifont_t_weather,
     u8g2_font_unifont_t_chinese1,
     u8g2_font_unifont_t_chinese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_chinese3,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_gb2312,
@@ -1174,6 +1177,7 @@ crate::font::font_definitions!(
     u8g2_font_unifont_t_gb2312a,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_gb2312b,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_japanese1,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_unifont_t_japanese2,
@@ -1246,6 +1250,7 @@ crate::font::font_definitions!(
     u8g2_font_boutique_bitmap_7x7_t_chinese3,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_gb2312,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_gb2312a,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_7x7_t_gb2312b,
@@ -1280,38 +1285,52 @@ crate::font::font_definitions!(
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_boutique_bitmap_9x9_bold_t_gb2312b,
     u8g2_font_b10_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b10_t_japanese2,
     u8g2_font_b10_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b10_b_t_japanese2,
     u8g2_font_f10_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f10_t_japanese2,
     u8g2_font_f10_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f10_b_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_t_japanese2,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_t_japanese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_b_t_japanese2,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b12_b_t_japanese3,
     u8g2_font_f12_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f12_t_japanese2,
     u8g2_font_f12_b_t_japanese1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f12_b_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_t_japanese1,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_t_japanese2,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_t_japanese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_b_t_japanese1,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_b_t_japanese2,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_b16_b_t_japanese3,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_t_japanese1,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_t_japanese2,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_b_t_japanese1,
     #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_f16_b_t_japanese2,
@@ -2001,8 +2020,10 @@ crate::font::font_definitions!(
     u8g2_font_logisoso78_tn,
     u8g2_font_logisoso92_tn,
     u8g2_font_gulim11_t_korean1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_gulim11_t_korean2,
     u8g2_font_gulim12_t_korean1,
+    #[cfg(not(target_pointer_width = "16"))]
     u8g2_font_gulim12_t_korean2,
     u8g2_font_gulim14_t_korean1,
     #[cfg(not(target_pointer_width = "16"))]
